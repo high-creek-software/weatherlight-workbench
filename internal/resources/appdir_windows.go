@@ -1,5 +1,11 @@
 package resources
 
+import (
+	"log"
+	"os"
+	"path/filepath"
+)
+
 func getApplicationDirectory() string {
 
 	dir, err := os.UserHomeDir()
