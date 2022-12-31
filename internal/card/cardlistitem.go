@@ -15,12 +15,13 @@ type CardListItem struct {
 	card *cards.Card
 	ico  fyne.Resource
 
-	icon *widget.Icon
-	name *widget.Label
-	cost *widget.Label
+	icon        *widget.Icon
+	name        *widget.Label
+	cost        *widget.Label
+	ManaSymbols []*widget.Icon
 }
 
-func NewCardListITem(card *cards.Card) *CardListItem {
+func NewCardListItem(card *cards.Card) *CardListItem {
 	cli := &CardListItem{card: card}
 	cli.ExtendBaseWidget(cli)
 
@@ -47,5 +48,15 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	cli.cost = cost
 
 	cont := container.NewGridWithColumns(4, cli.icon, cli.name, layout.NewSpacer(), cli.cost)
+
+	//sets := cli.card.ParseManaCost()
+	//if len(sets) > 0 {
+	//	for idx := 0; idx < len(sets[0]); idx++ {
+	//		mIcon := widget.NewIcon(nil)
+	//		cli.ManaSymbols = append(cli.ManaSymbols, mIcon)
+	//		cont.Add(mIcon)
+	//	}
+	//}
+
 	return widget.NewSimpleRenderer(cont)
 }

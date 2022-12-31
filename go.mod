@@ -5,8 +5,8 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	gitlab.com/high-creek-software/ansel v0.0.0-20221231134515-37c1e3998823
-	gitlab.com/high-creek-software/goscryfall v0.0.0-20221231134554-62d78c2d2954
+	gitlab.com/high-creek-software/ansel v0.0.0-20221231205921-24ea1e0a84e5
+	gitlab.com/high-creek-software/goscryfall v0.0.0-20221231205955-953ed77521e7
 )
 
 require (
@@ -24,6 +24,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect

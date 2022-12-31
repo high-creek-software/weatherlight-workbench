@@ -15,6 +15,7 @@ const (
 	appName = "mtgstudio"
 	sets    = "sets"
 	cards   = "cards"
+	symbols = "symbol"
 )
 
 // Manager handles the file access for the application
@@ -22,6 +23,7 @@ type Manager struct {
 	applicationDirectory string
 	setsDirectory        string
 	cardsDirectory       string
+	symbolsDirectory     string
 }
 
 func NewManager() *Manager {
@@ -37,6 +39,11 @@ func NewManager() *Manager {
 	}
 	m.cardsDirectory = filepath.Join(m.applicationDirectory, cards)
 	err = os.Mkdir(m.cardsDirectory, os.ModePerm)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		log.Fatal(err)
+	}
+	m.symbolsDirectory = filepath.Join(m.applicationDirectory, symbols)
+	err = os.Mkdir(m.symbolsDirectory, os.ModePerm)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
@@ -67,6 +74,25 @@ func (m *Manager) LoadCardImage(uri string) ([]byte, error) {
 	res := path.Base(uri)
 	reconfiguredName := m.reconfigureName(res)
 	resourcePath := filepath.Join(m.cardsDirectory, reconfiguredName)
+	data, err := os.ReadFile(resourcePath)
+	if err == nil {
+		return data, nil
+	}
+
+	data, err = requestURL(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	os.WriteFile(resourcePath, data, os.ModePerm)
+
+	return data, nil
+}
+
+func (m *Manager) LoadSymbolImage(uri string) ([]byte, error) {
+	res := path.Base(uri)
+	reconfiguredName := m.reconfigureName(res)
+	resourcePath := filepath.Join(m.symbolsDirectory, reconfiguredName)
 	data, err := os.ReadFile(resourcePath)
 	if err == nil {
 		return data, nil
