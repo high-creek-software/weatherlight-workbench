@@ -5,7 +5,7 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	gitlab.com/high-creek-software/ansel v0.0.0-20221230182750-9a8dd632ac68
+	gitlab.com/high-creek-software/ansel v0.0.0-20221231134515-37c1e3998823
 	gitlab.com/high-creek-software/goscryfall v0.0.0-20221231134554-62d78c2d2954
 )
 
