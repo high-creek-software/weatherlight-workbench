@@ -15,7 +15,7 @@ const (
 	appName = "mtgstudio"
 	sets    = "sets"
 	cards   = "cards"
-	symbols = "symbol"
+	symbols = "symbols"
 )
 
 // Manager handles the file access for the application

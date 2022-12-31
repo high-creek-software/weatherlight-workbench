@@ -35,7 +35,7 @@ func NewMtgStudio() *MtgStudio {
 	mtgs.window.Resize(fyne.NewSize(1200, 700))
 	mtgs.manager = resources.NewManager()
 	mtgs.client = goscryfall.NewClient()
-	mtgs.symbolRepo = symbol.NewSymbolRepo(mtgs.client)
+	mtgs.symbolRepo = symbol.NewSymbolRepo(mtgs.client, mtgs.manager.LoadSymbolImage)
 
 	mtgs.setupBody()
 

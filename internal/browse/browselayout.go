@@ -32,7 +32,7 @@ type BrowseLayout struct {
 }
 
 func NewBrowseLayout(manager *resources.Manager, client *goscryfall.Client, symbolRepo symbol.SymbolRepo, n notifier.Notifier, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
-	bl := &BrowseLayout{manager: manager, client: client, notifier: n}
+	bl := &BrowseLayout{manager: manager, client: client, notifier: n, symbolRepo: symbolRepo}
 
 	bl.setAdapter = set.NewSetAdapter(
 		ansel.NewAnsel[string](100, ansel.SetLoadedCallback[string](updateSetIcon), ansel.SetLoader[string](bl.manager.LoadSetIcon)),

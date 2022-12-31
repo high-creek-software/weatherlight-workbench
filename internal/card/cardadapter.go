@@ -48,14 +48,17 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 	listItem.UpdateCard(&card)
 	ca.loader.Load(card.Id, card.ImageUris.ArtCrop, listItem)
 
-	//sets := card.ParseManaCost()
-	//if len(sets) > 0 {
-	//	for idx, s := range sets[0] {
-	//		if fullSymbol := ca.symbolRepo.Get(s); fullSymbol != nil {
-	//			ca.symbolLoader.Load(s, fullSymbol.SvgUri, listItem.ManaSymbols[idx])
-	//		}
-	//	}
-	//}
+	sets := card.ParseManaCost()
+	if len(sets) > 0 {
+		cost := sets[0]
+		var imgs []fyne.Resource
+		for _, c := range cost {
+			func(name string) {
+				imgs = append(imgs, ca.symbolRepo.Image(name))
+			}(c)
+		}
+		listItem.SetManaCost(imgs)
+	}
 }
 
 func (ca *CardAdapter) Item(id widget.ListItemID) cards.Card {
