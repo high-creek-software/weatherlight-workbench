@@ -4,7 +4,9 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 )
 
 // Application data directory: https://hub.jmonkeyengine.org/t/appdata-equivalent-on-macos-and-linux/43735
@@ -18,6 +20,8 @@ const (
 // Manager handles the file access for the application
 type Manager struct {
 	applicationDirectory string
+	setsDirectory        string
+	cardsDirectory       string
 }
 
 func NewManager() *Manager {
@@ -26,18 +30,65 @@ func NewManager() *Manager {
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
-	err = os.Mkdir(filepath.Join(m.applicationDirectory, sets), os.ModePerm)
-	if err != nil {
+	m.setsDirectory = filepath.Join(m.applicationDirectory, sets)
+	err = os.Mkdir(m.setsDirectory, os.ModePerm)
+	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
-	err = os.Mkdir(filepath.Join(m.applicationDirectory, cards), os.ModePerm)
-	if err != nil {
+	m.cardsDirectory = filepath.Join(m.applicationDirectory, cards)
+	err = os.Mkdir(m.cardsDirectory, os.ModePerm)
+	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
 	return m
 }
 
-func (m *Manager) LoadSetIcon(path string) ([]byte, error) {
+func (m *Manager) LoadSetIcon(uri string) ([]byte, error) {
 
-	return nil, nil
+	res := path.Base(uri)
+	reconfiguredName := m.reconfigureName(res)
+	resourcePath := filepath.Join(m.setsDirectory, reconfiguredName)
+	data, err := os.ReadFile(resourcePath)
+	if err == nil {
+		return data, nil
+	}
+
+	data, err = requestURL(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	os.WriteFile(resourcePath, data, os.ModePerm)
+
+	return data, nil
+}
+
+func (m *Manager) LoadCardImage(uri string) ([]byte, error) {
+	res := path.Base(uri)
+	reconfiguredName := m.reconfigureName(res)
+	resourcePath := filepath.Join(m.cardsDirectory, reconfiguredName)
+	data, err := os.ReadFile(resourcePath)
+	if err == nil {
+		return data, nil
+	}
+
+	data, err = requestURL(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	os.WriteFile(resourcePath, data, os.ModePerm)
+
+	return data, nil
+}
+
+func (m *Manager) reconfigureName(name string) string {
+	if !strings.Contains(name, "?") {
+		return name
+	}
+
+	idx := strings.Index(name, "?")
+	ext := path.Ext(name[:idx])
+	extIdx := strings.Index(name[:idx], ext)
+	return name[:extIdx] + "_" + name[idx+1:] + ext
 }

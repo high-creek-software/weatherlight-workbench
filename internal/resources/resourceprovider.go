@@ -1,11 +1,11 @@
-package api
+package resources
 
 import (
 	"io"
 	"net/http"
 )
 
-func RequestSetResource(url string) ([]byte, error) {
+func requestURL(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

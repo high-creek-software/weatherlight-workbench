@@ -1,48 +1,51 @@
 package internal
 
 import (
+	"bytes"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/kendellfab/mtgstudio/internal/api"
+	"github.com/nfnt/resize"
+	"gitlab.com/high-creek-software/ansel"
+	"gitlab.com/high-creek-software/goscryfall"
+	"gitlab.com/kendellfab/mtgstudio/internal/card"
 	"gitlab.com/kendellfab/mtgstudio/internal/resources"
 	"gitlab.com/kendellfab/mtgstudio/internal/set"
+	"image/jpeg"
 	"log"
-	"os"
-	"sync"
-)
-
-const (
-	scryfallBaseURL = "https://api.scryfall.com"
+	"strings"
 )
 
 type MtgStudio struct {
 	app    fyne.App
 	window fyne.Window
 
-	setList     *widget.List
-	sets        []set.Set
-	setIcons    map[string]*fyne.StaticResource
-	setLocker   sync.RWMutex
-	pendingLoad map[string]*widget.Icon
+	setList    *widget.List
+	setAdapter *set.SetAdapter
 
+	cardList    *widget.List
+	cardAdapter *card.CardAdapter
+
+	client  *goscryfall.Client
 	manager *resources.Manager
-
-	endpoint *api.Endpoint
-	setRepo  set.SetRepo
 }
 
 func NewMtgStudio() *MtgStudio {
-	os.Setenv("FYNE_THEME", "light")
-	mtgs := &MtgStudio{app: app.New(), setIcons: make(map[string]*fyne.StaticResource), pendingLoad: make(map[string]*widget.Icon)}
+	//os.Setenv("FYNE_THEME", "light")
+	mtgs := &MtgStudio{app: app.New()}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.Resize(fyne.NewSize(1200, 700))
-	mtgs.endpoint = api.NewEndpoint(scryfallBaseURL)
-	mtgs.setRepo = set.NewRestSetRepo(mtgs.endpoint)
 	mtgs.manager = resources.NewManager()
+	mtgs.client = goscryfall.NewClient()
+	mtgs.setAdapter = set.NewSetAdapter(
+		ansel.NewAnsel[string](ansel.SetLoadedCallback[string](mtgs.updateSetIcon), ansel.SetLoader[string](mtgs.manager.LoadSetIcon)),
+	)
+	mtgs.cardAdapter = card.NewCardAdapter(
+		ansel.NewAnsel[string](ansel.SetLoader[string](mtgs.manager.LoadCardImage), ansel.SetLoadedCallback[string](mtgs.resizeCardArt)),
+	)
 
 	mtgs.setupBody()
 
@@ -50,75 +53,58 @@ func NewMtgStudio() *MtgStudio {
 }
 
 func (m *MtgStudio) setupBody() {
-	m.setList = widget.NewList(m.setCount, m.createSetTemplate, m.updateSetTemplate)
-	m.window.SetContent(m.setList)
-}
-
-func (m *MtgStudio) setCount() int {
-	if m.sets == nil {
-		return 0
+	m.setList = widget.NewList(m.setAdapter.Count, m.setAdapter.CreateTemplate, m.setAdapter.UpdateTemplate)
+	m.setList.OnSelected = func(id widget.ListItemID) {
+		set := m.setAdapter.Item(id)
+		log.Println("Selected:", set.Id)
+		m.cardAdapter.Clear()
+		m.cardList.Refresh()
+		go func() {
+			cards, err := m.client.ListCards(set.Code, "")
+			if err != nil {
+				dialog.NewInformation("Error loading cards", err.Error(), m.window).Show()
+				return
+			}
+			m.cardAdapter.AppendCards(cards.Data)
+		}()
 	}
-	return len(m.sets)
+	m.cardList = widget.NewList(m.cardAdapter.Count, m.cardAdapter.CreateTemplate, m.cardAdapter.UpdateTemplate)
+	insideSplit := container.NewHSplit(m.cardList, container.NewMax())
+	insideSplit.SetOffset(0.25)
+	split := container.NewHSplit(m.setList, insideSplit)
+	split.SetOffset(0.25)
+	//insideBorder := container.NewBorder(nil, nil, m.cardList, nil, container.NewMax())
+	//outsideBorder := container.NewBorder(nil, nil, m.setList, nil, insideBorder)
+	m.window.SetContent(split)
 }
 
-func (m *MtgStudio) createSetTemplate() fyne.CanvasObject {
-	icon := widget.NewIcon(nil)
-	lbl := widget.NewLabel("template")
-	//return container.NewGridWithColumns(2, widget.NewIcon(nil), widget.NewLabel("template"))
-	return container.New(layout.NewFormLayout(), icon, lbl)
-}
-
-func (m *MtgStudio) updateSetTemplate(id widget.ListItemID, co fyne.CanvasObject) {
-	set := m.sets[id]
-	icon := co.(*fyne.Container).Objects[0].(*widget.Icon)
-	lbl := co.(*fyne.Container).Objects[1].(*widget.Label)
-
-	go m.loadIcon(set, icon)
-
-	lbl.SetText(set.Name)
-}
-
-func (m *MtgStudio) loadIcon(set set.Set, icon *widget.Icon) {
-
-	// Check the cache for if this image has already been loaded.
-	m.setLocker.RLock()
-	if resource, ok := m.setIcons[set.Name]; ok {
-		icon.SetResource(resource)
-		m.setLocker.RUnlock()
-		return
-	}
-	m.setLocker.RUnlock()
-
-	// The callback to load data could happen multiple times for a set item, and a load could be pending.
-	// So we check here, if the pendingLoad has the set name, we update the icon to load to and return.
-	m.setLocker.Lock()
-	if _, ok := m.pendingLoad[set.Name]; ok {
-		m.pendingLoad[set.Name] = icon
-		m.setLocker.Unlock()
-		return
-	}
-	// If not, we create the pending load record and move on to loading.
-	m.pendingLoad[set.Name] = icon
-	m.setLocker.Unlock()
-
-	log.Println("loading image for:", set.Name, set.Id, set.IconSvgUri)
-	// We make the actual request right here.
-	if data, err := api.RequestSetResource(set.IconSvgUri); err != nil {
-		log.Println("error loading images", err)
-	} else {
-		// Here we load the byte array to a static resource
-		// Add it to the cache
-		// Set the image to the icon that was last added to the pendingLoad
-		// Then remove it from the pending load
-		m.setLocker.Lock()
-		res := fyne.NewStaticResource(set.IconSvgUri, data)
-		m.setIcons[set.Name] = res
-		if icn, ok := m.pendingLoad[set.Name]; ok {
-			icn.SetResource(res)
+func (m *MtgStudio) updateSetIcon(bs []byte) []byte {
+	if m.app.Settings().ThemeVariant() == theme.VariantDark {
+		strData := string(bs)
+		if strings.Contains(strData, `fill="#000"`) {
+			strData = strings.Replace(strData, `fill="#000"`, `fill="#999"`, -1)
+		} else {
+			strData = strings.Replace(strData, "<path d=", `<path style="fill:#999999" d=`, -1)
 		}
-		delete(m.pendingLoad, set.Name)
-		m.setLocker.Unlock()
+		return []byte(strData)
 	}
+	return bs
+}
+
+func (m *MtgStudio) resizeCardArt(bs []byte) []byte {
+
+	buff := bytes.NewBuffer(bs)
+	img, err := jpeg.Decode(buff)
+	if err != nil {
+		log.Println("error parsing image:", err)
+		return bs
+	}
+
+	r := resize.Resize(150, 0, img, resize.Lanczos3)
+
+	var out bytes.Buffer
+	jpeg.Encode(&out, r, nil)
+	return out.Bytes()
 }
 
 func (m *MtgStudio) Start() {
@@ -127,11 +113,11 @@ func (m *MtgStudio) Start() {
 }
 
 func (m *MtgStudio) loadSets() {
-	sets, err := m.setRepo.ListSets()
+	sets, err := m.client.ListSets()
 	if err != nil {
 		dialog.NewInformation("Error loading sets", err.Error(), m.window).Show()
 		return
 	}
 
-	m.sets = sets
+	m.setAdapter.AddSets(sets)
 }
