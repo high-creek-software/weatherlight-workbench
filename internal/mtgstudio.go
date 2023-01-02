@@ -103,6 +103,8 @@ func (m *MtgStudio) appStartedCallback() {
 						setName.SetText(status.SetName)
 						progress.SetValue(status.Percent)
 					case <-doneChan:
+						setName.SetText("Import Complete")
+						progress.SetValue(100)
 						m.browseLayout.LoadSets()
 					}
 				}

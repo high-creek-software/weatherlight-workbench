@@ -125,7 +125,7 @@ func (r *GormCardRepo) Store(cs []scryfallcards.Card) error {
 		}
 		insert = append(insert, i)
 	}
-	return r.db.Create(&insert).Error
+	return r.db.CreateInBatches(&insert, 50).Error
 }
 
 func (r *GormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {

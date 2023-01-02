@@ -34,6 +34,7 @@ func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
 	total := float64(len(sets))
 
 	go func() {
+		start := time.Now()
 		for idx, set := range sets {
 			resChan <- StatusUpdate{Percent: (float64(idx) / total) * 100, SetName: set.Name}
 
@@ -41,18 +42,19 @@ func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
 			if err == nil {
 				i.manager.Store(cards.Data)
 
-				time.Sleep(250 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				for cards.HasMore {
 					cards, err = i.client.ListCards(set.Code, cards.NextPage)
 					if err == nil {
 						i.manager.Store(cards.Data)
 					}
-					time.Sleep(250 * time.Millisecond)
+					time.Sleep(100 * time.Millisecond)
 				}
 			} else {
 				log.Println(err)
 			}
 		}
+		log.Println(time.Now().Sub(start))
 
 		doneChan <- true
 	}()
