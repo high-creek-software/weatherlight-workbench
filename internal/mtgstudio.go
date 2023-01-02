@@ -10,6 +10,7 @@ import (
 	"gitlab.com/high-creek-software/goscryfall"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
+	"gitlab.com/kendellfab/mtgstudio/internal/search"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"gitlab.com/kendellfab/mtgstudio/internal/sync"
 	"strings"
@@ -19,6 +20,7 @@ type MtgStudio struct {
 	app          fyne.App
 	window       fyne.Window
 	browseLayout *browse.BrowseLayout
+	searchLayout *search.SearchLayout
 
 	client        *goscryfall.Client
 	manager       *storage.Manager
@@ -46,7 +48,8 @@ func NewMtgStudio() *MtgStudio {
 
 func (m *MtgStudio) setupBody() {
 	m.browseLayout = browse.NewBrowseLayout(m.manager, m.symbolRepo, m, m.updateSetIcon, m.resizeCardArt)
-	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split))
+	m.searchLayout = search.NewSearchLayout(m.manager, m.symbolRepo, m)
+	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split), container.NewTabItem("Search", m.searchLayout.Split))
 	m.window.SetContent(appTabs)
 }
 

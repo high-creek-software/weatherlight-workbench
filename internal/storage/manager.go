@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -30,7 +31,7 @@ type Manager struct {
 	db                   *gorm.DB
 
 	*gormSetRepo
-	*GormCardRepo
+	*gormCardRepo
 }
 
 func NewManager() *Manager {
@@ -60,7 +61,7 @@ func NewManager() *Manager {
 		log.Fatal(err)
 	}
 	m.gormSetRepo = newGormSetRepo(m.db)
-	m.GormCardRepo = newGormCardRepo(m.db)
+	m.gormCardRepo = newGormCardRepo(m.db)
 	return m
 }
 
@@ -120,6 +121,10 @@ func (m *Manager) LoadSymbolImage(uri string) ([]byte, error) {
 	os.WriteFile(resourcePath, data, os.ModePerm)
 
 	return data, nil
+}
+
+func (m *Manager) CardSearch(sr SearchRequest) ([]scryfallcards.Card, error) {
+	return m.gormCardRepo.Search(sr)
 }
 
 func (m *Manager) reconfigureName(name string) string {

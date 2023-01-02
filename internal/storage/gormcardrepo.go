@@ -6,17 +6,17 @@ import (
 )
 import scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 
-type GormCardRepo struct {
+type gormCardRepo struct {
 	db *gorm.DB
 }
 
-func newGormCardRepo(db *gorm.DB) *GormCardRepo {
-	repo := &GormCardRepo{db: db}
+func newGormCardRepo(db *gorm.DB) *gormCardRepo {
+	repo := &gormCardRepo{db: db}
 	repo.db.AutoMigrate(&gormCard{})
 	return repo
 }
 
-func (r *GormCardRepo) Store(cs []scryfallcards.Card) error {
+func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 	var insert []gormCard
 	for _, c := range cs {
 
@@ -128,118 +128,161 @@ func (r *GormCardRepo) Store(cs []scryfallcards.Card) error {
 	return r.db.CreateInBatches(&insert, 50).Error
 }
 
-func (r *GormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
+func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 	var gcs []gormCard
 	r.db.Where("`set` = ?", set).Find(&gcs)
 
 	var res []scryfallcards.Card
 	for _, gc := range gcs {
-		c := scryfallcards.Card{
-			Object:          gc.Object,
-			Id:              gc.Id,
-			OracleId:        gc.OracleId,
-			MultiverseIds:   unmarshal[[]int](gc.MultiverseIds),
-			MtgoId:          gc.MtgoId,
-			TcgplayerId:     gc.TcgplayerId,
-			CardmarketId:    gc.CardmarketId,
-			Name:            gc.Name,
-			Lang:            gc.Lang,
-			ReleasedAt:      gc.ReleasedAt,
-			Uri:             gc.Uri,
-			ScryfallUri:     gc.ScryfallUri,
-			Layout:          gc.Layout,
-			HighresImage:    gc.HighresImage,
-			ImageStatus:     gc.ImageStatus,
-			ImageUris:       unmarshal[scryfallcards.ImageUris](gc.ImageUris),
-			ManaCost:        gc.ManaCost,
-			Cmc:             gc.Cmc,
-			TypeLine:        gc.TypeLine,
-			OracleText:      gc.OracleText,
-			Power:           gc.Power,
-			Toughness:       gc.Toughness,
-			Keywords:        unmarshal[[]interface{}](gc.Keywords),
-			AllParts:        unmarshal[[]scryfallcards.AllParts](gc.AllParts),
-			Games:           unmarshal[[]string](gc.Games),
-			Reserved:        gc.Reserved,
-			Foil:            gc.Foil,
-			Nonfoil:         gc.Nonfoil,
-			Finishes:        unmarshal[[]string](gc.Finishes),
-			Oversized:       gc.Oversized,
-			Promo:           gc.Promo,
-			Reprint:         gc.Reprint,
-			Variation:       gc.Variation,
-			SetId:           gc.SetId,
-			Set:             gc.Set,
-			SetName:         gc.SetName,
-			SetType:         gc.SetType,
-			SetUri:          gc.SetUri,
-			SetSearchUri:    gc.SetSearchUri,
-			ScryfallSetUri:  gc.ScryfallSetUri,
-			RulingsUri:      gc.RulingsUri,
-			PrintsSearchUri: gc.PrintsSearchUri,
-			CollectorNumber: gc.CollectorNumber,
-			Digital:         gc.Digital,
-			Rarity:          gc.Rarity,
-			CardBackId:      gc.CardBackId,
-			Artist:          gc.Artist,
-			ArtistIds:       unmarshal[[]string](gc.ArtistIds),
-			IllustrationId:  gc.IllustrationId,
-			BorderColor:     gc.BorderColor,
-			Frame:           gc.Frame,
-			FrameEffects:    unmarshal[[]string](gc.FrameEffects),
-			SecurityStamp:   gc.SecurityStamp,
-			FullArt:         gc.FullArt,
-			Textless:        gc.Textless,
-			Booster:         gc.Booster,
-			StorySpotlight:  gc.StorySpotlight,
-			EdhrecRank:      gc.EdhrecRank,
-			Preview:         unmarshal[scryfallcards.Preview](gc.Preview),
-			Prices:          unmarshal[scryfallcards.Prices](gc.Prices),
-			RelatedUris:     unmarshal[scryfallcards.RelatedUris](gc.RelatedUris),
-			PurchaseUris:    unmarshal[scryfallcards.PurchaseUris](gc.RelatedUris),
-		}
-
-		if gc.White {
-			c.Colors = append(c.Colors, "W")
-		}
-		if gc.Blue {
-			c.Colors = append(c.Colors, "U")
-		}
-		if gc.Black {
-			c.Colors = append(c.Colors, "B")
-		}
-		if gc.Red {
-			c.Colors = append(c.Colors, "R")
-		}
-		if gc.Green {
-			c.Colors = append(c.Colors, "G")
-		}
-
-		c.Legalities = make(map[string]scryfallcards.Legality)
-		c.Legalities["standard"] = scryfallcards.LegalityFromString(gc.LegalStandard)
-		c.Legalities["future"] = scryfallcards.LegalityFromString(gc.LegalFuture)
-		c.Legalities["historic"] = scryfallcards.LegalityFromString(gc.LegalHistoric)
-		c.Legalities["gladiator"] = scryfallcards.LegalityFromString(gc.LegalGladiator)
-		c.Legalities["pioneer"] = scryfallcards.LegalityFromString(gc.LegalPioneer)
-		c.Legalities["explorer"] = scryfallcards.LegalityFromString(gc.LegalExplorer)
-		c.Legalities["modern"] = scryfallcards.LegalityFromString(gc.LegalModern)
-		c.Legalities["legacy"] = scryfallcards.LegalityFromString(gc.LegalLegacy)
-		c.Legalities["pauper"] = scryfallcards.LegalityFromString(gc.LegalPauper)
-		c.Legalities["vintage"] = scryfallcards.LegalityFromString(gc.LegalVintage)
-		c.Legalities["penny"] = scryfallcards.LegalityFromString(gc.LegalPenny)
-		c.Legalities["commander"] = scryfallcards.LegalityFromString(gc.LegalCommander)
-		c.Legalities["brawl"] = scryfallcards.LegalityFromString(gc.LegalBrawl)
-		c.Legalities["historicbrawl"] = scryfallcards.LegalityFromString(gc.LegalHistoricBrawl)
-		c.Legalities["alchemy"] = scryfallcards.LegalityFromString(gc.LegalAlchemy)
-		c.Legalities["paupercommander"] = scryfallcards.LegalityFromString(gc.LegalPauperCommander)
-		c.Legalities["duel"] = scryfallcards.LegalityFromString(gc.LegalDuel)
-		c.Legalities["oldschool"] = scryfallcards.LegalityFromString(gc.LegalOldschool)
-		c.Legalities["premodern"] = scryfallcards.LegalityFromString(gc.LegalPremodern)
-
+		c := internalToExternal(gc)
 		res = append(res, c)
 	}
 
 	return res, nil
+}
+
+func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
+	queryDB := r.db.Session(&gorm.Session{})
+	if sr.Name != "" {
+		queryDB = queryDB.Where("name LIKE ?", "%"+sr.Name+"%")
+	}
+	if sr.White {
+		queryDB = queryDB.Where("white = true")
+	}
+	if sr.Blue {
+		queryDB = queryDB.Where("blue = true")
+	}
+	if sr.Black {
+		queryDB = queryDB.Where("black = true")
+	}
+	if sr.Red {
+		queryDB = queryDB.Where("red = true")
+	}
+	if sr.Green {
+		queryDB = queryDB.Where("green = true")
+	}
+
+	queryDB = queryDB.Order("name asc")
+
+	var gcs []gormCard
+	err := queryDB.Find(&gcs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var res []scryfallcards.Card
+	for _, gc := range gcs {
+		c := internalToExternal(gc)
+		res = append(res, c)
+	}
+
+	return res, nil
+}
+
+func internalToExternal(gc gormCard) scryfallcards.Card {
+	c := scryfallcards.Card{
+		Object:          gc.Object,
+		Id:              gc.Id,
+		OracleId:        gc.OracleId,
+		MultiverseIds:   unmarshal[[]int](gc.MultiverseIds),
+		MtgoId:          gc.MtgoId,
+		TcgplayerId:     gc.TcgplayerId,
+		CardmarketId:    gc.CardmarketId,
+		Name:            gc.Name,
+		Lang:            gc.Lang,
+		ReleasedAt:      gc.ReleasedAt,
+		Uri:             gc.Uri,
+		ScryfallUri:     gc.ScryfallUri,
+		Layout:          gc.Layout,
+		HighresImage:    gc.HighresImage,
+		ImageStatus:     gc.ImageStatus,
+		ImageUris:       unmarshal[scryfallcards.ImageUris](gc.ImageUris),
+		ManaCost:        gc.ManaCost,
+		Cmc:             gc.Cmc,
+		TypeLine:        gc.TypeLine,
+		OracleText:      gc.OracleText,
+		Power:           gc.Power,
+		Toughness:       gc.Toughness,
+		Keywords:        unmarshal[[]interface{}](gc.Keywords),
+		AllParts:        unmarshal[[]scryfallcards.AllParts](gc.AllParts),
+		Games:           unmarshal[[]string](gc.Games),
+		Reserved:        gc.Reserved,
+		Foil:            gc.Foil,
+		Nonfoil:         gc.Nonfoil,
+		Finishes:        unmarshal[[]string](gc.Finishes),
+		Oversized:       gc.Oversized,
+		Promo:           gc.Promo,
+		Reprint:         gc.Reprint,
+		Variation:       gc.Variation,
+		SetId:           gc.SetId,
+		Set:             gc.Set,
+		SetName:         gc.SetName,
+		SetType:         gc.SetType,
+		SetUri:          gc.SetUri,
+		SetSearchUri:    gc.SetSearchUri,
+		ScryfallSetUri:  gc.ScryfallSetUri,
+		RulingsUri:      gc.RulingsUri,
+		PrintsSearchUri: gc.PrintsSearchUri,
+		CollectorNumber: gc.CollectorNumber,
+		Digital:         gc.Digital,
+		Rarity:          gc.Rarity,
+		CardBackId:      gc.CardBackId,
+		Artist:          gc.Artist,
+		ArtistIds:       unmarshal[[]string](gc.ArtistIds),
+		IllustrationId:  gc.IllustrationId,
+		BorderColor:     gc.BorderColor,
+		Frame:           gc.Frame,
+		FrameEffects:    unmarshal[[]string](gc.FrameEffects),
+		SecurityStamp:   gc.SecurityStamp,
+		FullArt:         gc.FullArt,
+		Textless:        gc.Textless,
+		Booster:         gc.Booster,
+		StorySpotlight:  gc.StorySpotlight,
+		EdhrecRank:      gc.EdhrecRank,
+		Preview:         unmarshal[scryfallcards.Preview](gc.Preview),
+		Prices:          unmarshal[scryfallcards.Prices](gc.Prices),
+		RelatedUris:     unmarshal[scryfallcards.RelatedUris](gc.RelatedUris),
+		PurchaseUris:    unmarshal[scryfallcards.PurchaseUris](gc.RelatedUris),
+	}
+
+	if gc.White {
+		c.Colors = append(c.Colors, "W")
+	}
+	if gc.Blue {
+		c.Colors = append(c.Colors, "U")
+	}
+	if gc.Black {
+		c.Colors = append(c.Colors, "B")
+	}
+	if gc.Red {
+		c.Colors = append(c.Colors, "R")
+	}
+	if gc.Green {
+		c.Colors = append(c.Colors, "G")
+	}
+
+	c.Legalities = make(map[string]scryfallcards.Legality)
+	c.Legalities["standard"] = scryfallcards.LegalityFromString(gc.LegalStandard)
+	c.Legalities["future"] = scryfallcards.LegalityFromString(gc.LegalFuture)
+	c.Legalities["historic"] = scryfallcards.LegalityFromString(gc.LegalHistoric)
+	c.Legalities["gladiator"] = scryfallcards.LegalityFromString(gc.LegalGladiator)
+	c.Legalities["pioneer"] = scryfallcards.LegalityFromString(gc.LegalPioneer)
+	c.Legalities["explorer"] = scryfallcards.LegalityFromString(gc.LegalExplorer)
+	c.Legalities["modern"] = scryfallcards.LegalityFromString(gc.LegalModern)
+	c.Legalities["legacy"] = scryfallcards.LegalityFromString(gc.LegalLegacy)
+	c.Legalities["pauper"] = scryfallcards.LegalityFromString(gc.LegalPauper)
+	c.Legalities["vintage"] = scryfallcards.LegalityFromString(gc.LegalVintage)
+	c.Legalities["penny"] = scryfallcards.LegalityFromString(gc.LegalPenny)
+	c.Legalities["commander"] = scryfallcards.LegalityFromString(gc.LegalCommander)
+	c.Legalities["brawl"] = scryfallcards.LegalityFromString(gc.LegalBrawl)
+	c.Legalities["historicbrawl"] = scryfallcards.LegalityFromString(gc.LegalHistoricBrawl)
+	c.Legalities["alchemy"] = scryfallcards.LegalityFromString(gc.LegalAlchemy)
+	c.Legalities["paupercommander"] = scryfallcards.LegalityFromString(gc.LegalPauperCommander)
+	c.Legalities["duel"] = scryfallcards.LegalityFromString(gc.LegalDuel)
+	c.Legalities["oldschool"] = scryfallcards.LegalityFromString(gc.LegalOldschool)
+	c.Legalities["premodern"] = scryfallcards.LegalityFromString(gc.LegalPremodern)
+
+	return c
 }
 
 func marshal(input any) string {

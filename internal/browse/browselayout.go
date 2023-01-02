@@ -49,7 +49,7 @@ func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	insideSplit := container.NewHSplit(bl.cardList, bl.cardTabs)
 	insideSplit.SetOffset(0.20)
 	bl.Split = container.NewHSplit(bl.setList, insideSplit)
-	bl.Split.SetOffset(0.20)
+	bl.Split.SetOffset(0.15)
 
 	return bl
 }
