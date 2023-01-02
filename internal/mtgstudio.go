@@ -90,7 +90,8 @@ func (m *MtgStudio) appStartedCallback() {
 	if setCount == 0 {
 		progress := widget.NewProgressBar()
 		progress.Max = 100
-		dialog.ShowCustom("Import progress", "OK", progress, m.window)
+		setName := widget.NewLabel("Set:")
+		dialog.ShowCustom("Import progress", "OK", container.NewVBox(setName, progress), m.window)
 		resChan, doneChan, err := m.importManager.Import()
 		if err != nil {
 			m.ShowError(err)
@@ -98,8 +99,9 @@ func (m *MtgStudio) appStartedCallback() {
 			go func() {
 				for {
 					select {
-					case percent := <-resChan:
-						progress.SetValue(percent)
+					case status := <-resChan:
+						setName.SetText(status.SetName)
+						progress.SetValue(status.Percent)
 					case <-doneChan:
 						m.browseLayout.LoadSets()
 					}

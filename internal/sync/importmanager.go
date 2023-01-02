@@ -16,7 +16,7 @@ func NewImportManager(client *goscryfall.Client, manager *storage.Manager) *Impo
 	return &ImportManager{client: client, manager: manager}
 }
 
-func (i *ImportManager) Import() (chan float64, chan bool, error) {
+func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
 	//bs, err := i.client.ListBulk()
 	//if err != nil {
 	//	return nil, nil, err
@@ -28,13 +28,15 @@ func (i *ImportManager) Import() (chan float64, chan bool, error) {
 	}
 
 	i.manager.StoreSets(sets)
-	resChan := make(chan float64)
+	resChan := make(chan StatusUpdate)
 	doneChan := make(chan bool)
 
 	total := float64(len(sets))
 
 	go func() {
 		for idx, set := range sets {
+			resChan <- StatusUpdate{Percent: (float64(idx) / total) * 100, SetName: set.Name}
+
 			cards, err := i.client.ListCards(set.Code, "")
 			if err == nil {
 				i.manager.Store(cards.Data)
@@ -50,36 +52,15 @@ func (i *ImportManager) Import() (chan float64, chan bool, error) {
 			} else {
 				log.Println(err)
 			}
-
-			resChan <- (float64(idx) / total) * 100
 		}
 
 		doneChan <- true
 	}()
 
-	/*var cardBulk bulk.Bulk
-	for _, b := range bs.Data {
-		if b.Type == "default_cards" {
-			cardBulk = b
-			break
-		}
-	}
-
-	resp, err := http.Get(cardBulk.DownloadUri)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	var cs []cards.Card
-	err = json.NewDecoder(resp.Body).Decode(&cs)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range cs {
-		log.Println(c.Name, c.SetName, c.Set)
-	}*/
-
 	return resChan, doneChan, nil
+}
+
+type StatusUpdate struct {
+	SetName string
+	Percent float64
 }
