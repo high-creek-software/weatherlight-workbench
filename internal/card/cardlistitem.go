@@ -14,9 +14,10 @@ type CardListItem struct {
 	card *cards.Card
 	ico  fyne.Resource
 
-	icon    *widget.Icon
-	name    *widget.Label
-	manaBox *fyne.Container
+	icon       *widget.Icon
+	name       *widget.Label
+	manaBox    *fyne.Container
+	manaImages []*widget.Icon
 }
 
 func NewCardListItem(card *cards.Card) *CardListItem {
@@ -34,8 +35,16 @@ func (cli *CardListItem) UpdateCard(card *cards.Card) {
 
 func (cli *CardListItem) SetManaCost(bs []fyne.Resource) {
 	cli.manaBox.RemoveAll()
-	for _, b := range bs {
-		cli.manaBox.Add(widget.NewIcon(b))
+	for i, b := range bs {
+		var ico *widget.Icon
+		if i > len(cli.manaImages)-1 {
+			ico = widget.NewIcon(nil)
+			cli.manaImages = append(cli.manaImages, ico)
+		} else {
+			ico = cli.manaImages[i]
+		}
+		ico.SetResource(b)
+		cli.manaBox.Add(ico)
 	}
 }
 
@@ -55,6 +64,13 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	cli.icon = icon
 	cli.name = name
 	cli.manaBox = manaBox
+
+	for i := 0; i < 4; i++ {
+		cli.manaImages = append(cli.manaImages, widget.NewIcon(nil))
+	}
+
+	//frame := container.New(layout.NewFormLayout(), cli.icon, cli.name)
+	//cont := container.NewGridWithColumns(2, frame, cli.manaBox)
 
 	cont := container.NewGridWithColumns(3, cli.icon, cli.name, cli.manaBox)
 
