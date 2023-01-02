@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100"
+   height="25"
+   viewBox="0 0 26.458333 6.6145833"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="restricted.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="7.319248"
+     inkscape:cx="87.918868"
+     inkscape:cy="13.457667"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ff9955;stroke-width:0.154518"
+       id="rect111"
+       width="26.458334"
+       height="6.6145835"
+       x="0"
+       y="0" />
+    <g
+       aria-label="RESTRICTED"
+       id="text275"
+       style="font-weight:800;font-size:3.175px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Ultra-Bold';fill:#4d4d4d;stroke-width:0.264583">
+      <path
+         d="m 5.4488161,2.8786666 c 0,-0.4572 -0.3048,-0.669925 -0.904875,-0.669925 H 3.8517912 v 2.200275 h 0.5207 v -0.841375 h 0.14605 l 0.4794249,0.841375 h 0.587375 l -0.57785,-0.9271 c 0.24765,-0.098425 0.441325,-0.288925 0.441325,-0.60325 z m -0.5334,0 c 0,0.231775 -0.123825,0.3302 -0.34925,0.3302 H 4.3724912 v -0.635 h 0.1714499 c 0.244475,0 0.371475,0.092075 0.371475,0.3048 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1598" />
+      <path
+         d="m 6.3854441,3.1104416 v -0.530225 h 0.8636 l 0.053975,-0.371475 h -1.438275 v 2.200275 h 1.438275 v -0.37465 h -0.917575 v -0.561975 h 0.762 v -0.36195 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1600" />
+      <path
+         d="m 9.274697,3.7644916 c 0,-0.403225 -0.244475,-0.57785 -0.663575,-0.708025 -0.34925,-0.10795 -0.45085,-0.1651 -0.45085,-0.3048 0,-0.142875 0.13335,-0.2159 0.3302,-0.2159 0.1778,0 0.3556,0.060325 0.504825,0.18415 l 0.244475,-0.282575 c -0.1905,-0.180975 -0.45085,-0.28575 -0.7874,-0.28575 -0.4572,0 -0.828675,0.23495 -0.828675,0.64135 0,0.333375 0.19685,0.52705 0.7112,0.6858 0.3048,0.092075 0.40005,0.168275 0.40005,0.327025 0,0.17145 -0.149225,0.269875 -0.3683,0.269875 -0.23495,0 -0.4318,-0.079375 -0.593725,-0.22225 l -0.263525,0.2921 c 0.18415,0.180975 0.454025,0.3175 0.86995,0.3175 0.5588,0 0.89535,-0.28575 0.89535,-0.6985 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1602" />
+      <path
+         d="m 10.5828,4.4090166 v -1.800225 h 0.59055 l 0.0508,-0.40005 H 9.4461501 v 0.40005 H 10.0621 v 1.800225 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1604" />
+      <path
+         d="m 13.056128,2.8786666 c 0,-0.4572 -0.3048,-0.669925 -0.904875,-0.669925 h -0.69215 v 2.200275 h 0.5207 v -0.841375 h 0.14605 l 0.479425,0.841375 h 0.587375 l -0.57785,-0.9271 c 0.24765,-0.098425 0.441325,-0.288925 0.441325,-0.60325 z m -0.5334,0 c 0,0.231775 -0.123825,0.3302 -0.34925,0.3302 h -0.193675 v -0.635 h 0.17145 c 0.244475,0 0.371475,0.092075 0.371475,0.3048 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1606" />
+      <path
+         d="m 14.843656,2.5897416 v -0.381 h -1.42875 v 0.381 h 0.454025 v 1.438275 h -0.454025 v 0.381 h 1.42875 v -0.381 h -0.454025 v -1.438275 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1608" />
+      <path
+         d="m 16.215259,2.1515916 c -0.581025,0 -1.0287,0.415925 -1.0287,1.152525 0,0.75565 0.42545,1.158875 1.02235,1.158875 0.339725,0 0.57785,-0.13335 0.739775,-0.29845 l -0.23495,-0.29845 c -0.123825,0.098425 -0.257175,0.193675 -0.47625,0.193675 -0.301625,0 -0.51435,-0.225425 -0.51435,-0.75565 0,-0.53975 0.225425,-0.765175 0.504825,-0.765175 0.17145,0 0.3175,0.0635 0.43815,0.161925 l 0.254,-0.307975 c -0.18415,-0.1524 -0.38735,-0.2413 -0.70485,-0.2413 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1610" />
+      <path
+         d="m 18.190112,4.4090166 v -1.800225 h 0.59055 l 0.0508,-0.40005 h -1.778 v 0.40005 h 0.61595 v 1.800225 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1612" />
+      <path
+         d="m 19.69824,3.1104416 v -0.530225 h 0.8636 l 0.05398,-0.371475 H 19.17754 v 2.200275 h 1.438275 v -0.37465 H 19.69824 v -0.561975 h 0.762 v -0.36195 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1614" />
+      <path
+         d="m 22.606542,3.2977666 c 0,-0.90805 -0.536575,-1.089025 -1.101725,-1.089025 h -0.555625 v 2.200275 h 0.593725 c 0.5461,0 1.063625,-0.2159 1.063625,-1.11125 z m -0.536575,0 c 0,0.57785 -0.200025,0.733425 -0.48895,0.733425 h -0.111125 v -1.444625 h 0.111125 c 0.276225,0 0.48895,0.117475 0.48895,0.7112 z"
+         style="font-weight:bold;font-family:'FiraMono Nerd Font Mono';-inkscape-font-specification:'FiraMono Nerd Font Mono Bold';fill:#f9f9f9"
+         id="path1616" />
+    </g>
+  </g>
+</svg>

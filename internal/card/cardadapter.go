@@ -45,20 +45,21 @@ func (ca *CardAdapter) CreateTemplate() fyne.CanvasObject {
 func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject) {
 	card := ca.Item(id)
 	listItem := co.(*CardListItem)
-	listItem.UpdateCard(&card)
-	ca.loader.Load(card.Id, card.ImageUris.ArtCrop, listItem)
 
+	var mc []fyne.Resource
 	sets := card.ParseManaCost()
 	if len(sets) > 0 {
 		cost := sets[0]
-		var imgs []fyne.Resource
 		for _, c := range cost {
 			func(name string) {
-				imgs = append(imgs, ca.symbolRepo.Image(name))
+				mc = append(mc, ca.symbolRepo.Image(name))
 			}(c)
 		}
-		listItem.SetManaCost(imgs)
 	}
+
+	listItem.UpdateCard(&card, mc)
+	ca.loader.Load(card.Id, card.ImageUris.ArtCrop, listItem)
+
 }
 
 func (ca *CardAdapter) Item(id widget.ListItemID) cards.Card {

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100"
+   height="25"
+   viewBox="0 0 26.458333 6.6145834"
+   version="1.1"
+   id="svg5"
+   sodipodi:docname="legal.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="7.319248"
+     inkscape:cx="99.737022"
+     inkscape:cy="13.457667"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#8dd35f;stroke-width:0.154519"
+       id="rect111"
+       width="26.458334"
+       height="6.6145835"
+       x="0"
+       y="0" />
+    <g
+       aria-label="LEGAL"
+       id="text1226"
+       style="font-weight:800;font-size:3.52778px;font-family:Cantarell;-inkscape-font-specification:'Cantarell Ultra-Bold';fill:#ffffff;stroke-width:0.264583" />
+    <g
+       aria-label="LEGAL"
+       id="text1452"
+       style="font-weight:bold;font-size:3.175px;font-family:'FuraCode Nerd Font Mono';-inkscape-font-specification:'FuraCode Nerd Font Mono Bold';fill:#ffffff;stroke-width:0.264583">
+      <path
+         d="m 8.682564,4.4090166 h 1.4224 l 0.0508,-0.41275 h -0.9525 v -1.787525 h -0.5207 z"
+         id="path1504" />
+      <path
+         d="m 11.108265,2.5802166 h 0.8636 l 0.05398,-0.371475 h -1.438275 v 2.200275 h 1.438275 v -0.37465 h -0.917575 v -0.561975 h 0.762 v -0.36195 h -0.762 z"
+         id="path1506" />
+      <path
+         d="m 13.232341,4.4629916 c 0.29845,0 0.5461,-0.085725 0.76835,-0.22225 v -1.0922 h -0.81915 l 0.0508,0.36195 h 0.276225 v 0.504825 c -0.0762,0.041275 -0.17145,0.066675 -0.27305,0.066675 -0.2921,0 -0.428625,-0.19685 -0.428625,-0.7747 0,-0.55245 0.212725,-0.7747 0.511175,-0.7747 0.155575,0 0.2667,0.05715 0.40005,0.174625 l 0.27305,-0.282575 c -0.17145,-0.161925 -0.381,-0.27305 -0.6985,-0.27305 -0.5715,0 -1.02235,0.403225 -1.02235,1.152525 0,0.75565 0.33655,1.158875 0.962025,1.158875 z"
+         id="path1508" />
+      <path
+         d="m 15.372293,3.9327666 0.1143,0.47625 h 0.5588 l -0.6731,-2.200275 h -0.631825 l -0.6731,2.200275 h 0.5461 l 0.1143,-0.47625 z m -0.561975,-0.37465 0.238125,-0.974725 0.238125,0.974725 z"
+         id="path1510" />
+      <path
+         d="m 16.302569,4.4090166 h 1.4224 l 0.0508,-0.41275 h -0.9525 v -1.787525 h -0.5207 z"
+         id="path1512" />
+    </g>
+  </g>
+</svg>

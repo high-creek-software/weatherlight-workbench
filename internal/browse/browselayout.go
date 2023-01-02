@@ -1,17 +1,14 @@
 package browse
 
 import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/high-creek-software/goscryfall"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/resources"
 	"gitlab.com/kendellfab/mtgstudio/internal/set"
+	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"log"
 )
 
@@ -25,20 +22,19 @@ type BrowseLayout struct {
 	cardList    *widget.List
 	cardAdapter *card.CardAdapter
 
-	manager    *resources.Manager
-	client     *goscryfall.Client
+	manager    *storage.Manager
 	notifier   notifier.Notifier
 	symbolRepo symbol.SymbolRepo
 }
 
-func NewBrowseLayout(manager *resources.Manager, client *goscryfall.Client, symbolRepo symbol.SymbolRepo, n notifier.Notifier, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
-	bl := &BrowseLayout{manager: manager, client: client, notifier: n, symbolRepo: symbolRepo}
+func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
+	bl := &BrowseLayout{manager: manager, notifier: n, symbolRepo: symbolRepo}
 
 	bl.setAdapter = set.NewSetAdapter(
 		ansel.NewAnsel[string](100, ansel.SetLoadedCallback[string](updateSetIcon), ansel.SetLoader[string](bl.manager.LoadSetIcon)),
 	)
 	bl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt)),
+		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40)),
 		ansel.NewAnsel[string](200, ansel.SetLoader[string](bl.manager.LoadSymbolImage)),
 		bl.symbolRepo,
 	)
@@ -64,35 +60,40 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 	bl.cardAdapter.Clear()
 	bl.cardList.Refresh()
 	go func() {
-		cards, err := bl.client.ListCards(set.Code, "")
+		allCards, err := bl.manager.ListBySet(set.Code)
 		if err != nil {
 			bl.notifier.ShowError(err)
 			return
 		}
-		bl.cardAdapter.AppendCards(cards.Data)
+		//allCards = append(allCards, response.Data...)
+		//
+		//for response.HasMore {
+		//	if response, err = bl.client.ListCards(set.Code, response.NextPage); err == nil {
+		//		allCards = append(allCards, response.Data...)
+		//	}
+		//}
+
+		bl.cardAdapter.AppendCards(allCards)
 		bl.cardList.Refresh()
 	}()
 }
 
 func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
-	card := bl.cardAdapter.Item(id)
-	go func() {
-		if img, err := bl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
-			image := canvas.NewImageFromResource(fyne.NewStaticResource(card.ImageUris.Png, img))
-			image.FillMode = canvas.ImageFillContain
-			tab := container.NewTabItem(card.Name, image)
-			bl.cardTabs.Append(tab)
-			bl.cardTabs.Select(tab)
-		}
-	}()
+	c := bl.cardAdapter.Item(id)
+
+	cardLayout := card.NewCardLayout(&c, bl.symbolRepo, bl.manager)
+	tab := container.NewTabItem(c.Name, cardLayout.Scroll)
+	bl.cardTabs.Append(tab)
+	bl.cardTabs.Select(tab)
 }
 
 func (bl *BrowseLayout) LoadSets() {
-	sets, err := bl.client.ListSets()
+	sets, err := bl.manager.ListSets()
 	if err != nil {
 		bl.notifier.ShowError(err)
 		return
 	}
 
 	bl.setAdapter.AddSets(sets)
+	bl.setList.Refresh()
 }

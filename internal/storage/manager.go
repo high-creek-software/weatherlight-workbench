@@ -1,7 +1,9 @@
-package resources
+package storage
 
 import (
 	"errors"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"log"
 	"os"
 	"path"
@@ -24,6 +26,11 @@ type Manager struct {
 	setsDirectory        string
 	cardsDirectory       string
 	symbolsDirectory     string
+	dbPath               string
+	db                   *gorm.DB
+
+	*gormSetRepo
+	*GormCardRepo
 }
 
 func NewManager() *Manager {
@@ -47,6 +54,13 @@ func NewManager() *Manager {
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
+	m.dbPath = filepath.Join(m.applicationDirectory, "mtgstudio.db")
+	m.db, err = gorm.Open(sqlite.Open(m.dbPath), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	m.gormSetRepo = newGormSetRepo(m.db)
+	m.GormCardRepo = newGormCardRepo(m.db)
 	return m
 }
 

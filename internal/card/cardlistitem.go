@@ -1,10 +1,12 @@
 package card
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall/cards"
+	"log"
 )
 
 var _ fyne.Widget = (*CardListItem)(nil)
@@ -14,10 +16,7 @@ type CardListItem struct {
 	card *cards.Card
 	ico  fyne.Resource
 
-	icon       *widget.Icon
-	name       *widget.Label
-	manaBox    *fyne.Container
-	manaImages []*widget.Icon
+	manaCost []fyne.Resource
 }
 
 func NewCardListItem(card *cards.Card) *CardListItem {
@@ -27,52 +26,96 @@ func NewCardListItem(card *cards.Card) *CardListItem {
 	return cli
 }
 
-func (cli *CardListItem) UpdateCard(card *cards.Card) {
-	cli.ClearManaCost()
+func (cli *CardListItem) UpdateCard(card *cards.Card, manaCost []fyne.Resource) {
 	cli.card = card
-	cli.name.SetText(card.Name)
-}
-
-func (cli *CardListItem) SetManaCost(bs []fyne.Resource) {
-	cli.manaBox.RemoveAll()
-	for i, b := range bs {
-		var ico *widget.Icon
-		if i > len(cli.manaImages)-1 {
-			ico = widget.NewIcon(nil)
-			cli.manaImages = append(cli.manaImages, ico)
-		} else {
-			ico = cli.manaImages[i]
-		}
-		ico.SetResource(b)
-		cli.manaBox.Add(ico)
-	}
-}
-
-func (cli *CardListItem) ClearManaCost() {
-	cli.manaBox.RemoveAll()
+	cli.manaCost = manaCost
+	cli.Refresh()
 }
 
 func (cli *CardListItem) SetResource(resource fyne.Resource) {
-	cli.icon.SetResource(resource)
+	cli.ico = resource
+	cli.Refresh()
 }
 
 func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	icon := widget.NewIcon(nil)
-	name := widget.NewLabel("template")
+	icon.Resize(fyne.NewSize(128, 128))
+	name := widget.NewRichTextWithText("template")
 	manaBox := container.NewHBox()
+	typeLine := widget.NewLabel("template")
 
-	cli.icon = icon
-	cli.name = name
-	cli.manaBox = manaBox
+	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine}
 
 	for i := 0; i < 4; i++ {
-		cli.manaImages = append(cli.manaImages, widget.NewIcon(nil))
+		renderer.manaImages = append(renderer.manaImages, widget.NewIcon(nil))
 	}
 
-	//frame := container.New(layout.NewFormLayout(), cli.icon, cli.name)
-	//cont := container.NewGridWithColumns(2, frame, cli.manaBox)
+	return renderer
+}
 
-	cont := container.NewGridWithColumns(3, cli.icon, cli.name, cli.manaBox)
+type CardListItemRenderer struct {
+	listItem   *CardListItem
+	icon       *widget.Icon
+	name       *widget.RichText
+	manaBox    *fyne.Container
+	manaImages []*widget.Icon
+	typeLine   *widget.Label
+}
 
-	return widget.NewSimpleRenderer(cont)
+func (c CardListItemRenderer) Destroy() {
+
+}
+
+func (c CardListItemRenderer) Layout(size fyne.Size) {
+	iconPos := fyne.NewPos(12, 0)
+	c.icon.Move(iconPos)
+
+	iconSize := c.icon.Size()
+	namePos := fyne.NewPos(iconSize.Width+24, 10)
+	c.name.Move(namePos)
+
+	manaPos := namePos.Add(fyne.NewPos(10, 22))
+	c.manaBox.Move(manaPos)
+	c.manaBox.Resize(fyne.NewSize(float32(20*len(c.listItem.manaCost)), 32))
+
+	typeLinePos := manaPos.Add(fyne.NewPos(-10, 32))
+	c.typeLine.Move(typeLinePos)
+}
+
+func (c CardListItemRenderer) MinSize() fyne.Size {
+	return fyne.NewSize(250, 128)
+}
+
+func (c CardListItemRenderer) Objects() []fyne.CanvasObject {
+	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine}
+
+	return base
+}
+
+func (c CardListItemRenderer) Refresh() {
+	c.icon.SetResource(c.listItem.ico)
+	c.name.ParseMarkdown(fmt.Sprintf("### %s", c.listItem.card.Name))
+	c.manaBox.RemoveAll()
+
+	for i, cost := range c.listItem.manaCost {
+		var ico *widget.Icon
+		if i > len(c.manaImages)-1 {
+			ico = widget.NewIcon(nil)
+			c.manaImages = append(c.manaImages, ico)
+		} else {
+			ico = c.manaImages[i]
+		}
+		if ico == nil {
+			ico = widget.NewIcon(nil)
+			c.manaImages = append(c.manaImages, ico)
+		}
+		ico.SetResource(cost)
+		if c.manaBox == nil || ico == nil {
+			log.Println("Mana box is nil, don't know why !?!")
+		} else {
+			c.manaBox.Add(ico)
+		}
+	}
+
+	c.typeLine.SetText(c.listItem.card.TypeLine)
 }
