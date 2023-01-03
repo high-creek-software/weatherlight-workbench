@@ -143,7 +143,7 @@ func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 
 func (r *gormCardRepo) ListByIds(ids []string) ([]scryfallcards.Card, error) {
 	var gcs []gormCard
-	err := r.db.Where("id IN ?", ids).Error
+	err := r.db.Where("id IN ?", ids).Order("name asc").Find(&gcs).Error
 	if err != nil {
 		return nil, err
 	}

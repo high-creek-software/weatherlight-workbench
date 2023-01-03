@@ -84,6 +84,7 @@ func (sl *SearchLayout) doSearch() {
 			sl.cardAdapter.Clear()
 			sl.cardAdapter.AppendCards(cards)
 			sl.cardList.Refresh()
+			sl.cardList.ScrollToTop()
 		} else {
 			sl.notifier.ShowDialog("None Found", "No cards were found that match that query.")
 		}

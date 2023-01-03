@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall"
+	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
@@ -17,10 +18,11 @@ import (
 )
 
 type MtgStudio struct {
-	app          fyne.App
-	window       fyne.Window
-	browseLayout *browse.BrowseLayout
-	searchLayout *search.SearchLayout
+	app              fyne.App
+	window           fyne.Window
+	browseLayout     *browse.BrowseLayout
+	searchLayout     *search.SearchLayout
+	bookmarkedLayout *bookmarked.BookmarkedLayout
 
 	client        *goscryfall.Client
 	manager       *storage.Manager
@@ -49,8 +51,18 @@ func NewMtgStudio() *MtgStudio {
 func (m *MtgStudio) setupBody() {
 	m.browseLayout = browse.NewBrowseLayout(m.manager, m.symbolRepo, m, m.updateSetIcon, m.resizeCardArt)
 	m.searchLayout = search.NewSearchLayout(m.manager, m.symbolRepo, m)
-	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split), container.NewTabItem("Search", m.searchLayout.Split))
+	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.manager, m.symbolRepo, m)
+	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
+		container.NewTabItem("Search", m.searchLayout.Split),
+		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
+	)
 	m.window.SetContent(appTabs)
+
+	appTabs.OnSelected = func(ti *container.TabItem) {
+		if ti.Text == "Bookmarked" {
+			m.bookmarkedLayout.LoadBookmarked()
+		}
+	}
 }
 
 func (m *MtgStudio) updateSetIcon(bs []byte) []byte {
