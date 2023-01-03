@@ -32,6 +32,7 @@ type Manager struct {
 
 	*gormSetRepo
 	*gormCardRepo
+	*bookmarkRepo
 }
 
 func NewManager() *Manager {
@@ -62,6 +63,7 @@ func NewManager() *Manager {
 	}
 	m.gormSetRepo = newGormSetRepo(m.db)
 	m.gormCardRepo = newGormCardRepo(m.db)
+	m.bookmarkRepo = NewBookmarkRepo(m.db)
 	return m
 }
 
@@ -125,6 +127,20 @@ func (m *Manager) LoadSymbolImage(uri string) ([]byte, error) {
 
 func (m *Manager) CardSearch(sr SearchRequest) ([]scryfallcards.Card, error) {
 	return m.gormCardRepo.Search(sr)
+}
+
+func (m *Manager) ListBookmarked() ([]scryfallcards.Card, error) {
+	bs, err := m.bookmarkRepo.List()
+	if err != nil {
+		return nil, err
+	}
+
+	var ids []string
+	for _, b := range bs {
+		ids = append(ids, b.CardID)
+	}
+
+	return m.gormCardRepo.ListByIds(ids)
 }
 
 func (m *Manager) reconfigureName(name string) string {

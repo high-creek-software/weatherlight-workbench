@@ -35,8 +35,8 @@ func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	)
 	bl.cardAdapter = card.NewCardAdapter(
 		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40)),
-		ansel.NewAnsel[string](200, ansel.SetLoader[string](bl.manager.LoadSymbolImage)),
 		bl.symbolRepo,
+		nil,
 	)
 
 	bl.setList = widget.NewList(bl.setAdapter.Count, bl.setAdapter.CreateTemplate, bl.setAdapter.UpdateTemplate)
@@ -65,13 +65,6 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 			bl.notifier.ShowError(err)
 			return
 		}
-		//allCards = append(allCards, response.Data...)
-		//
-		//for response.HasMore {
-		//	if response, err = bl.client.ListCards(set.Code, response.NextPage); err == nil {
-		//		allCards = append(allCards, response.Data...)
-		//	}
-		//}
 
 		bl.cardAdapter.AppendCards(allCards)
 		bl.cardList.Refresh()
@@ -81,7 +74,7 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, bl.symbolRepo, bl.manager)
+	cardLayout := card.NewCardLayout(&c, bl.symbolRepo, bl.manager, bl.notifier)
 	tab := container.NewTabItem(c.Name, cardLayout.Scroll)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)

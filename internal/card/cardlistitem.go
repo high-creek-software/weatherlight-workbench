@@ -13,8 +13,9 @@ var _ fyne.Widget = (*CardListItem)(nil)
 
 type CardListItem struct {
 	widget.BaseWidget
-	card *cards.Card
-	ico  fyne.Resource
+	card    *cards.Card
+	ico     fyne.Resource
+	setIcon fyne.Resource
 
 	manaCost []fyne.Resource
 }
@@ -43,8 +44,10 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	name := widget.NewRichTextWithText("template")
 	manaBox := container.NewHBox()
 	typeLine := widget.NewLabel("template")
+	setIcon := widget.NewIcon(nil)
+	setName := widget.NewLabel("template")
 
-	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine}
+	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine, setIcon: setIcon, setName: setName}
 
 	for i := 0; i < 4; i++ {
 		renderer.manaImages = append(renderer.manaImages, widget.NewIcon(nil))
@@ -60,6 +63,8 @@ type CardListItemRenderer struct {
 	manaBox    *fyne.Container
 	manaImages []*widget.Icon
 	typeLine   *widget.Label
+	setIcon    *widget.Icon
+	setName    *widget.Label
 }
 
 func (c CardListItemRenderer) Destroy() {
@@ -74,12 +79,15 @@ func (c CardListItemRenderer) Layout(size fyne.Size) {
 	namePos := fyne.NewPos(iconSize.Width+24, 10)
 	c.name.Move(namePos)
 
-	manaPos := namePos.Add(fyne.NewPos(10, 22))
+	manaPos := namePos.Add(fyne.NewPos(8, 22))
 	c.manaBox.Move(manaPos)
 	c.manaBox.Resize(fyne.NewSize(float32(20*len(c.listItem.manaCost)), 32))
 
-	typeLinePos := manaPos.Add(fyne.NewPos(-10, 32))
+	typeLinePos := manaPos.Add(fyne.NewPos(-10, 26))
 	c.typeLine.Move(typeLinePos)
+
+	setNamePos := typeLinePos.Add(fyne.NewPos(0, 32))
+	c.setName.Move(setNamePos)
 }
 
 func (c CardListItemRenderer) MinSize() fyne.Size {
@@ -87,13 +95,15 @@ func (c CardListItemRenderer) MinSize() fyne.Size {
 }
 
 func (c CardListItemRenderer) Objects() []fyne.CanvasObject {
-	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine}
+	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine, c.setName}
 
 	return base
 }
 
 func (c CardListItemRenderer) Refresh() {
 	c.icon.SetResource(c.listItem.ico)
+	c.setIcon.SetResource(c.listItem.setIcon)
+	c.setName.SetText(c.listItem.card.SetName)
 	c.name.ParseMarkdown(fmt.Sprintf("### %s", c.listItem.card.Name))
 	c.manaBox.RemoveAll()
 

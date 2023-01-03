@@ -30,3 +30,11 @@ var RestrictedResource = fyne.NewStaticResource("restricted", restricted)
 //go:embed banned.svg
 var banned []byte
 var BannedResource = fyne.NewStaticResource("banned", banned)
+
+//go:embed bookmark.svg
+var bookmark []byte
+var BookmarkResource = fyne.NewStaticResource("bookmark", bookmark)
+
+//go:embed bookmark_remove.svg
+var bookmarkRemove []byte
+var BookmarkRemoveResource = fyne.NewStaticResource("bookmark-remove", bookmarkRemove)

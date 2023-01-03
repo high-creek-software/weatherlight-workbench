@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall/cards"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"golang.org/x/exp/maps"
@@ -20,14 +21,50 @@ type CardLayout struct {
 	card       *cards.Card
 	symbolRepo symbol.SymbolRepo
 	manager    *storage.Manager
+
+	topBox            *fyne.Container
+	addBookmarkBtn    *widget.Button
+	removeBookmarkBtn *widget.Button
+
+	notifier notifier.Notifier
 }
 
-func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *storage.Manager) *CardLayout {
-	cl := &CardLayout{card: card, symbolRepo: symbolRepo, manager: manager}
+func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *storage.Manager, n notifier.Notifier) *CardLayout {
+	cl := &CardLayout{card: card, symbolRepo: symbolRepo, manager: manager, notifier: n}
 
 	cl.vBox = container.NewVBox()
 	cl.Scroll = container.NewScroll(cl.vBox)
 	cl.Scroll.Direction = container.ScrollVerticalOnly
+
+	bookmark, _ := cl.manager.FindBookmark(card.Id)
+	cl.addBookmarkBtn = widget.NewButtonWithIcon("Add", storage.BookmarkResource, func() {
+		err := cl.manager.AddBookmark(card.Id)
+		if err != nil {
+			cl.notifier.ShowError(err)
+			return
+		}
+		cl.addBookmarkBtn.Hide()
+		cl.removeBookmarkBtn.Show()
+		cl.topBox.Refresh()
+	})
+
+	cl.removeBookmarkBtn = widget.NewButtonWithIcon("Remove", storage.BookmarkRemoveResource, func() {
+		err := cl.manager.RemoveBookmark(card.Id)
+		if err != nil {
+			cl.notifier.ShowError(err)
+			return
+		}
+		cl.removeBookmarkBtn.Hide()
+		cl.addBookmarkBtn.Show()
+		cl.topBox.Refresh()
+	})
+	if bookmark == nil {
+		cl.removeBookmarkBtn.Hide()
+	} else {
+		cl.addBookmarkBtn.Hide()
+	}
+	cl.topBox = container.NewHBox(layout.NewSpacer(), cl.addBookmarkBtn, cl.removeBookmarkBtn)
+	cl.vBox.Add(cl.topBox)
 
 	image := canvas.NewImageFromResource(nil)
 	image.FillMode = canvas.ImageFillOriginal

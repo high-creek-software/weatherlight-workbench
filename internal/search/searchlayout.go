@@ -37,8 +37,8 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 
 	sl.cardAdapter = card.NewCardAdapter(
 		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10)),
-		ansel.NewAnsel[string](200, ansel.SetLoader[string](sl.manager.LoadSymbolImage)),
 		sl.symbolRepo,
+		nil,
 	)
 
 	sl.cardTabs = container.NewDocTabs()
@@ -93,7 +93,7 @@ func (sl *SearchLayout) doSearch() {
 func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	c := sl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, sl.symbolRepo, sl.manager)
+	cardLayout := card.NewCardLayout(&c, sl.symbolRepo, sl.manager, sl.notifier)
 	tab := container.NewTabItem(c.Name, cardLayout.Scroll)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)

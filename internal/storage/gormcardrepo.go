@@ -141,6 +141,22 @@ func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 	return res, nil
 }
 
+func (r *gormCardRepo) ListByIds(ids []string) ([]scryfallcards.Card, error) {
+	var gcs []gormCard
+	err := r.db.Where("id IN ?", ids).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var res []scryfallcards.Card
+	for _, gc := range gcs {
+		c := internalToExternal(gc)
+		res = append(res, c)
+	}
+
+	return res, nil
+}
+
 func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 	queryDB := r.db.Session(&gorm.Session{})
 	if sr.Name != "" {

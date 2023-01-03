@@ -12,14 +12,14 @@ import (
 var _ adapter.Adapter[cards.Card] = (*CardAdapter)(nil)
 
 type CardAdapter struct {
-	cards        []cards.Card
-	loader       *ansel.Ansel[string]
-	symbolLoader *ansel.Ansel[string]
-	symbolRepo   symbol.SymbolRepo
+	cards      []cards.Card
+	loader     *ansel.Ansel[string]
+	symbolRepo symbol.SymbolRepo
+	setLoader  func(uri string) ([]byte, error)
 }
 
-func NewCardAdapter(loader *ansel.Ansel[string], symbolLoader *ansel.Ansel[string], symbolRepo symbol.SymbolRepo) *CardAdapter {
-	return &CardAdapter{loader: loader, symbolLoader: symbolLoader, symbolRepo: symbolRepo}
+func NewCardAdapter(loader *ansel.Ansel[string], symbolRepo symbol.SymbolRepo, setLoader func(uri string) ([]byte, error)) *CardAdapter {
+	return &CardAdapter{loader: loader, symbolRepo: symbolRepo, setLoader: setLoader}
 }
 
 func (ca *CardAdapter) AppendCards(cs []cards.Card) {
@@ -56,6 +56,11 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 			}(c)
 		}
 	}
+
+	//var setIcon fyne.Resource
+	//if setData, err := ca.setLoader(card.Set); err == nil {
+	//	setIcon = fyne.NewStaticResource(set)
+	//}
 
 	listItem.UpdateCard(&card, mc)
 	ca.loader.Load(card.Id, card.ImageUris.ArtCrop, listItem)
