@@ -162,6 +162,9 @@ func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 	if sr.Name != "" {
 		queryDB = queryDB.Where("name LIKE ?", "%"+sr.Name+"%")
 	}
+	if sr.TypeLine != "" {
+		queryDB = queryDB.Where("type_line LIKE ?", "%"+sr.TypeLine+"%")
+	}
 	if sr.White {
 		queryDB = queryDB.Where("white = true")
 	}

@@ -14,6 +14,7 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"gitlab.com/kendellfab/mtgstudio/internal/sync"
+	"os"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ type MtgStudio struct {
 }
 
 func NewMtgStudio() *MtgStudio {
-	//os.Setenv("FYNE_THEME", "light")
+	os.Setenv("FYNE_THEME", "dark")
 	mtgs := &MtgStudio{app: app.New()}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.Resize(fyne.NewSize(1200, 700))

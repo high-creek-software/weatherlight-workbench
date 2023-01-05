@@ -22,7 +22,8 @@ type SearchLayout struct {
 	cardList    *widget.List
 	cardAdapter *card.CardAdapter
 
-	search    *widget.Entry
+	name      *widget.Entry
+	typeLine  *widget.Entry
 	searchBtn *widget.Button
 
 	whiteCheck *widget.Check
@@ -45,7 +46,10 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	sl.cardList = widget.NewList(sl.cardAdapter.Count, sl.cardAdapter.CreateTemplate, sl.cardAdapter.UpdateTemplate)
 	sl.cardList.OnSelected = sl.cardSelected
 
-	sl.search = widget.NewEntry()
+	sl.name = widget.NewEntry()
+	sl.name.SetPlaceHolder("Card Name")
+	sl.typeLine = widget.NewEntry()
+	sl.typeLine.SetPlaceHolder("Type Line")
 	sl.searchBtn = widget.NewButton("Search", sl.doSearch)
 	sl.whiteCheck = widget.NewCheck("White", nil)
 	sl.blueCheck = widget.NewCheck("Blue", nil)
@@ -55,16 +59,17 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 
 	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
 	insideSplit.SetOffset(0.20)
-	sl.Split = container.NewHSplit(container.NewVBox(sl.search, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck, sl.searchBtn), insideSplit)
+	sl.Split = container.NewHSplit(container.NewVBox(sl.name, sl.typeLine, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck, sl.searchBtn), insideSplit)
 	sl.Split.SetOffset(0.15)
 
 	return sl
 }
 
 func (sl *SearchLayout) doSearch() {
-	term := sl.search.Text
+	name := sl.name.Text
+	typeLine := sl.typeLine.Text
 
-	sr := storage.SearchRequest{Name: term}
+	sr := storage.SearchRequest{Name: name, TypeLine: typeLine}
 	sr.White = sl.whiteCheck.Checked
 	sr.Blue = sl.blueCheck.Checked
 	sr.Black = sl.blackCheck.Checked
