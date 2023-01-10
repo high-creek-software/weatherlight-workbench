@@ -2,6 +2,7 @@ package browse
 
 import (
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
@@ -14,6 +15,9 @@ import (
 
 type BrowseLayout struct {
 	*container.Split
+
+	filterEntry *widget.Entry
+	filterClear *widget.Button
 
 	setList    *widget.List
 	setAdapter *set.SetAdapter
@@ -34,7 +38,7 @@ func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 		ansel.NewAnsel[string](100, ansel.SetLoadedCallback[string](updateSetIcon), ansel.SetLoader[string](bl.manager.LoadSetIcon)),
 	)
 	bl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40)),
+		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40), ansel.SetLoadingImage[string](storage.CardLoadingResource), ansel.SetFailedImage[string](storage.CardFailedResource)),
 		bl.symbolRepo,
 		nil,
 	)
@@ -46,12 +50,30 @@ func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
 
+	bl.filterEntry = widget.NewEntry()
+	bl.filterEntry.PlaceHolder = "Filter set name..."
+	bl.filterEntry.OnChanged = bl.filterChanged
+	bl.filterClear = widget.NewButtonWithIcon("", theme.ContentClearIcon(), bl.clearFilter)
+	bl.filterClear.Importance = widget.MediumImportance
+	filterBorder := container.NewBorder(nil, nil, nil, bl.filterClear, bl.filterEntry)
+
 	insideSplit := container.NewHSplit(bl.cardList, bl.cardTabs)
 	insideSplit.SetOffset(0.20)
-	bl.Split = container.NewHSplit(bl.setList, insideSplit)
+	bl.Split = container.NewHSplit(container.NewBorder(container.NewPadded(filterBorder), nil, nil, nil, bl.setList), insideSplit)
 	bl.Split.SetOffset(0.15)
 
 	return bl
+}
+
+func (bl *BrowseLayout) clearFilter() {
+	bl.filterEntry.SetText("")
+	bl.setAdapter.ExecuteFilter("")
+	bl.setList.Refresh()
+}
+
+func (bl *BrowseLayout) filterChanged(input string) {
+	bl.setAdapter.ExecuteFilter(input)
+	bl.setList.Refresh()
 }
 
 func (bl *BrowseLayout) setSelected(id widget.ListItemID) {

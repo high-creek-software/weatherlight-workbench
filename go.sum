@@ -226,6 +226,8 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/lithammer/fuzzysearch v1.1.5 h1:Ag7aKU08wp0R9QCfF4GoGST9HbmAIeLP7xwMrOBEp1c=
+github.com/lithammer/fuzzysearch v1.1.5/go.mod h1:1R1LRNk7yKid1BaQkmuLQaHruxcC4HmAH30Dh61Ih1Q=
 github.com/lucor/goinfo v0.0.0-20210802170112-c078a2b0f08b/go.mod h1:PRq09yoB+Q2OJReAmwzKivcYyremnibWGbK7WfftHzc=
 github.com/magiconair/properties v1.8.5/go.mod h1:y3VJvCyxH9uVvJTWEGAELF3aiYNyPKd5NZ3oSwXrF60=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
@@ -315,6 +317,8 @@ gitlab.com/high-creek-software/ansel v0.0.0-20221231205921-24ea1e0a84e5 h1:KDPw6
 gitlab.com/high-creek-software/ansel v0.0.0-20221231205921-24ea1e0a84e5/go.mod h1:cGVzq94a/dz27RZ1Z+0YcGqqOa3pP2xXq50gOJGAt48=
 gitlab.com/high-creek-software/ansel v0.0.0-20230102221143-dd10d717a917 h1:o/Q5uzgpvnA+JEn2nR1WXj3NOkaSmzpON0vRdKwysGM=
 gitlab.com/high-creek-software/ansel v0.0.0-20230102221143-dd10d717a917/go.mod h1:cGVzq94a/dz27RZ1Z+0YcGqqOa3pP2xXq50gOJGAt48=
+gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde h1:fFuCAiUQ8ypv1OrDysq7m5H7xDuz/Lkq62b4Az6jxd8=
+gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde/go.mod h1:cGVzq94a/dz27RZ1Z+0YcGqqOa3pP2xXq50gOJGAt48=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20221231134554-62d78c2d2954 h1:UjdmqJKOP+w7oqR7cl7au8s5NsantxBaJmNtuXpmXq0=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20221231134554-62d78c2d2954/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20221231205955-953ed77521e7 h1:S/vyoTlZJbx0FQRe3hyuxXMY77ORnY6s59ski30Srh4=

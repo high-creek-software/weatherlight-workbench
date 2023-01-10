@@ -5,7 +5,7 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	gitlab.com/high-creek-software/ansel v0.0.0-20230102221143-dd10d717a917
+	gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde
 	gitlab.com/high-creek-software/goscryfall v0.0.0-20230102221038-52482512719b
 )
 
@@ -28,6 +28,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
+	github.com/lithammer/fuzzysearch v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect

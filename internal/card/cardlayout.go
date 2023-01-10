@@ -1,17 +1,21 @@
 package card
 
 import (
+	"bytes"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/nfnt/resize"
 	"gitlab.com/high-creek-software/goscryfall/cards"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
+	"image/png"
+	"log"
 )
 
 type CardLayout struct {
@@ -72,7 +76,7 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 
 	go func() {
 		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
-			image.Resource = fyne.NewStaticResource(card.ImageUris.Png, img)
+			image.Resource = fyne.NewStaticResource(card.ImageUris.Png, cl.resizeImage(img))
 			image.Refresh()
 		}
 
@@ -80,6 +84,21 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	cl.setupLegalities()
 
 	return cl
+}
+
+func (cl *CardLayout) resizeImage(bs []byte) []byte {
+	buff := bytes.NewBuffer(bs)
+	img, err := png.Decode(buff)
+	if err != nil {
+		log.Println("error parsing image:", err)
+		return bs
+	}
+
+	r := resize.Resize(450, 0, img, resize.Lanczos3)
+
+	var out bytes.Buffer
+	png.Encode(&out, r)
+	return out.Bytes()
 }
 
 func (cl *CardLayout) setupLegalities() {

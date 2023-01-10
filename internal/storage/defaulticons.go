@@ -38,3 +38,11 @@ var BookmarkResource = fyne.NewStaticResource("bookmark", bookmark)
 //go:embed bookmark_remove.svg
 var bookmarkRemove []byte
 var BookmarkRemoveResource = fyne.NewStaticResource("bookmark-remove", bookmarkRemove)
+
+//go:embed card_failed.svg
+var cardFailed []byte
+var CardFailedResource = fyne.NewStaticResource("card-failed", cardFailed)
+
+//go:embed card_loading.svg
+var cardLoading []byte
+var CardLoadingResource = fyne.NewStaticResource("card-loading", cardLoading)

@@ -31,13 +31,15 @@ type SearchLayout struct {
 	blackCheck *widget.Check
 	redCheck   *widget.Check
 	greenCheck *widget.Check
+
+	brawlCheck *widget.Check
 }
 
 func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier) *SearchLayout {
 	sl := &SearchLayout{manager: manager, symbolRepo: symbolRepo, notifier: n}
 
 	sl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10)),
+		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10), ansel.SetLoadingImage[string](storage.CardLoadingResource), ansel.SetFailedImage[string](storage.CardFailedResource)),
 		sl.symbolRepo,
 		nil,
 	)
@@ -57,9 +59,14 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	sl.redCheck = widget.NewCheck("Red", nil)
 	sl.greenCheck = widget.NewCheck("Green", nil)
 
+	sl.brawlCheck = widget.NewCheck("Brawl Legal", nil)
+
 	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
 	insideSplit.SetOffset(0.20)
-	sl.Split = container.NewHSplit(container.NewVBox(sl.name, sl.typeLine, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck, sl.searchBtn), insideSplit)
+	sl.Split = container.NewHSplit(
+		container.NewPadded(container.NewVBox(sl.name, sl.typeLine, widget.NewSeparator(), sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck, widget.NewSeparator(), sl.brawlCheck, sl.searchBtn)),
+		insideSplit,
+	)
 	sl.Split.SetOffset(0.15)
 
 	return sl
@@ -75,6 +82,7 @@ func (sl *SearchLayout) doSearch() {
 	sr.Black = sl.blackCheck.Checked
 	sr.Red = sl.redCheck.Checked
 	sr.Green = sl.greenCheck.Checked
+	sr.BrawlLegal = sl.brawlCheck.Checked
 
 	go func() {
 		cards, err := sl.manager.Search(sr)
@@ -87,6 +95,7 @@ func (sl *SearchLayout) doSearch() {
 
 		if len(cards) > 0 {
 			sl.cardAdapter.Clear()
+			sl.cardList.Refresh()
 			sl.cardAdapter.AppendCards(cards)
 			sl.cardList.Refresh()
 			sl.cardList.ScrollToTop()

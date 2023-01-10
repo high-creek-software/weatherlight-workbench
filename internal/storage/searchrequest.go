@@ -8,4 +8,6 @@ type SearchRequest struct {
 	Black    bool
 	Red      bool
 	Green    bool
+
+	BrawlLegal bool
 }

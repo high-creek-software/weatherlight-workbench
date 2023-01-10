@@ -181,6 +181,10 @@ func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 		queryDB = queryDB.Where("green = true")
 	}
 
+	if sr.BrawlLegal {
+		queryDB = queryDB.Where("legal_brawl = ?", scryfallcards.Legal.String())
+	}
+
 	queryDB = queryDB.Order("name asc")
 
 	var gcs []gormCard
