@@ -32,7 +32,25 @@ type SearchLayout struct {
 	redCheck   *widget.Check
 	greenCheck *widget.Check
 
-	brawlCheck *widget.Check
+	standardCheck        *widget.Check
+	futureCheck          *widget.Check
+	historicCheck        *widget.Check
+	gladiatorCheck       *widget.Check
+	pioneerCheck         *widget.Check
+	explorerCheck        *widget.Check
+	modernCheck          *widget.Check
+	legacyCheck          *widget.Check
+	pauperCheck          *widget.Check
+	vintageCheck         *widget.Check
+	pennyCheck           *widget.Check
+	commanderCheck       *widget.Check
+	brawlCheck           *widget.Check
+	historicBrawlCheck   *widget.Check
+	alchemyCheck         *widget.Check
+	pauperCommanderCheck *widget.Check
+	duelCheck            *widget.Check
+	oldschoolCheck       *widget.Check
+	premodernCheck       *widget.Check
 }
 
 func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier) *SearchLayout {
@@ -53,18 +71,51 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	sl.typeLine = widget.NewEntry()
 	sl.typeLine.SetPlaceHolder("Type Line")
 	sl.searchBtn = widget.NewButton("Search", sl.doSearch)
+
+	colorsLbl := widget.NewRichTextFromMarkdown("## Colors")
 	sl.whiteCheck = widget.NewCheck("White", nil)
 	sl.blueCheck = widget.NewCheck("Blue", nil)
 	sl.blackCheck = widget.NewCheck("Black", nil)
 	sl.redCheck = widget.NewCheck("Red", nil)
 	sl.greenCheck = widget.NewCheck("Green", nil)
+	colorWrapper := container.NewAdaptiveGrid(2, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck)
 
-	sl.brawlCheck = widget.NewCheck("Brawl Legal", nil)
+	legalLbl := widget.NewRichTextFromMarkdown("## Legalities")
+	sl.standardCheck = widget.NewCheck("Standard", nil)
+	sl.futureCheck = widget.NewCheck("Future", nil)
+	sl.historicCheck = widget.NewCheck("Historic", nil)
+	sl.gladiatorCheck = widget.NewCheck("Gladiator", nil)
+	sl.pioneerCheck = widget.NewCheck("Pioneer", nil)
+	sl.explorerCheck = widget.NewCheck("Explorer", nil)
+	sl.modernCheck = widget.NewCheck("Modern", nil)
+	sl.legacyCheck = widget.NewCheck("Legacy", nil)
+	sl.pauperCheck = widget.NewCheck("Pauper", nil)
+	sl.vintageCheck = widget.NewCheck("Vintage", nil)
+	sl.pennyCheck = widget.NewCheck("Penny", nil)
+	sl.commanderCheck = widget.NewCheck("Commander", nil)
+	sl.brawlCheck = widget.NewCheck("Brawl", nil)
+	sl.historicBrawlCheck = widget.NewCheck("Historic Brawl", nil)
+	sl.alchemyCheck = widget.NewCheck("Alchemy", nil)
+	sl.pauperCommanderCheck = widget.NewCheck("Pauper Commander", nil)
+	sl.duelCheck = widget.NewCheck("Duel", nil)
+	sl.oldschoolCheck = widget.NewCheck("Oldschool", nil)
+	sl.premodernCheck = widget.NewCheck("Premodern", nil)
+
+	legalWrapper := container.NewAdaptiveGrid(2, sl.standardCheck,
+		sl.futureCheck, sl.historicCheck,
+		sl.gladiatorCheck, sl.pioneerCheck,
+		sl.explorerCheck, sl.modernCheck,
+		sl.legacyCheck, sl.pauperCheck,
+		sl.vintageCheck, sl.pennyCheck,
+		sl.commanderCheck, sl.brawlCheck,
+		sl.historicBrawlCheck, sl.alchemyCheck,
+		sl.pauperCommanderCheck, sl.duelCheck,
+		sl.oldschoolCheck, sl.premodernCheck)
 
 	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
 	insideSplit.SetOffset(0.20)
 	sl.Split = container.NewHSplit(
-		container.NewPadded(container.NewVBox(sl.name, sl.typeLine, widget.NewSeparator(), sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck, widget.NewSeparator(), sl.brawlCheck, sl.searchBtn)),
+		container.NewPadded(container.NewVBox(sl.name, sl.typeLine, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)),
 		insideSplit,
 	)
 	sl.Split.SetOffset(0.15)
@@ -82,7 +133,25 @@ func (sl *SearchLayout) doSearch() {
 	sr.Black = sl.blackCheck.Checked
 	sr.Red = sl.redCheck.Checked
 	sr.Green = sl.greenCheck.Checked
+	sr.StandardLegal = sl.standardCheck.Checked
+	sr.FutureLegal = sl.futureCheck.Checked
+	sr.HistoricLegal = sl.historicCheck.Checked
+	sr.GladiatorLegal = sl.gladiatorCheck.Checked
+	sr.PioneerLegal = sl.pioneerCheck.Checked
+	sr.ExplorerLegal = sl.explorerCheck.Checked
+	sr.ModernLegal = sl.modernCheck.Checked
+	sr.LegacyLegal = sl.legacyCheck.Checked
+	sr.PauperLegal = sl.pauperCheck.Checked
+	sr.VintageLegal = sl.vintageCheck.Checked
+	sr.PennyLegal = sl.pennyCheck.Checked
+	sr.CommanderLegal = sl.commanderCheck.Checked
 	sr.BrawlLegal = sl.brawlCheck.Checked
+	sr.HistoricBrawlLegal = sl.historicBrawlCheck.Checked
+	sr.AlchemyLegal = sl.alchemyCheck.Checked
+	sr.PauperCommanderLegal = sl.pauperCommanderCheck.Checked
+	sr.DuelLegal = sl.duelCheck.Checked
+	sr.OldschoolLegal = sl.oldschoolCheck.Checked
+	sr.PremodernLegal = sl.premodernCheck.Checked
 
 	go func() {
 		cards, err := sl.manager.Search(sr)

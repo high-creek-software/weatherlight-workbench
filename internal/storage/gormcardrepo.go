@@ -181,8 +181,62 @@ func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 		queryDB = queryDB.Where("green = true")
 	}
 
+	if sr.StandardLegal {
+		queryDB = queryDB.Where("legal_standard = ?", scryfallcards.Legal.String())
+	}
+	if sr.FutureLegal {
+		queryDB = queryDB.Where("legal_future = ?", scryfallcards.Legal.String())
+	}
+	if sr.HistoricLegal {
+		queryDB = queryDB.Where("legal_historic = ?", scryfallcards.Legal.String())
+	}
+	if sr.GladiatorLegal {
+		queryDB = queryDB.Where("legal_gladiator = ?", scryfallcards.Legal.String())
+	}
+	if sr.PioneerLegal {
+		queryDB = queryDB.Where("legal_pioneer = ?", scryfallcards.Legal.String())
+	}
+	if sr.ExplorerLegal {
+		queryDB = queryDB.Where("legal_explorer = ?", scryfallcards.Legal.String())
+	}
+	if sr.ModernLegal {
+		queryDB = queryDB.Where("legal_modern = ?", scryfallcards.Legal.String())
+	}
+	if sr.LegacyLegal {
+		queryDB = queryDB.Where("legal_legacy = ?", scryfallcards.Legal.String())
+	}
+	if sr.PauperLegal {
+		queryDB = queryDB.Where("legal_pauper = ?", scryfallcards.Legal.String())
+	}
+	if sr.VintageLegal {
+		queryDB = queryDB.Where("legal_vintage = ?", scryfallcards.Legal.String())
+	}
+	if sr.PennyLegal {
+		queryDB = queryDB.Where("legal_penny = ?", scryfallcards.Legal.String())
+	}
+	if sr.CommanderLegal {
+		queryDB = queryDB.Where("legal_commander = ?", scryfallcards.Legal.String())
+	}
 	if sr.BrawlLegal {
 		queryDB = queryDB.Where("legal_brawl = ?", scryfallcards.Legal.String())
+	}
+	if sr.HistoricBrawlLegal {
+		queryDB = queryDB.Where("legal_historic_brawl = ?", scryfallcards.Legal.String())
+	}
+	if sr.AlchemyLegal {
+		queryDB = queryDB.Where("legal_alchemy = ?", scryfallcards.Legal.String())
+	}
+	if sr.PauperCommanderLegal {
+		queryDB = queryDB.Where("legal_pauper_commander = ?", scryfallcards.Legal.String())
+	}
+	if sr.DuelLegal {
+		queryDB = queryDB.Where("legal_duel = ?", scryfallcards.Legal.String())
+	}
+	if sr.OldschoolLegal {
+		queryDB = queryDB.Where("legal_oldschool = ?", scryfallcards.Legal.String())
+	}
+	if sr.PremodernLegal {
+		queryDB = queryDB.Where("legal_premodern = ?", scryfallcards.Legal.String())
 	}
 
 	queryDB = queryDB.Order("name asc")
