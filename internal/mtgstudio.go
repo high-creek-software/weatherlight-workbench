@@ -47,7 +47,7 @@ type MtgStudio struct {
 
 func NewMtgStudio() *MtgStudio {
 	os.Setenv("FYNE_THEME", "dark")
-	mtgs := &MtgStudio{app: app.New()}
+	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.Resize(fyne.NewSize(1200, 700))
 	mtgs.manager = storage.NewManager()
