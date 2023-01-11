@@ -1,4 +1,4 @@
-package storage
+package icons
 
 import (
 	_ "embed"

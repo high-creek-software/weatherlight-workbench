@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
+	"gitlab.com/kendellfab/mtgstudio/internal/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
@@ -57,7 +58,7 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	sl := &SearchLayout{manager: manager, symbolRepo: symbolRepo, notifier: n}
 
 	sl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10), ansel.SetLoadingImage[string](storage.CardLoadingResource), ansel.SetFailedImage[string](storage.CardFailedResource)),
+		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource)),
 		sl.symbolRepo,
 		nil,
 	)
@@ -114,8 +115,10 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 
 	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
 	insideSplit.SetOffset(0.20)
+	scroll := container.NewScroll(container.NewPadded(container.NewVBox(sl.name, sl.typeLine, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)))
+	scroll.Direction = container.ScrollVerticalOnly
 	sl.Split = container.NewHSplit(
-		container.NewPadded(container.NewVBox(sl.name, sl.typeLine, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)),
+		scroll,
 		insideSplit,
 	)
 	sl.Split.SetOffset(0.15)

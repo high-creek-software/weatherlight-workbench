@@ -55,8 +55,9 @@ func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
 			}
 		}
 		log.Println(time.Now().Sub(start))
-
 		doneChan <- true
+		close(resChan)
+		close(doneChan)
 	}()
 
 	return resChan, doneChan, nil

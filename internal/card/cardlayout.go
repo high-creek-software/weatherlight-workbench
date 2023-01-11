@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/nfnt/resize"
 	"gitlab.com/high-creek-software/goscryfall/cards"
+	"gitlab.com/kendellfab/mtgstudio/internal/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
@@ -41,7 +42,7 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	cl.Scroll.Direction = container.ScrollVerticalOnly
 
 	bookmark, _ := cl.manager.FindBookmark(card.Id)
-	cl.addBookmarkBtn = widget.NewButtonWithIcon("Add", storage.BookmarkResource, func() {
+	cl.addBookmarkBtn = widget.NewButtonWithIcon("Add", icons.BookmarkResource, func() {
 		err := cl.manager.AddBookmark(card.Id)
 		if err != nil {
 			cl.notifier.ShowError(err)
@@ -52,7 +53,7 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		cl.topBox.Refresh()
 	})
 
-	cl.removeBookmarkBtn = widget.NewButtonWithIcon("Remove", storage.BookmarkRemoveResource, func() {
+	cl.removeBookmarkBtn = widget.NewButtonWithIcon("Remove", icons.BookmarkRemoveResource, func() {
 		err := cl.manager.RemoveBookmark(card.Id)
 		if err != nil {
 			cl.notifier.ShowError(err)
@@ -112,13 +113,13 @@ func (cl *CardLayout) setupLegalities() {
 		ico := widget.NewIcon(nil)
 		switch legalities[key] {
 		case cards.Legal:
-			ico.SetResource(storage.LegalResource)
+			ico.SetResource(icons.LegalResource)
 		case cards.NotLegal:
-			ico.SetResource(storage.NotLegalResource)
+			ico.SetResource(icons.NotLegalResource)
 		case cards.Restricted:
-			ico.SetResource(storage.RestrictedResource)
+			ico.SetResource(icons.RestrictedResource)
 		case cards.Banned:
-			ico.SetResource(storage.BannedResource)
+			ico.SetResource(icons.BannedResource)
 		}
 		legalitiesTable.Add(ico)
 	}

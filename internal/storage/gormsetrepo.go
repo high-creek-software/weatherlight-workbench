@@ -2,6 +2,7 @@ package storage
 
 import (
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 import scryfallset "gitlab.com/high-creek-software/goscryfall/sets"
 
@@ -37,7 +38,7 @@ func (r *gormSetRepo) StoreSets(sets []scryfallset.Set) error {
 		insert = append(insert, gs)
 	}
 
-	return r.db.Create(&insert).Error
+	return r.db.Clauses(clause.OnConflict{UpdateAll: true}).Create(&insert).Error
 }
 
 func (r *gormSetRepo) ListSets() ([]scryfallset.Set, error) {

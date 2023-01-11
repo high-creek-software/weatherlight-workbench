@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 import scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 
@@ -125,7 +126,7 @@ func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 		}
 		insert = append(insert, i)
 	}
-	return r.db.CreateInBatches(&insert, 50).Error
+	return r.db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(&insert, 50).Error
 }
 
 func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
@@ -139,6 +140,13 @@ func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 	}
 
 	return res, nil
+}
+
+func (r *gormCardRepo) FindByName(name string) (scryfallcards.Card, error) {
+	var c scryfallcards.Card
+	err := r.db.Where("name = ?", name).Find(&c).Error
+
+	return c, err
 }
 
 func (r *gormCardRepo) ListByIds(ids []string) ([]scryfallcards.Card, error) {

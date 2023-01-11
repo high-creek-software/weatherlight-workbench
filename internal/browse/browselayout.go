@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
+	"gitlab.com/kendellfab/mtgstudio/internal/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/set"
@@ -38,7 +39,7 @@ func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 		ansel.NewAnsel[string](100, ansel.SetLoadedCallback[string](updateSetIcon), ansel.SetLoader[string](bl.manager.LoadSetIcon)),
 	)
 	bl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40), ansel.SetLoadingImage[string](storage.CardLoadingResource), ansel.SetFailedImage[string](storage.CardFailedResource)),
+		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource)),
 		bl.symbolRepo,
 		nil,
 	)

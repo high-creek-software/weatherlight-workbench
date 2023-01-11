@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall"
@@ -16,6 +17,12 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/sync"
 	"os"
 	"strings"
+	"time"
+)
+
+const (
+	lastSyncKey = "last_sync_key"
+	syncFormat  = "2006-01-02 15:04:05"
 )
 
 type MtgStudio struct {
@@ -28,6 +35,12 @@ type MtgStudio struct {
 	client        *goscryfall.Client
 	manager       *storage.Manager
 	importManager *sync.ImportManager
+
+	syncBtn      *widget.Button
+	syncLastLbl  *widget.Label
+	syncProgress *widget.ProgressBar
+	syncSetLbl   *widget.Label
+	settingsBtn  *widget.Button
 
 	symbolRepo symbol.SymbolRepo
 }
@@ -57,7 +70,21 @@ func (m *MtgStudio) setupBody() {
 		container.NewTabItem("Search", m.searchLayout.Split),
 		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
 	)
-	m.window.SetContent(appTabs)
+
+	m.syncBtn = widget.NewButton("Sync", m.syncBtnTouched)
+	m.syncLastLbl = widget.NewLabel("Last Synced")
+	m.syncProgress = widget.NewProgressBar()
+	m.syncProgress.SetValue(0)
+	m.syncProgress.Max = 100
+	m.syncProgress.Hide()
+	m.syncSetLbl = widget.NewLabel("Set Name")
+	m.syncSetLbl.Hide()
+	m.settingsBtn = widget.NewButtonWithIcon("", theme.SettingsIcon(), m.settingsBtnTouched)
+
+	// container.NewBorder(nil, nil, m.syncSetLbl, nil, m.syncProgress)
+	syncBorder := container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.settingsBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncLastLbl, layout.NewSpacer()), nil, container.NewVBox(m.syncSetLbl, m.syncProgress))))
+
+	m.window.SetContent(container.NewBorder(nil, syncBorder, nil, nil, appTabs))
 
 	appTabs.OnSelected = func(ti *container.TabItem) {
 		if ti.Text == "Bookmarked" {
@@ -99,36 +126,76 @@ func (m *MtgStudio) Start() {
 	m.window.ShowAndRun()
 }
 
+func (m *MtgStudio) settingsBtnTouched() {
+	dialog.ShowInformation("Settings", "Does nothing yet", m.window)
+}
+
+func (m *MtgStudio) syncBtnTouched() {
+	m.runSync()
+}
+
 func (m *MtgStudio) appStartedCallback() {
 	// TODO: Figure out how to determine if an import is needed.
-
+	m.showLastSyncedAt()
 	setCount := m.manager.SetCount()
 	if setCount == 0 {
-		progress := widget.NewProgressBar()
-		progress.Max = 100
-		setName := widget.NewLabel("Set:")
-		dialog.ShowCustom("Import progress", "OK", container.NewVBox(setName, progress), m.window)
-		resChan, doneChan, err := m.importManager.Import()
-		if err != nil {
-			m.ShowError(err)
-		} else {
-			go func() {
-				for {
-					select {
-					case status := <-resChan:
-						setName.SetText(status.SetName)
-						progress.SetValue(status.Percent)
-					case <-doneChan:
-						setName.SetText("Import Complete")
-						progress.SetValue(100)
-						m.browseLayout.LoadSets()
-					}
-				}
-			}()
-		}
+		m.runSync()
 	} else {
 		m.browseLayout.LoadSets()
 	}
+}
+
+func (m *MtgStudio) runSync() {
+	/*progress := widget.NewProgressBar()
+	progress.Max = 100
+	setName := widget.NewLabel("Set:")
+	dialog.ShowCustom("Import progress", "OK", container.NewVBox(setName, progress), m.window)*/
+	m.syncSetLbl.Show()
+	m.syncProgress.Show()
+	startCount := m.manager.SetCount()
+	resChan, doneChan, err := m.importManager.Import()
+	if err != nil {
+		m.ShowError(err)
+	} else {
+		go func() {
+		F:
+			for {
+				select {
+				case status := <-resChan:
+					/*setName.SetText(status.SetName)
+					progress.SetValue(status.Percent)*/
+					m.syncSetLbl.SetText(status.SetName)
+					m.syncProgress.SetValue(status.Percent)
+					if startCount == 0 {
+						m.browseLayout.LoadSets()
+					}
+				case <-doneChan:
+					/*setName.SetText("Import Complete")
+					progress.SetValue(100)*/
+					m.syncSetLbl.Hide()
+					m.syncProgress.Hide()
+					m.browseLayout.LoadSets()
+					break F
+				}
+			}
+			synced := time.Now()
+			m.app.Preferences().SetString(lastSyncKey, synced.Format(time.RFC3339))
+			m.showLastSyncedAt()
+		}()
+	}
+}
+
+func (m *MtgStudio) showLastSyncedAt() {
+	syncedStr := m.app.Preferences().StringWithFallback(lastSyncKey, "--")
+	if syncedStr == "--" {
+		m.syncLastLbl.SetText(syncedStr)
+		return
+	}
+
+	if synced, err := time.Parse(time.RFC3339, syncedStr); err == nil {
+		m.syncLastLbl.SetText(synced.Format(syncFormat))
+	}
+
 }
 
 func (m *MtgStudio) ShowDialog(title, message string) {
