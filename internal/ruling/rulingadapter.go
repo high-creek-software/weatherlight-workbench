@@ -10,11 +10,16 @@ import (
 var _ adapter.Adapter[rulings.Ruling] = (*RulingAdapter)(nil)
 
 type RulingAdapter struct {
-	r []rulings.Ruling
+	r    []rulings.Ruling
+	list *widget.List
 }
 
 func NewRulingAdapter(r []rulings.Ruling) *RulingAdapter {
 	return &RulingAdapter{r: r}
+}
+
+func (ra *RulingAdapter) SetList(list *widget.List) {
+	ra.list = list
 }
 
 func (ra *RulingAdapter) Count() int {
@@ -29,6 +34,8 @@ func (ra *RulingAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObje
 	r := ra.Item(id)
 	li := co.(*RulingListItem)
 	li.Set(r)
+
+	ra.list.SetItemHeight(id, li.MinSize().Height)
 }
 
 func (ra *RulingAdapter) Item(id widget.ListItemID) rulings.Ruling {

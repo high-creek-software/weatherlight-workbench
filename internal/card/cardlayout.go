@@ -74,13 +74,15 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		cl.addBookmarkBtn.Hide()
 	}
 
-	btnBorder := container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
-	cl.vBox.Add(btnBorder)
+	cl.topBox = container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
+	cl.vBox.Add(cl.topBox)
 
 	image := canvas.NewImageFromResource(icons.FullCardLoadingResource)
 	image.FillMode = canvas.ImageFillOriginal
 
 	cl.vBox.Add(container.NewHBox(layout.NewSpacer(), image, layout.NewSpacer()))
+	//cl.vBox.Add(container.NewBorder(nil, nil, layout.NewSpacer(), layout.NewSpacer(), image))
+	//cl.vBox.Add(container.NewGridWithColumns(3, layout.NewSpacer(), image, layout.NewSpacer()))
 
 	go func() {
 		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
@@ -105,17 +107,8 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		} else if len(rulings) > 0 {
 			adapter := ruling.NewRulingAdapter(rulings)
 			ruleList := widget.NewList(adapter.Count, adapter.CreateTemplate, adapter.UpdateTemplate)
+			adapter.SetList(ruleList)
 			cl.docTabs.Append(container.NewTabItem("Rulings", ruleList))
-
-			/*ruleBox := container.NewVBox()
-			for _, rule := range rulings {
-				li := ruling.NewRulingListItem()
-				li.Set(rule)
-				ruleBox.Add(li)
-			}
-			ruleScroll := container.NewScroll(ruleBox)
-			ruleScroll.Direction = container.ScrollVerticalOnly
-			cl.docTabs.Append(container.NewTabItem("Rulings", ruleScroll))*/
 		}
 	}()
 

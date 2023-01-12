@@ -50,6 +50,8 @@ type rulingListItemRenderer struct {
 	orgTitle  *widget.Label
 	orgLbl    *widget.Label
 	reasonLbl *widget.Label
+
+	previousMin fyne.Size
 }
 
 func (r rulingListItemRenderer) Destroy() {
@@ -72,14 +74,16 @@ func (r rulingListItemRenderer) Layout(size fyne.Size) {
 
 	topLeft = topLeft.Add(fyne.NewPos(0, dtSize.Height+theme.Padding()))
 	r.reasonLbl.Move(topLeft)
-	r.reasonLbl.Resize(fyne.NewSize(size.Width-theme.Padding(), r.reasonLbl.MinSize().Height))
+	reasonSize := fyne.NewSize(size.Width-theme.Padding(), r.reasonLbl.MinSize().Height)
+	r.reasonLbl.Resize(reasonSize)
 }
 
 func (r rulingListItemRenderer) MinSize() fyne.Size {
 	topSize := r.dateTitle.MinSize()
 	reasonSize := r.reasonLbl.MinSize()
 
-	return fyne.NewSize(reasonSize.Width, topSize.Height+reasonSize.Height+theme.Padding()*4)
+	size := fyne.NewSize(reasonSize.Width, topSize.Height+reasonSize.Height+theme.Padding()*4)
+	return size
 }
 
 func (r rulingListItemRenderer) Objects() []fyne.CanvasObject {
