@@ -325,6 +325,8 @@ gitlab.com/high-creek-software/goscryfall v0.0.0-20221231205955-953ed77521e7 h1:
 gitlab.com/high-creek-software/goscryfall v0.0.0-20221231205955-953ed77521e7/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20230102221038-52482512719b h1:UPmVauLnmp6EIxNwuguV8THbtsa+MBp8JReXM0Vjg3Q=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20230102221038-52482512719b/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230111134933-1468bade2ccc h1:rokgZ74q5TbGq44lkggcGoFfSP8Vvf3xuds8jWFQOuA=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230111134933-1468bade2ccc/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.0/go.mod h1:h9puh54ZTgAKtEbut2oe9P4L/oqKCVB6xsXlzd7alYQ=

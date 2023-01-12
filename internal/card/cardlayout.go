@@ -12,6 +12,7 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
+	"gitlab.com/kendellfab/mtgstudio/internal/ruling"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -30,6 +31,7 @@ type CardLayout struct {
 	topBox            *fyne.Container
 	addBookmarkBtn    *widget.Button
 	removeBookmarkBtn *widget.Button
+	docTabs           *container.DocTabs
 
 	notifier notifier.Notifier
 }
@@ -42,7 +44,7 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	cl.Scroll.Direction = container.ScrollVerticalOnly
 
 	bookmark, _ := cl.manager.FindBookmark(card.Id)
-	cl.addBookmarkBtn = widget.NewButtonWithIcon("Add", icons.BookmarkResource, func() {
+	cl.addBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkResource, func() {
 		err := cl.manager.AddBookmark(card.Id)
 		if err != nil {
 			cl.notifier.ShowError(err)
@@ -52,8 +54,9 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		cl.removeBookmarkBtn.Show()
 		cl.topBox.Refresh()
 	})
+	cl.addBookmarkBtn.Importance = widget.LowImportance
 
-	cl.removeBookmarkBtn = widget.NewButtonWithIcon("Remove", icons.BookmarkRemoveResource, func() {
+	cl.removeBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkRemoveResource, func() {
 		err := cl.manager.RemoveBookmark(card.Id)
 		if err != nil {
 			cl.notifier.ShowError(err)
@@ -63,26 +66,58 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		cl.addBookmarkBtn.Show()
 		cl.topBox.Refresh()
 	})
+	cl.removeBookmarkBtn.Importance = widget.LowImportance
+
 	if bookmark == nil {
 		cl.removeBookmarkBtn.Hide()
 	} else {
 		cl.addBookmarkBtn.Hide()
 	}
-	cl.topBox = container.NewHBox(layout.NewSpacer(), cl.addBookmarkBtn, cl.removeBookmarkBtn)
-	cl.vBox.Add(cl.topBox)
 
-	image := canvas.NewImageFromResource(nil)
+	btnBorder := container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
+	cl.vBox.Add(btnBorder)
+
+	image := canvas.NewImageFromResource(icons.FullCardLoadingResource)
 	image.FillMode = canvas.ImageFillOriginal
+
 	cl.vBox.Add(container.NewHBox(layout.NewSpacer(), image, layout.NewSpacer()))
 
 	go func() {
 		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
 			image.Resource = fyne.NewStaticResource(card.ImageUris.Png, cl.resizeImage(img))
 			image.Refresh()
+		} else {
+			image.Resource = icons.FullCardFailedResource
+			image.Refresh()
 		}
-
 	}()
+
+	cl.vBox.Add(widget.NewSeparator())
+	cl.docTabs = container.NewDocTabs()
+	cl.vBox.Add(cl.docTabs)
+
 	cl.setupLegalities()
+
+	go func() {
+		rulings, err := manager.LoadRulings(card)
+		if err != nil {
+			log.Println("error loading rulings", err)
+		} else if len(rulings) > 0 {
+			adapter := ruling.NewRulingAdapter(rulings)
+			ruleList := widget.NewList(adapter.Count, adapter.CreateTemplate, adapter.UpdateTemplate)
+			cl.docTabs.Append(container.NewTabItem("Rulings", ruleList))
+
+			/*ruleBox := container.NewVBox()
+			for _, rule := range rulings {
+				li := ruling.NewRulingListItem()
+				li.Set(rule)
+				ruleBox.Add(li)
+			}
+			ruleScroll := container.NewScroll(ruleBox)
+			ruleScroll.Direction = container.ScrollVerticalOnly
+			cl.docTabs.Append(container.NewTabItem("Rulings", ruleScroll))*/
+		}
+	}()
 
 	return cl
 }
@@ -125,6 +160,6 @@ func (cl *CardLayout) setupLegalities() {
 	}
 
 	hBox := container.NewHBox(layout.NewSpacer(), legalitiesTable, layout.NewSpacer())
-	cl.vBox.Add(widget.NewSeparator())
-	cl.vBox.Add(hBox)
+
+	cl.docTabs.Append(container.NewTabItem("Legalities", hBox))
 }

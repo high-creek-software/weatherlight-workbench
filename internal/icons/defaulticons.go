@@ -46,3 +46,11 @@ var CardFailedResource = fyne.NewStaticResource("card-failed", cardFailed)
 //go:embed card_loading.svg
 var cardLoading []byte
 var CardLoadingResource = fyne.NewStaticResource("card-loading", cardLoading)
+
+//go:embed full_card_loading.png
+var fullCardLoading []byte
+var FullCardLoadingResource = fyne.NewStaticResource("full-card-loading", fullCardLoading)
+
+//go:embed full_card_failed.png
+var fullCardFailed []byte
+var FullCardFailedResource = fyne.NewStaticResource("full-card-failed", fullCardFailed)

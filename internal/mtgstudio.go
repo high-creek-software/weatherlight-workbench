@@ -50,8 +50,8 @@ func NewMtgStudio() *MtgStudio {
 	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.Resize(fyne.NewSize(1200, 700))
-	mtgs.manager = storage.NewManager()
 	mtgs.client = goscryfall.NewClient()
+	mtgs.manager = storage.NewManager(mtgs.client)
 	mtgs.importManager = sync.NewImportManager(mtgs.client, mtgs.manager)
 	mtgs.symbolRepo = symbol.NewSymbolRepo(mtgs.client, mtgs.manager.LoadSymbolImage)
 

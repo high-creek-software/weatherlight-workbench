@@ -2,7 +2,9 @@ package storage
 
 import (
 	"errors"
+	"gitlab.com/high-creek-software/goscryfall"
 	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
+	"gitlab.com/high-creek-software/goscryfall/rulings"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -29,14 +31,15 @@ type Manager struct {
 	symbolsDirectory     string
 	dbPath               string
 	db                   *gorm.DB
+	client               *goscryfall.Client
 
 	*gormSetRepo
 	*gormCardRepo
 	*bookmarkRepo
 }
 
-func NewManager() *Manager {
-	m := &Manager{applicationDirectory: getApplicationDirectory()}
+func NewManager(client *goscryfall.Client) *Manager {
+	m := &Manager{applicationDirectory: getApplicationDirectory(), client: client}
 	err := os.Mkdir(m.applicationDirectory, os.ModePerm)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
@@ -141,6 +144,10 @@ func (m *Manager) ListBookmarked() ([]scryfallcards.Card, error) {
 	}
 
 	return m.gormCardRepo.ListByIds(ids)
+}
+
+func (m *Manager) LoadRulings(c *scryfallcards.Card) ([]rulings.Ruling, error) {
+	return m.client.List(c.RulingsUri)
 }
 
 func (m *Manager) reconfigureName(name string) string {
