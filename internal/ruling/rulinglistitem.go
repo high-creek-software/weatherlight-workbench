@@ -50,8 +50,6 @@ type rulingListItemRenderer struct {
 	orgTitle  *widget.Label
 	orgLbl    *widget.Label
 	reasonLbl *widget.Label
-
-	previousMin fyne.Size
 }
 
 func (r rulingListItemRenderer) Destroy() {

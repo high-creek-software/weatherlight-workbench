@@ -2,6 +2,7 @@ package card
 
 import (
 	"bytes"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -127,50 +128,28 @@ func (cl *CardLayout) resizeImage(bs []byte) []byte {
 }
 
 func (cl *CardLayout) setupDetails() {
-	table := widget.NewTable(func() (int, int) {
-		return 5, 2
-	}, func() fyne.CanvasObject {
-		return widget.NewLabel("")
-	}, func(cell widget.TableCellID, co fyne.CanvasObject) {
-		lbl := co.(*widget.Label)
-		if cell.Row == 0 {
-			if cell.Col == 0 {
-				lbl.SetText("Name")
-			} else if cell.Col == 1 {
-				lbl.SetText(cl.card.Name)
-			}
-		} else if cell.Row == 1 {
-			if cell.Col == 0 {
-				lbl.SetText("Released At")
-			} else if cell.Col == 1 {
-				lbl.SetText(cl.card.ReleasedAt)
-			}
-		} else if cell.Row == 2 {
-			if cell.Col == 0 {
-				lbl.SetText("Type Line")
-			} else if cell.Col == 1 {
-				lbl.SetText(cl.card.TypeLine)
-			}
-		} else if cell.Row == 3 {
-			if cell.Col == 0 {
-				lbl.SetText("Oracle Text")
-			} else if cell.Col == 1 {
-				lbl.SetText(cl.card.OracleText)
-			}
-		} else if cell.Row == 4 {
-			if cell.Col == 0 {
-				lbl.SetText("Flavor Text")
-			} else if cell.Col == 1 {
-				lbl.SetText(cl.card.FlavorText)
-			}
-		}
-	})
-	table.SetColumnWidth(0, 100)
-	table.SetColumnWidth(1, 500)
-	table.SetRowHeight(3, 75)
-	table.SetRowHeight(4, 75)
 
-	cl.docTabs.Append(container.NewTabItem("Details", table))
+	metaData := []cardMeta{
+		{"Name", cl.card.Name},
+		{"Cost", cl.card.ManaCost},
+		{"Type Line", cl.card.TypeLine},
+		{"Oracle Text", cl.card.OracleText},
+	}
+
+	if cl.card.FlavorText != "" {
+		metaData = append(metaData, cardMeta{"Flavor Text", cl.card.FlavorText})
+	}
+
+	if cl.card.Power != "" && cl.card.Toughness != "" {
+		metaData = append(metaData, cardMeta{"Power/Toughness", fmt.Sprintf("%s/%s", cl.card.Power, cl.card.Toughness)})
+	}
+
+	metaData = append(metaData, cardMeta{"Released At", cl.card.ReleasedAt})
+
+	metaListAdapter := newCardMetaAdapter(metaData)
+	metaList := widget.NewList(metaListAdapter.Count, metaListAdapter.CreateTemplate, metaListAdapter.UpdateTemplate)
+	metaListAdapter.SetList(metaList)
+	cl.docTabs.Append(container.NewTabItem("Details", metaList))
 }
 
 func (cl *CardLayout) setupLegalities() {
