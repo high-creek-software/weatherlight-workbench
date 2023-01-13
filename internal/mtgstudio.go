@@ -49,7 +49,7 @@ func NewMtgStudio() *MtgStudio {
 	os.Setenv("FYNE_THEME", "dark")
 	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
-	mtgs.window.Resize(fyne.NewSize(1200, 700))
+	mtgs.window.Resize(fyne.NewSize(1920, 1080))
 	mtgs.client = goscryfall.NewClient()
 	mtgs.manager = storage.NewManager(mtgs.client)
 	mtgs.importManager = sync.NewImportManager(mtgs.client, mtgs.manager)

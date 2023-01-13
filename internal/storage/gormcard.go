@@ -1,5 +1,7 @@
 package storage
 
+import "gorm.io/gorm"
+
 type gormCard struct {
 	Object               string
 	Id                   string `gorm:"primaryKey"`
@@ -20,6 +22,7 @@ type gormCard struct {
 	ManaCost             string
 	Cmc                  float64
 	TypeLine             string
+	FlavorText           string
 	OracleText           string
 	Power                string
 	Toughness            string
@@ -91,4 +94,18 @@ type gormCard struct {
 
 func (gormCard) TableName() string {
 	return "cards"
+}
+
+type gormCardPrices struct {
+	gorm.Model
+	CardID    string `gorm:"index:idx_card_prices_card"`
+	USD       float64
+	USDFoil   float64
+	USDEtched float64
+	EUR       float64
+	TIX       float64
+}
+
+func (gormCardPrices) TableName() string {
+	return "card_prices"
 }

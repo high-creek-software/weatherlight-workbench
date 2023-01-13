@@ -31,6 +31,8 @@ type Manager struct {
 	symbolsDirectory     string
 	dbPath               string
 	db                   *gorm.DB
+	userDBPath           string
+	userDB               *gorm.DB
 	client               *goscryfall.Client
 
 	*gormSetRepo
@@ -64,9 +66,14 @@ func NewManager(client *goscryfall.Client) *Manager {
 	if err != nil {
 		log.Fatal(err)
 	}
+	m.userDBPath = filepath.Join(m.applicationDirectory, "userdata.db")
+	m.userDB, err = gorm.Open(sqlite.Open(m.userDBPath), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	m.gormSetRepo = newGormSetRepo(m.db)
 	m.gormCardRepo = newGormCardRepo(m.db)
-	m.bookmarkRepo = NewBookmarkRepo(m.db)
+	m.bookmarkRepo = NewBookmarkRepo(m.userDB)
 	return m
 }
 

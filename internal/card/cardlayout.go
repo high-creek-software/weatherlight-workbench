@@ -22,7 +22,6 @@ import (
 
 type CardLayout struct {
 	*container.Scroll
-	vBox *fyne.Container
 
 	card       *cards.Card
 	symbolRepo symbol.SymbolRepo
@@ -38,10 +37,6 @@ type CardLayout struct {
 
 func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *storage.Manager, n notifier.Notifier) *CardLayout {
 	cl := &CardLayout{card: card, symbolRepo: symbolRepo, manager: manager, notifier: n}
-
-	cl.vBox = container.NewVBox()
-	cl.Scroll = container.NewScroll(cl.vBox)
-	cl.Scroll.Direction = container.ScrollVerticalOnly
 
 	bookmark, _ := cl.manager.FindBookmark(card.Id)
 	cl.addBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkResource, func() {
@@ -75,14 +70,21 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	}
 
 	cl.topBox = container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
-	cl.vBox.Add(cl.topBox)
 
 	image := canvas.NewImageFromResource(icons.FullCardLoadingResource)
 	image.FillMode = canvas.ImageFillOriginal
 
-	cl.vBox.Add(container.NewHBox(layout.NewSpacer(), image, layout.NewSpacer()))
-	//cl.vBox.Add(container.NewBorder(nil, nil, layout.NewSpacer(), layout.NewSpacer(), image))
-	//cl.vBox.Add(container.NewGridWithColumns(3, layout.NewSpacer(), image, layout.NewSpacer()))
+	cl.docTabs = container.NewDocTabs()
+	cl.docTabs.SetTabLocation(container.TabLocationLeading)
+
+	mainBox := container.NewBorder(cl.topBox, nil, nil, nil, container.NewPadded(container.NewBorder(container.NewHBox(layout.NewSpacer(), image, layout.NewSpacer()), nil, nil, nil, container.NewPadded(cl.docTabs))))
+
+	cl.Scroll = container.NewScroll(container.NewPadded(mainBox))
+	cl.Scroll.Direction = container.ScrollVerticalOnly
+	cl.Refresh()
+
+	cl.setupDetails()
+	cl.setupLegalities()
 
 	go func() {
 		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
@@ -93,12 +95,6 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 			image.Refresh()
 		}
 	}()
-
-	cl.vBox.Add(widget.NewSeparator())
-	cl.docTabs = container.NewDocTabs()
-	cl.vBox.Add(cl.docTabs)
-
-	cl.setupLegalities()
 
 	go func() {
 		rulings, err := manager.LoadRulings(card)
@@ -130,29 +126,67 @@ func (cl *CardLayout) resizeImage(bs []byte) []byte {
 	return out.Bytes()
 }
 
+func (cl *CardLayout) setupDetails() {
+	table := widget.NewTable(func() (int, int) {
+		return 5, 2
+	}, func() fyne.CanvasObject {
+		return widget.NewLabel("")
+	}, func(cell widget.TableCellID, co fyne.CanvasObject) {
+		lbl := co.(*widget.Label)
+		if cell.Row == 0 {
+			if cell.Col == 0 {
+				lbl.SetText("Name")
+			} else if cell.Col == 1 {
+				lbl.SetText(cl.card.Name)
+			}
+		} else if cell.Row == 1 {
+			if cell.Col == 0 {
+				lbl.SetText("Released At")
+			} else if cell.Col == 1 {
+				lbl.SetText(cl.card.ReleasedAt)
+			}
+		} else if cell.Row == 2 {
+			if cell.Col == 0 {
+				lbl.SetText("Type Line")
+			} else if cell.Col == 1 {
+				lbl.SetText(cl.card.TypeLine)
+			}
+		} else if cell.Row == 3 {
+			if cell.Col == 0 {
+				lbl.SetText("Oracle Text")
+			} else if cell.Col == 1 {
+				lbl.SetText(cl.card.OracleText)
+			}
+		} else if cell.Row == 4 {
+			if cell.Col == 0 {
+				lbl.SetText("Flavor Text")
+			} else if cell.Col == 1 {
+				lbl.SetText(cl.card.FlavorText)
+			}
+		}
+	})
+	table.SetColumnWidth(0, 100)
+	table.SetColumnWidth(1, 500)
+	table.SetRowHeight(3, 75)
+	table.SetRowHeight(4, 75)
+
+	cl.docTabs.Append(container.NewTabItem("Details", table))
+}
+
 func (cl *CardLayout) setupLegalities() {
 	legalities := cl.card.Legalities
 	keys := maps.Keys(legalities)
 	slices.Sort(keys)
 
-	legalitiesTable := container.NewGridWithColumns(4)
+	var lls []fyne.CanvasObject
+	maxSize := fyne.NewSize(0, 0)
 	for _, key := range keys {
-		legalitiesTable.Add(widget.NewLabel(key))
-		ico := widget.NewIcon(nil)
-		switch legalities[key] {
-		case cards.Legal:
-			ico.SetResource(icons.LegalResource)
-		case cards.NotLegal:
-			ico.SetResource(icons.NotLegalResource)
-		case cards.Restricted:
-			ico.SetResource(icons.RestrictedResource)
-		case cards.Banned:
-			ico.SetResource(icons.BannedResource)
-		}
-		legalitiesTable.Add(ico)
+		ll := newLegalityItem(key, legalities[key])
+		maxSize = maxSize.Max(ll.MinSize())
+		lls = append(lls, ll)
 	}
 
-	hBox := container.NewHBox(layout.NewSpacer(), legalitiesTable, layout.NewSpacer())
+	legalitiesTable := container.NewGridWrap(maxSize, lls...)
 
-	cl.docTabs.Append(container.NewTabItem("Legalities", hBox))
+	cl.docTabs.Append(container.NewTabItem("Legalities", legalitiesTable))
 }

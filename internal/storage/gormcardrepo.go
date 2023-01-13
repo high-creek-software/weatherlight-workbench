@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"log"
+	"strconv"
 )
 import scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 
@@ -13,12 +15,13 @@ type gormCardRepo struct {
 
 func newGormCardRepo(db *gorm.DB) *gormCardRepo {
 	repo := &gormCardRepo{db: db}
-	repo.db.AutoMigrate(&gormCard{})
+	repo.db.AutoMigrate(&gormCard{}, &gormCardPrices{})
 	return repo
 }
 
 func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 	var insert []gormCard
+	var prices []gormCardPrices
 	for _, c := range cs {
 
 		white, blue, black, red, green := false, false, false, false, false
@@ -56,6 +59,7 @@ func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 			ManaCost:             c.ManaCost,
 			Cmc:                  c.Cmc,
 			TypeLine:             c.TypeLine,
+			FlavorText:           c.FlavorText,
 			OracleText:           c.OracleText,
 			Power:                c.Power,
 			Toughness:            c.Toughness,
@@ -125,6 +129,37 @@ func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 			PurchaseUris:         marshal(c.PurchaseUris),
 		}
 		insert = append(insert, i)
+
+		price := gormCardPrices{CardID: c.Id}
+		hasPrice := false
+		if c.Prices.Usd != "" {
+			hasPrice = true
+			price.USD, _ = strconv.ParseFloat(c.Prices.Usd, 64)
+		}
+		if c.Prices.UsdFoil != "" {
+			hasPrice = true
+			price.USDFoil, _ = strconv.ParseFloat(c.Prices.UsdFoil, 64)
+		}
+		if ue, ok := c.Prices.UsdEtched.(string); ok && ue != "" {
+			hasPrice = true
+			price.USDEtched, _ = strconv.ParseFloat(ue, 64)
+		}
+		if c.Prices.Eur != "" {
+			hasPrice = true
+			price.EUR, _ = strconv.ParseFloat(c.Prices.Eur, 64)
+		}
+		if c.Prices.Tix != "" {
+			hasPrice = true
+			price.TIX, _ = strconv.ParseFloat(c.Prices.Tix, 64)
+		}
+		if hasPrice {
+			prices = append(prices, price)
+		}
+
+	}
+	pricesBatchErr := r.db.CreateInBatches(&prices, 50).Error
+	if pricesBatchErr != nil {
+		log.Println("Error inserting prices", pricesBatchErr)
 	}
 	return r.db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(&insert, 50).Error
 }
@@ -285,6 +320,7 @@ func internalToExternal(gc gormCard) scryfallcards.Card {
 		ManaCost:        gc.ManaCost,
 		Cmc:             gc.Cmc,
 		TypeLine:        gc.TypeLine,
+		FlavorText:      gc.FlavorText,
 		OracleText:      gc.OracleText,
 		Power:           gc.Power,
 		Toughness:       gc.Toughness,
