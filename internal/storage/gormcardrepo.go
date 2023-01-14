@@ -69,6 +69,8 @@ func (r *gormCardRepo) Store(cs []scryfallcards.Card) error {
 			Red:                  red,
 			Green:                green,
 			Keywords:             marshal(c.Keywords),
+			ProducedMana:         marshal(c.ProducedMana),
+			CardFaces:            marshal(c.CardFaces),
 			AllParts:             marshal(c.AllParts),
 			LegalStandard:        c.Legalities["standard"].String(),
 			LegalFuture:          c.Legalities["future"].String(),
@@ -178,10 +180,27 @@ func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 }
 
 func (r *gormCardRepo) FindByName(name string) (scryfallcards.Card, error) {
-	var c scryfallcards.Card
-	err := r.db.Where("name = ?", name).Find(&c).Error
+	var c gormCard
+	err := r.db.Where("name = ?", name).First(&c).Error
+	if err != nil {
 
-	return c, err
+		err = r.db.Where("name LIKE ?", "%"+name+"%").First(&c).Error
+		if err != nil {
+			return scryfallcards.Card{}, err
+		}
+	}
+
+	return internalToExternal(c), err
+}
+
+func (r *gormCardRepo) findById(id string) (scryfallcards.Card, error) {
+	var c gormCard
+	err := r.db.Where("id = ?", id).First(&c).Error
+	if err != nil {
+		return scryfallcards.Card{}, err
+	}
+
+	return internalToExternal(c), err
 }
 
 func (r *gormCardRepo) ListByIds(ids []string) ([]scryfallcards.Card, error) {
@@ -328,6 +347,8 @@ func internalToExternal(gc gormCard) scryfallcards.Card {
 		Power:           gc.Power,
 		Toughness:       gc.Toughness,
 		Keywords:        unmarshal[[]interface{}](gc.Keywords),
+		ProducedMana:    unmarshal[[]string](gc.ProducedMana),
+		CardFaces:       unmarshal[[]scryfallcards.CardFace](gc.CardFaces),
 		AllParts:        unmarshal[[]scryfallcards.AllParts](gc.AllParts),
 		Games:           unmarshal[[]string](gc.Games),
 		Reserved:        gc.Reserved,

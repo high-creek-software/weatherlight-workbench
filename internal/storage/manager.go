@@ -1,9 +1,12 @@
 package storage
 
 import (
+	"bytes"
 	"errors"
+	"github.com/rs/xid"
 	"gitlab.com/high-creek-software/goscryfall"
 	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
+	"gitlab.com/high-creek-software/goscryfall/decks"
 	"gitlab.com/high-creek-software/goscryfall/rulings"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -12,6 +15,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Application data directory: https://hub.jmonkeyengine.org/t/appdata-equivalent-on-macos-and-linux/43735
@@ -38,6 +42,7 @@ type Manager struct {
 	*gormSetRepo
 	*gormCardRepo
 	*bookmarkRepo
+	*gormDeckRepo
 }
 
 func NewManager(client *goscryfall.Client) *Manager {
@@ -74,6 +79,7 @@ func NewManager(client *goscryfall.Client) *Manager {
 	m.gormSetRepo = newGormSetRepo(m.db)
 	m.gormCardRepo = newGormCardRepo(m.db)
 	m.bookmarkRepo = NewBookmarkRepo(m.userDB)
+	m.gormDeckRepo = newGormDeckRepo(m.userDB)
 	return m
 }
 
@@ -155,6 +161,73 @@ func (m *Manager) ListBookmarked() ([]scryfallcards.Card, error) {
 
 func (m *Manager) LoadRulings(c *scryfallcards.Card) ([]rulings.Ruling, error) {
 	return m.client.List(c.RulingsUri)
+}
+
+func (m *Manager) ImportDeck(name, data string) error {
+	buf := bytes.NewBufferString(data)
+	d, err := decks.Unmarshal(name, buf)
+	if err != nil {
+		return err
+	}
+
+	deckID := xid.New().String()
+	var deckCards []gormDeckCard
+
+	commanderID := ""
+	if d.Commander.Name != "" {
+		cCard, err := m.gormCardRepo.FindByName(d.Commander.Name)
+		if err == nil {
+			commanderID = cCard.Id
+			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: d.Commander.Name, AssociationType: associationCommander, Count: 1})
+		}
+	}
+
+	gd := gormDeck{ID: deckID, Name: name, CreateAt: time.Now(), CoverImage: "", CommanderID: commanderID}
+	err = m.gormDeckRepo.create(gd)
+	if err != nil {
+		return err
+	}
+
+	for _, np := range d.Deck {
+		if cCard, err := m.gormCardRepo.FindByName(np.Name); err == nil {
+			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: np.Name, AssociationType: associationMain, Count: np.Count})
+		}
+	}
+
+	for _, np := range d.Sideboard {
+		if cCard, err := m.gormCardRepo.FindByName(np.Name); err == nil {
+			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: np.Name, AssociationType: associationSideboard, Count: np.Count})
+		}
+	}
+
+	return m.gormDeckRepo.addCards(deckCards)
+}
+
+func (m *Manager) LoadDeck(id string) (Deck, error) {
+	d, err := m.gormDeckRepo.findDeck(id)
+	if err != nil {
+		return d, err
+	}
+
+	allCards, err := m.gormDeckRepo.listDeckCards(id)
+	if err != nil {
+		return d, err
+	}
+
+	for _, dc := range allCards {
+		if cCard, err := m.gormCardRepo.findById(dc.CardID); err == nil {
+			switch dc.AssociationType {
+			case associationSideboard:
+				d.Sideboard = append(d.Sideboard, cCard)
+			case associationMain:
+				d.Main = append(d.Main, cCard)
+			case associationCommander:
+				d.Commander = &cCard
+			}
+		}
+	}
+
+	return d, nil
 }
 
 func (m *Manager) reconfigureName(name string) string {

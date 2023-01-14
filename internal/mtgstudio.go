@@ -11,6 +11,7 @@ import (
 	"gitlab.com/high-creek-software/goscryfall"
 	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
+	"gitlab.com/kendellfab/mtgstudio/internal/deck"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
@@ -31,6 +32,7 @@ type MtgStudio struct {
 	browseLayout     *browse.BrowseLayout
 	searchLayout     *search.SearchLayout
 	bookmarkedLayout *bookmarked.BookmarkedLayout
+	deckLayout       *deck.DeckLayout
 
 	client        *goscryfall.Client
 	manager       *storage.Manager
@@ -49,6 +51,7 @@ func NewMtgStudio() *MtgStudio {
 	os.Setenv("FYNE_THEME", "dark")
 	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
+	mtgs.window.SetMaster()
 	mtgs.window.Resize(fyne.NewSize(1920, 1080))
 	mtgs.client = goscryfall.NewClient()
 	mtgs.manager = storage.NewManager(mtgs.client)
@@ -66,9 +69,11 @@ func (m *MtgStudio) setupBody() {
 	m.browseLayout = browse.NewBrowseLayout(m.manager, m.symbolRepo, m, m.updateSetIcon, m.resizeCardArt)
 	m.searchLayout = search.NewSearchLayout(m.manager, m.symbolRepo, m)
 	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.manager, m.symbolRepo, m)
+	m.deckLayout = deck.NewDeckLayout(m.manager, m.symbolRepo, m.showImport)
 	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
 		container.NewTabItem("Search", m.searchLayout.Split),
 		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
+		container.NewTabItem("Decks", m.deckLayout.Container),
 	)
 
 	m.syncBtn = widget.NewButton("Sync", m.syncBtnTouched)
@@ -91,6 +96,32 @@ func (m *MtgStudio) setupBody() {
 			m.bookmarkedLayout.LoadBookmarked()
 		}
 	}
+}
+
+func (m *MtgStudio) showImport() {
+	window := m.app.NewWindow("Import Deck")
+	window.Resize(fyne.NewSize(800, 400))
+
+	entry := widget.NewEntry()
+	entry.PlaceHolder = "Deck Name"
+
+	data := widget.NewEntry()
+	data.MultiLine = true
+
+	save := widget.NewButtonWithIcon("Save", theme.DocumentSaveIcon(), func() {
+		err := m.manager.ImportDeck(entry.Text, data.Text)
+		window.Hide()
+		window = nil
+		if err != nil {
+			m.ShowError(err)
+			return
+		}
+		m.deckLayout.LoadDecks()
+	})
+
+	border := container.NewBorder(entry, save, nil, nil, data)
+	window.SetContent(border)
+	window.Show()
 }
 
 func (m *MtgStudio) updateSetIcon(bs []byte) []byte {

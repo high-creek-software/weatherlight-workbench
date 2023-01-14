@@ -87,8 +87,12 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	cl.setupDetails()
 
 	go func() {
-		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
-			image.Resource = fyne.NewStaticResource(card.ImageUris.Png, cl.resizeImage(img))
+		cardImgPath := card.ImageUris.Png
+		if cardImgPath == "" && len(card.CardFaces) > 0 {
+			cardImgPath = card.CardFaces[0].ImageUris.Png
+		}
+		if img, err := cl.manager.LoadCardImage(cardImgPath); err == nil {
+			image.Resource = fyne.NewStaticResource(cardImgPath, cl.resizeImage(img))
 			image.Refresh()
 		} else {
 			image.Resource = icons.FullCardFailedResource

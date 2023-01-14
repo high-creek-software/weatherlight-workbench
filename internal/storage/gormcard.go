@@ -32,6 +32,8 @@ type gormCard struct {
 	Red                  bool `gorm:"index:idx_card_red"`
 	Green                bool `gorm:"index:idx_card_green"`
 	Keywords             string
+	ProducedMana         string
+	CardFaces            string
 	AllParts             string
 	LegalStandard        string `gorm:"index:idx_card_legal_standard"`
 	LegalFuture          string `gorm:"index:idx_card_legal_future"`

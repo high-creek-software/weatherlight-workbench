@@ -264,6 +264,8 @@ github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndr
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
+github.com/rs/xid v1.4.0 h1:qd7wPTDkN6KQx2VmMBLrpHkiyQwgFXRnkOLacUiaSNY=
+github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
@@ -329,6 +331,10 @@ gitlab.com/high-creek-software/goscryfall v0.0.0-20230111134933-1468bade2ccc h1:
 gitlab.com/high-creek-software/goscryfall v0.0.0-20230111134933-1468bade2ccc/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20230113032607-738dcc60f3bb h1:Im3Zzb1ZDHw+SKocCX6C+12UWZyi/qyP7/7tw6uC/yc=
 gitlab.com/high-creek-software/goscryfall v0.0.0-20230113032607-738dcc60f3bb/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230114013227-3d080a7f6698 h1:fxd1zEZXDgZRIw9UmARGaYalNP8X+EwfpwIVOtCaEtE=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230114013227-3d080a7f6698/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230114042127-07beb7a0658a h1:vR+Wj4GhKotgLA5ZEjM8TbXjLqSS3a+fFfFDXMOXRyY=
+gitlab.com/high-creek-software/goscryfall v0.0.0-20230114042127-07beb7a0658a/go.mod h1:WGZNWgUOideEiMMHMQPfHtyuLFmwIRMGBLqsVmbRWEg=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.0/go.mod h1:h9puh54ZTgAKtEbut2oe9P4L/oqKCVB6xsXlzd7alYQ=

@@ -63,7 +63,13 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 	//}
 
 	listItem.UpdateCard(&card, mc)
-	ca.loader.Load(card.Id, card.ImageUris.ArtCrop, listItem)
+
+	cardImgPath := card.ImageUris.ArtCrop
+	if cardImgPath == "" && len(card.CardFaces) > 0 {
+		cardImgPath = card.CardFaces[0].ImageUris.ArtCrop
+	}
+
+	ca.loader.Load(card.Id, cardImgPath, listItem)
 
 }
 

@@ -6,7 +6,7 @@ require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde
-	gitlab.com/high-creek-software/goscryfall v0.0.0-20230113032607-738dcc60f3bb
+	gitlab.com/high-creek-software/goscryfall v0.0.0-20230114042127-07beb7a0658a
 )
 
 require (
@@ -31,6 +31,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rs/xid v1.4.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
@@ -50,4 +51,4 @@ require (
 
 //replace gitlab.com/high-creek-software/ansel => ../HighCreekSoftware/ansel
 
-replace gitlab.com/high-creek-software/goscryfall => ../HighCreekSoftware/goscryfall
+//replace gitlab.com/high-creek-software/goscryfall => ../HighCreekSoftware/goscryfall
