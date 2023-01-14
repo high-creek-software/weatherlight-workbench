@@ -54,3 +54,7 @@ var FullCardLoadingResource = fyne.NewStaticResource("full-card-loading", fullCa
 //go:embed full_card_failed.png
 var fullCardFailed []byte
 var FullCardFailedResource = fyne.NewStaticResource("full-card-failed", fullCardFailed)
+
+//go:embed app_icon.svg
+var appIcon []byte
+var AppIconResource = fyne.NewStaticResource("app-icon", appIcon)

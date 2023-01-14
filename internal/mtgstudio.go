@@ -12,6 +12,7 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
 	"gitlab.com/kendellfab/mtgstudio/internal/deck"
+	"gitlab.com/kendellfab/mtgstudio/internal/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
 	"gitlab.com/kendellfab/mtgstudio/internal/storage"
@@ -50,6 +51,7 @@ type MtgStudio struct {
 func NewMtgStudio() *MtgStudio {
 	os.Setenv("FYNE_THEME", "dark")
 	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
+	mtgs.app.SetIcon(icons.AppIconResource)
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.SetMaster()
 	mtgs.window.Resize(fyne.NewSize(1920, 1080))
