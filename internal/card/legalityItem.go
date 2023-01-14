@@ -2,7 +2,6 @@ package card
 
 import (
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall/cards"
@@ -17,8 +16,7 @@ type legalityItem struct {
 }
 
 func (l *legalityItem) CreateRenderer() fyne.WidgetRenderer {
-	titleTxt := canvas.NewText(l.title, theme.ForegroundColor())
-	titleTxt.TextSize = theme.TextSize() + 8
+	titleTxt := widget.NewLabel("")
 	image := widget.NewIcon(icons.LegalResource)
 
 	return &legalityItemRenderer{
@@ -39,7 +37,7 @@ func newLegalityItem(title string, legality cards.Legality) *legalityItem {
 
 type legalityItemRenderer struct {
 	ll       *legalityItem
-	titleTxt *canvas.Text
+	titleTxt *widget.Label
 	image    *widget.Icon
 }
 
@@ -54,7 +52,7 @@ func (l legalityItemRenderer) Layout(size fyne.Size) {
 
 	topLeft = topLeft.Add(fyne.NewPos(0, titleSize.Height-10))
 	l.image.Move(topLeft)
-	l.image.Resize(fyne.NewSize(200, 75))
+	l.image.Resize(fyne.NewSize(100, 50))
 }
 
 func (l legalityItemRenderer) MinSize() fyne.Size {

@@ -50,4 +50,4 @@ require (
 
 //replace gitlab.com/high-creek-software/ansel => ../HighCreekSoftware/ansel
 
-//replace gitlab.com/high-creek-software/goscryfall => ../HighCreekSoftware/goscryfall
+replace gitlab.com/high-creek-software/goscryfall => ../HighCreekSoftware/goscryfall

@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/nfnt/resize"
 	"gitlab.com/high-creek-software/goscryfall/cards"
@@ -22,7 +21,8 @@ import (
 )
 
 type CardLayout struct {
-	*container.Scroll
+	//Container *container.Scroll
+	*fyne.Container
 
 	card       *cards.Card
 	symbolRepo symbol.SymbolRepo
@@ -74,18 +74,17 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 
 	image := canvas.NewImageFromResource(icons.FullCardLoadingResource)
 	image.FillMode = canvas.ImageFillOriginal
+	// Setting this image size to keep the image from overlapping.  Why does it work, I don't know ?!?
+	image.Resize(fyne.NewSize(450, 500))
 
 	cl.docTabs = container.NewDocTabs()
 	cl.docTabs.SetTabLocation(container.TabLocationLeading)
 
-	mainBox := container.NewBorder(cl.topBox, nil, nil, nil, container.NewPadded(container.NewBorder(container.NewHBox(layout.NewSpacer(), image, layout.NewSpacer()), nil, nil, nil, container.NewPadded(cl.docTabs))))
+	mainBox := container.NewBorder(cl.topBox, nil, container.NewPadded(image), nil, container.NewPadded(cl.docTabs))
+	cl.Container = mainBox
 
-	cl.Scroll = container.NewScroll(container.NewPadded(mainBox))
-	cl.Scroll.Direction = container.ScrollVerticalOnly
-	cl.Refresh()
-
-	cl.setupDetails()
 	cl.setupLegalities()
+	cl.setupDetails()
 
 	go func() {
 		if img, err := cl.manager.LoadCardImage(card.ImageUris.Png); err == nil {
@@ -167,5 +166,8 @@ func (cl *CardLayout) setupLegalities() {
 
 	legalitiesTable := container.NewGridWrap(maxSize, lls...)
 
-	cl.docTabs.Append(container.NewTabItem("Legalities", legalitiesTable))
+	scroll := container.NewScroll(legalitiesTable)
+	scroll.Direction = container.ScrollVerticalOnly
+	padded := container.NewPadded(scroll)
+	cl.docTabs.Append(container.NewTabItem("Legalities", padded))
 }

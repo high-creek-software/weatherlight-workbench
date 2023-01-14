@@ -208,6 +208,9 @@ func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 	if sr.TypeLine != "" {
 		queryDB = queryDB.Where("type_line LIKE ?", "%"+sr.TypeLine+"%")
 	}
+	if sr.OracleText != "" {
+		queryDB = queryDB.Where("oracle_text LIKE ?", "%"+sr.OracleText+"%")
+	}
 	if sr.White {
 		queryDB = queryDB.Where("white = true")
 	}

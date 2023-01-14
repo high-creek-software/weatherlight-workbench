@@ -23,9 +23,10 @@ type SearchLayout struct {
 	cardList    *widget.List
 	cardAdapter *card.CardAdapter
 
-	name      *widget.Entry
-	typeLine  *widget.Entry
-	searchBtn *widget.Button
+	name        *widget.Entry
+	typeLine    *widget.Entry
+	oracleEntry *widget.Entry
+	searchBtn   *widget.Button
 
 	whiteCheck *widget.Check
 	blueCheck  *widget.Check
@@ -71,6 +72,8 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 	sl.name.SetPlaceHolder("Card Name")
 	sl.typeLine = widget.NewEntry()
 	sl.typeLine.SetPlaceHolder("Type Line")
+	sl.oracleEntry = widget.NewEntry()
+	sl.oracleEntry.SetPlaceHolder("Oracle Text")
 	sl.searchBtn = widget.NewButton("Search", sl.doSearch)
 
 	colorsLbl := widget.NewRichTextFromMarkdown("## Colors")
@@ -115,7 +118,7 @@ func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n n
 
 	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
 	insideSplit.SetOffset(0.20)
-	scroll := container.NewScroll(container.NewPadded(container.NewVBox(sl.name, sl.typeLine, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)))
+	scroll := container.NewScroll(container.NewPadded(container.NewVBox(sl.name, sl.typeLine, sl.oracleEntry, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)))
 	scroll.Direction = container.ScrollVerticalOnly
 	sl.Split = container.NewHSplit(
 		scroll,
@@ -130,7 +133,7 @@ func (sl *SearchLayout) doSearch() {
 	name := sl.name.Text
 	typeLine := sl.typeLine.Text
 
-	sr := storage.SearchRequest{Name: name, TypeLine: typeLine}
+	sr := storage.SearchRequest{Name: name, TypeLine: typeLine, OracleText: sl.oracleEntry.Text}
 	sr.White = sl.whiteCheck.Checked
 	sr.Blue = sl.blueCheck.Checked
 	sr.Black = sl.blackCheck.Checked
@@ -181,7 +184,7 @@ func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	c := sl.cardAdapter.Item(id)
 
 	cardLayout := card.NewCardLayout(&c, sl.symbolRepo, sl.manager, sl.notifier)
-	tab := container.NewTabItem(c.Name, cardLayout.Scroll)
+	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)
 }
