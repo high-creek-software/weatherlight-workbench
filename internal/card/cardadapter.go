@@ -3,23 +3,21 @@ package card
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/high-creek-software/goscryfall/cards"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/adapter"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 )
 
 var _ adapter.Adapter[cards.Card] = (*CardAdapter)(nil)
 
 type CardAdapter struct {
-	cards      []cards.Card
-	loader     *ansel.Ansel[string]
-	symbolRepo symbol.SymbolRepo
-	setLoader  func(uri string) ([]byte, error)
+	cards []cards.Card
+
+	registry *platform.Registry
 }
 
-func NewCardAdapter(loader *ansel.Ansel[string], symbolRepo symbol.SymbolRepo, setLoader func(uri string) ([]byte, error)) *CardAdapter {
-	return &CardAdapter{loader: loader, symbolRepo: symbolRepo, setLoader: setLoader}
+func NewCardAdapter(registry *platform.Registry) *CardAdapter {
+	return &CardAdapter{registry: registry}
 }
 
 func (ca *CardAdapter) AppendCards(cs []cards.Card) {
@@ -52,15 +50,10 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 		cost := sets[0]
 		for _, c := range cost {
 			func(name string) {
-				mc = append(mc, ca.symbolRepo.Image(name))
+				mc = append(mc, ca.registry.SymbolRepo.Image(name))
 			}(c)
 		}
 	}
-
-	//var setIcon fyne.Resource
-	//if setData, err := ca.setLoader(card.Set); err == nil {
-	//	setIcon = fyne.NewStaticResource(set)
-	//}
 
 	listItem.UpdateCard(&card, mc)
 
@@ -69,7 +62,7 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 		cardImgPath = card.CardFaces[0].ImageUris.ArtCrop
 	}
 
-	ca.loader.Load(card.Id, cardImgPath, listItem)
+	ca.registry.CardThumbnailLoader.Load(card.Id, cardImgPath, listItem)
 
 }
 

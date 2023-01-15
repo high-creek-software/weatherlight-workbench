@@ -3,21 +3,16 @@ package search
 import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	storage2 "gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
 )
 
 type SearchLayout struct {
 	*container.Split
 
-	manager    *storage.Manager
-	symbolRepo symbol.SymbolRepo
-	notifier   notifier.Notifier
+	registry *platform.Registry
 
 	cardTabs    *container.DocTabs
 	cardList    *widget.List
@@ -55,14 +50,10 @@ type SearchLayout struct {
 	premodernCheck       *widget.Check
 }
 
-func NewSearchLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier) *SearchLayout {
-	sl := &SearchLayout{manager: manager, symbolRepo: symbolRepo, notifier: n}
+func NewSearchLayout(registry *platform.Registry) *SearchLayout {
+	sl := &SearchLayout{registry: registry}
 
-	sl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](sl.manager.LoadCardImage), ansel.SetWorkerCount[string](10), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource)),
-		sl.symbolRepo,
-		nil,
-	)
+	sl.cardAdapter = card.NewCardAdapter(sl.registry)
 
 	sl.cardTabs = container.NewDocTabs()
 	sl.cardList = widget.NewList(sl.cardAdapter.Count, sl.cardAdapter.CreateTemplate, sl.cardAdapter.UpdateTemplate)
@@ -133,7 +124,7 @@ func (sl *SearchLayout) doSearch() {
 	name := sl.name.Text
 	typeLine := sl.typeLine.Text
 
-	sr := storage.SearchRequest{Name: name, TypeLine: typeLine, OracleText: sl.oracleEntry.Text}
+	sr := storage2.SearchRequest{Name: name, TypeLine: typeLine, OracleText: sl.oracleEntry.Text}
 	sr.White = sl.whiteCheck.Checked
 	sr.Blue = sl.blueCheck.Checked
 	sr.Black = sl.blackCheck.Checked
@@ -160,9 +151,9 @@ func (sl *SearchLayout) doSearch() {
 	sr.PremodernLegal = sl.premodernCheck.Checked
 
 	go func() {
-		cards, err := sl.manager.Search(sr)
+		cards, err := sl.registry.Manager.Search(sr)
 		if err != nil {
-			sl.notifier.ShowError(err)
+			sl.registry.Notifier.ShowError(err)
 			return
 		}
 
@@ -175,7 +166,7 @@ func (sl *SearchLayout) doSearch() {
 			sl.cardList.Refresh()
 			sl.cardList.ScrollToTop()
 		} else {
-			sl.notifier.ShowDialog("None Found", "No cards were found that match that query.")
+			sl.registry.Notifier.ShowDialog("None Found", "No cards were found that match that query.")
 		}
 	}()
 }
@@ -183,7 +174,7 @@ func (sl *SearchLayout) doSearch() {
 func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	c := sl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, sl.symbolRepo, sl.manager, sl.notifier)
+	cardLayout := card.NewCardLayout(&c, sl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)

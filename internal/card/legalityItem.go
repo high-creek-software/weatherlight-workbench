@@ -5,7 +5,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall/cards"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/icons"
 )
 
 type legalityItem struct {

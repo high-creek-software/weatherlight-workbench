@@ -1,7 +1,7 @@
 package storage
 
 import (
-	cards2 "gitlab.com/high-creek-software/goscryfall/cards"
+	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 	"time"
 )
 
@@ -10,10 +10,16 @@ type Deck struct {
 	Name        string
 	CreatedAt   time.Time
 	CoverImage  string
-	Commander   *cards2.Card
+	Commander   *DeckCard
 	commanderID string
-	Sideboard   []cards2.Card
-	Main        []cards2.Card
+	Sideboard   []DeckCard
+	Main        []DeckCard
+}
+
+type DeckCard struct {
+	ID    string
+	Count int
+	Card  scryfallcards.Card
 }
 
 type gormDeck struct {

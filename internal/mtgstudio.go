@@ -8,15 +8,17 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/high-creek-software/goscryfall"
 	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
 	"gitlab.com/kendellfab/mtgstudio/internal/deck"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/icons"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/sync"
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
-	"gitlab.com/kendellfab/mtgstudio/internal/sync"
 	"os"
 	"strings"
 	"time"
@@ -35,17 +37,13 @@ type MtgStudio struct {
 	bookmarkedLayout *bookmarked.BookmarkedLayout
 	deckLayout       *deck.DeckLayout
 
-	client        *goscryfall.Client
-	manager       *storage.Manager
-	importManager *sync.ImportManager
+	registry *platform.Registry
 
 	syncBtn      *widget.Button
 	syncLastLbl  *widget.Label
 	syncProgress *widget.ProgressBar
 	syncSetLbl   *widget.Label
 	settingsBtn  *widget.Button
-
-	symbolRepo symbol.SymbolRepo
 }
 
 func NewMtgStudio() *MtgStudio {
@@ -55,10 +53,17 @@ func NewMtgStudio() *MtgStudio {
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
 	mtgs.window.SetMaster()
 	mtgs.window.Resize(fyne.NewSize(1920, 1080))
-	mtgs.client = goscryfall.NewClient()
-	mtgs.manager = storage.NewManager(mtgs.client)
-	mtgs.importManager = sync.NewImportManager(mtgs.client, mtgs.manager)
-	mtgs.symbolRepo = symbol.NewSymbolRepo(mtgs.client, mtgs.manager.LoadSymbolImage)
+	client := goscryfall.NewClient()
+	manager := storage.NewManager(client)
+	importManager := sync.NewImportManager(client, manager)
+	symbolRepo := symbol.NewSymbolRepo(client, manager.LoadSymbolImage)
+
+	mtgs.registry = platform.NewRegistry(manager, symbolRepo, client, importManager, mtgs)
+	mtgs.registry.SymbolRepo = symbolRepo
+
+	mtgs.registry.SetIconLoader = ansel.NewAnsel[string](200, ansel.SetLoadedCallback[string](mtgs.updateSetIcon), ansel.SetLoader[string](mtgs.registry.Manager.LoadSetIcon))
+	mtgs.registry.CardThumbnailLoader = ansel.NewAnsel[string](800, ansel.SetLoader[string](mtgs.registry.Manager.LoadCardImage), ansel.SetWorkerCount[string](20), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource))
+	mtgs.registry.CardFullLoader = ansel.NewAnsel[string](200, ansel.SetLoader[string](mtgs.registry.Manager.LoadCardImage), ansel.SetLoadingImage[string](icons.FullCardLoadingResource), ansel.SetFailedImage[string](icons.FullCardFailedResource))
 
 	mtgs.app.Lifecycle().SetOnStarted(mtgs.appStartedCallback)
 
@@ -68,10 +73,10 @@ func NewMtgStudio() *MtgStudio {
 }
 
 func (m *MtgStudio) setupBody() {
-	m.browseLayout = browse.NewBrowseLayout(m.manager, m.symbolRepo, m, m.updateSetIcon, m.resizeCardArt)
-	m.searchLayout = search.NewSearchLayout(m.manager, m.symbolRepo, m)
-	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.manager, m.symbolRepo, m)
-	m.deckLayout = deck.NewDeckLayout(m.manager, m.symbolRepo, m.showImport)
+	m.browseLayout = browse.NewBrowseLayout(m.registry, m.updateSetIcon, m.resizeCardArt)
+	m.searchLayout = search.NewSearchLayout(m.registry)
+	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.registry)
+	m.deckLayout = deck.NewDeckLayout(m.registry, m.showImport)
 	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
 		container.NewTabItem("Search", m.searchLayout.Split),
 		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
@@ -111,7 +116,7 @@ func (m *MtgStudio) showImport() {
 	data.MultiLine = true
 
 	save := widget.NewButtonWithIcon("Save", theme.DocumentSaveIcon(), func() {
-		err := m.manager.ImportDeck(entry.Text, data.Text)
+		err := m.registry.Manager.ImportDeck(entry.Text, data.Text)
 		window.Hide()
 		window = nil
 		if err != nil {
@@ -170,7 +175,7 @@ func (m *MtgStudio) syncBtnTouched() {
 func (m *MtgStudio) appStartedCallback() {
 	// TODO: Figure out how to determine if an import is needed.
 	m.showLastSyncedAt()
-	setCount := m.manager.SetCount()
+	setCount := m.registry.Manager.SetCount()
 	if setCount == 0 {
 		m.runSync()
 	} else {
@@ -179,14 +184,10 @@ func (m *MtgStudio) appStartedCallback() {
 }
 
 func (m *MtgStudio) runSync() {
-	/*progress := widget.NewProgressBar()
-	progress.Max = 100
-	setName := widget.NewLabel("Set:")
-	dialog.ShowCustom("Import progress", "OK", container.NewVBox(setName, progress), m.window)*/
 	m.syncSetLbl.Show()
 	m.syncProgress.Show()
-	startCount := m.manager.SetCount()
-	resChan, doneChan, err := m.importManager.Import()
+	startCount := m.registry.Manager.SetCount()
+	resChan, doneChan, err := m.registry.ImportManager.Import()
 	if err != nil {
 		m.ShowError(err)
 	} else {
@@ -195,16 +196,12 @@ func (m *MtgStudio) runSync() {
 			for {
 				select {
 				case status := <-resChan:
-					/*setName.SetText(status.SetName)
-					progress.SetValue(status.Percent)*/
 					m.syncSetLbl.SetText(status.SetName)
 					m.syncProgress.SetValue(status.Percent)
 					if startCount == 0 {
 						m.browseLayout.LoadSets()
 					}
 				case <-doneChan:
-					/*setName.SetText("Import Complete")
-					progress.SetValue(100)*/
 					m.syncSetLbl.Hide()
 					m.syncProgress.Hide()
 					m.browseLayout.LoadSets()

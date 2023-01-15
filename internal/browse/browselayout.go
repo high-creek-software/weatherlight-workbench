@@ -6,11 +6,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
 	"gitlab.com/kendellfab/mtgstudio/internal/set"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"log"
 )
 
@@ -27,22 +24,14 @@ type BrowseLayout struct {
 	cardList    *widget.List
 	cardAdapter *card.CardAdapter
 
-	manager    *storage.Manager
-	notifier   notifier.Notifier
-	symbolRepo symbol.SymbolRepo
+	registry *platform.Registry
 }
 
-func NewBrowseLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
-	bl := &BrowseLayout{manager: manager, notifier: n, symbolRepo: symbolRepo}
+func NewBrowseLayout(registry *platform.Registry, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
+	bl := &BrowseLayout{registry: registry}
 
-	bl.setAdapter = set.NewSetAdapter(
-		ansel.NewAnsel[string](100, ansel.SetLoadedCallback[string](updateSetIcon), ansel.SetLoader[string](bl.manager.LoadSetIcon)),
-	)
-	bl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetLoadedCallback[string](resizeCardArt), ansel.SetWorkerCount[string](40), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource)),
-		bl.symbolRepo,
-		nil,
-	)
+	bl.setAdapter = set.NewSetAdapter(bl.registry.SetIconLoader)
+	bl.cardAdapter = card.NewCardAdapter(bl.registry)
 
 	bl.setList = widget.NewList(bl.setAdapter.Count, bl.setAdapter.CreateTemplate, bl.setAdapter.UpdateTemplate)
 	bl.setList.OnSelected = bl.setSelected
@@ -83,9 +72,9 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 	bl.cardAdapter.Clear()
 	bl.cardList.Refresh()
 	go func() {
-		allCards, err := bl.manager.ListBySet(set.Code)
+		allCards, err := bl.registry.Manager.ListBySet(set.Code)
 		if err != nil {
-			bl.notifier.ShowError(err)
+			bl.registry.Notifier.ShowError(err)
 			return
 		}
 
@@ -97,16 +86,16 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, bl.symbolRepo, bl.manager, bl.notifier)
+	cardLayout := card.NewCardLayout(&c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)
 }
 
 func (bl *BrowseLayout) LoadSets() {
-	sets, err := bl.manager.ListSets()
+	sets, err := bl.registry.Manager.ListSets()
 	if err != nil {
-		bl.notifier.ShowError(err)
+		bl.registry.Notifier.ShowError(err)
 		return
 	}
 

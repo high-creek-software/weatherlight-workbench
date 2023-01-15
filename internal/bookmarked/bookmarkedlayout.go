@@ -3,33 +3,24 @@ package bookmarked
 import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
 )
 
 type BookmarkedLayout struct {
 	*container.Split
 
+	registry *platform.Registry
+
 	cardList    *widget.List
 	cardAdapter *card.CardAdapter
 	cardTabs    *container.DocTabs
-
-	manager    *storage.Manager
-	symbolRepo symbol.SymbolRepo
-	notifier   notifier.Notifier
 }
 
-func NewBookmarkedLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, n notifier.Notifier) *BookmarkedLayout {
-	bl := &BookmarkedLayout{manager: manager, symbolRepo: symbolRepo, notifier: n}
+func NewBookmarkedLayout(registry *platform.Registry) *BookmarkedLayout {
+	bl := &BookmarkedLayout{registry: registry}
 
-	bl.cardAdapter = card.NewCardAdapter(
-		ansel.NewAnsel[string](400, ansel.SetLoader[string](bl.manager.LoadCardImage), ansel.SetWorkerCount[string](10)),
-		bl.symbolRepo,
-		nil,
-	)
+	bl.cardAdapter = card.NewCardAdapter(bl.registry)
 	bl.cardTabs = container.NewDocTabs()
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
@@ -42,9 +33,9 @@ func NewBookmarkedLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo,
 
 func (bl *BookmarkedLayout) LoadBookmarked() {
 	go func() {
-		cards, err := bl.manager.ListBookmarked()
+		cards, err := bl.registry.Manager.ListBookmarked()
 		if err != nil {
-			bl.notifier.ShowError(err)
+			bl.registry.Notifier.ShowError(err)
 			return
 		}
 
@@ -58,7 +49,7 @@ func (bl *BookmarkedLayout) LoadBookmarked() {
 func (bl *BookmarkedLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, bl.symbolRepo, bl.manager, bl.notifier)
+	cardLayout := card.NewCardLayout(&c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)

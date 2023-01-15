@@ -5,20 +5,14 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
-	cards2 "gitlab.com/high-creek-software/goscryfall/cards"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	storage2 "gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
 )
 
 type DeckLayout struct {
 	*fyne.Container
-
-	manager    *storage.Manager
-	symbolRepo symbol.SymbolRepo
 
 	deckList *widget.List
 	cardList *widget.List
@@ -26,20 +20,22 @@ type DeckLayout struct {
 	cardTab *container.DocTabs
 
 	deckAdapter *DeckAdapter
-	cardAdapter *card.CardAdapter
+	cardAdapter *DeckCardAdapter
+
+	registry *platform.Registry
 }
 
-func NewDeckLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, showImport func()) *DeckLayout {
-	dl := &DeckLayout{manager: manager, symbolRepo: symbolRepo}
-	anselLoader := ansel.NewAnsel[string](400, ansel.SetLoader[string](manager.LoadCardImage), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource))
-	dl.deckAdapter = NewDeckAdapter(nil, anselLoader)
-	dl.cardAdapter = card.NewCardAdapter(anselLoader, dl.symbolRepo, nil)
+func NewDeckLayout(registry *platform.Registry, showImport func()) *DeckLayout {
+	dl := &DeckLayout{registry: registry}
+	dl.deckAdapter = NewDeckAdapter(nil, dl.registry)
+	dl.cardAdapter = NewDeckCardAdapter(dl.registry)
 
 	dl.deckList = widget.NewList(dl.deckAdapter.Count, dl.deckAdapter.CreateTemplate, dl.deckAdapter.UpdateTemplate)
 	dl.deckAdapter.SetList(dl.deckList)
 	dl.deckList.OnSelected = dl.deckSelected
 
 	dl.cardList = widget.NewList(dl.cardAdapter.Count, dl.cardAdapter.CreateTemplate, dl.cardAdapter.UpdateTemplate)
+	dl.cardAdapter.SetList(dl.cardList)
 	dl.cardList.OnSelected = dl.cardSelected
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
@@ -58,7 +54,7 @@ func NewDeckLayout(manager *storage.Manager, symbolRepo symbol.SymbolRepo, showI
 
 func (dl *DeckLayout) LoadDecks() {
 	go func() {
-		if decks, err := dl.manager.ListDecks(); err == nil {
+		if decks, err := dl.registry.Manager.ListDecks(); err == nil {
 			dl.deckAdapter.Update(decks)
 			dl.deckList.Refresh()
 		} else {
@@ -72,14 +68,18 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 		deck := dl.deckAdapter.Item(id)
 		dl.cardAdapter.Clear()
 		dl.cardList.Refresh()
-		if fullDeck, err := dl.manager.LoadDeck(deck.ID); err == nil {
-			var cs []cards2.Card
+		if fullDeck, err := dl.registry.Manager.LoadDeck(deck.ID); err == nil {
+			dl.cardAdapter.Clear()
 			if fullDeck.Commander != nil {
-				cs = append(cs, *fullDeck.Commander)
+				dl.cardAdapter.AppendCards([]storage2.DeckCard{*fullDeck.Commander})
 			}
-			cs = append(cs, fullDeck.Main...)
-			cs = append(cs, fullDeck.Sideboard...)
-			dl.cardAdapter.AppendCards(cs)
+			if fullDeck.Main != nil {
+				dl.cardAdapter.AppendCards(fullDeck.Main)
+			}
+			if fullDeck.Sideboard != nil {
+				dl.cardAdapter.AppendCards(fullDeck.Sideboard)
+			}
+			dl.cardList.Refresh()
 		} else {
 			log.Println("Error loading deck", err)
 		}
@@ -90,8 +90,8 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 func (dl *DeckLayout) cardSelected(id widget.ListItemID) {
 	c := dl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, dl.symbolRepo, dl.manager, nil)
-	tab := container.NewTabItem(c.Name, cardLayout.Container)
+	cardLayout := card.NewCardLayout(&c.Card, dl.registry)
+	tab := container.NewTabItem(c.Card.Name, cardLayout.Container)
 	dl.cardTab.Append(tab)
 	dl.cardTab.Select(tab)
 }

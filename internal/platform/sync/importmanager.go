@@ -2,7 +2,7 @@ package sync
 
 import (
 	"gitlab.com/high-creek-software/goscryfall"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
 	"time"
 )
@@ -17,10 +17,6 @@ func NewImportManager(client *goscryfall.Client, manager *storage.Manager) *Impo
 }
 
 func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
-	//bs, err := i.client.ListBulk()
-	//if err != nil {
-	//	return nil, nil, err
-	//}
 
 	sets, err := i.client.ListSets()
 	if err != nil {

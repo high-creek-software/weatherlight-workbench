@@ -218,11 +218,11 @@ func (m *Manager) LoadDeck(id string) (Deck, error) {
 		if cCard, err := m.gormCardRepo.findById(dc.CardID); err == nil {
 			switch dc.AssociationType {
 			case associationSideboard:
-				d.Sideboard = append(d.Sideboard, cCard)
+				d.Sideboard = append(d.Sideboard, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard})
 			case associationMain:
-				d.Main = append(d.Main, cCard)
+				d.Main = append(d.Main, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard})
 			case associationCommander:
-				d.Commander = &cCard
+				d.Commander = &DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard}
 			}
 		}
 	}

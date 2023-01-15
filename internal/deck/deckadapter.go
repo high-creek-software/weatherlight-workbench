@@ -3,18 +3,18 @@ package deck
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 )
 
 type DeckAdapter struct {
-	ds     []storage.Deck
-	list   *widget.List
-	loader *ansel.Ansel[string]
+	ds       []storage.Deck
+	list     *widget.List
+	registry *platform.Registry
 }
 
-func NewDeckAdapter(ds []storage.Deck, loader *ansel.Ansel[string]) *DeckAdapter {
-	return &DeckAdapter{ds: ds, loader: loader}
+func NewDeckAdapter(ds []storage.Deck, registry *platform.Registry) *DeckAdapter {
+	return &DeckAdapter{ds: ds, registry: registry}
 }
 
 func (da *DeckAdapter) SetList(list *widget.List) {
@@ -30,14 +30,14 @@ func (da *DeckAdapter) Count() int {
 }
 
 func (da *DeckAdapter) CreateTemplate() fyne.CanvasObject {
-	return widget.NewLabel("")
+	return NewDeckListItem(storage.Deck{})
 }
 
 func (da *DeckAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject) {
 	deck := da.Item(id)
-	li := co.(*widget.Label)
+	li := co.(*DeckListItem)
 
-	li.SetText(deck.Name)
+	li.UpdateDeck(deck)
 }
 func (da *DeckAdapter) Item(id widget.ListItemID) storage.Deck {
 	return da.ds[id]

@@ -9,11 +9,9 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/nfnt/resize"
 	"gitlab.com/high-creek-software/goscryfall/cards"
-	"gitlab.com/kendellfab/mtgstudio/internal/icons"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/ruling"
-	"gitlab.com/kendellfab/mtgstudio/internal/storage"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"image/png"
@@ -24,26 +22,25 @@ type CardLayout struct {
 	//Container *container.Scroll
 	*fyne.Container
 
-	card       *cards.Card
-	symbolRepo symbol.SymbolRepo
-	manager    *storage.Manager
+	card  *cards.Card
+	image *canvas.Image
+
+	registry *platform.Registry
 
 	topBox            *fyne.Container
 	addBookmarkBtn    *widget.Button
 	removeBookmarkBtn *widget.Button
 	docTabs           *container.DocTabs
-
-	notifier notifier.Notifier
 }
 
-func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *storage.Manager, n notifier.Notifier) *CardLayout {
-	cl := &CardLayout{card: card, symbolRepo: symbolRepo, manager: manager, notifier: n}
+func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
+	cl := &CardLayout{card: card, registry: registry}
 
-	bookmark, _ := cl.manager.FindBookmark(card.Id)
+	bookmark, _ := cl.registry.Manager.FindBookmark(card.Id)
 	cl.addBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkResource, func() {
-		err := cl.manager.AddBookmark(card.Id)
+		err := cl.registry.Manager.AddBookmark(card.Id)
 		if err != nil {
-			cl.notifier.ShowError(err)
+			cl.registry.Notifier.ShowError(err)
 			return
 		}
 		cl.addBookmarkBtn.Hide()
@@ -53,9 +50,9 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	cl.addBookmarkBtn.Importance = widget.LowImportance
 
 	cl.removeBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkRemoveResource, func() {
-		err := cl.manager.RemoveBookmark(card.Id)
+		err := cl.registry.Manager.RemoveBookmark(card.Id)
 		if err != nil {
-			cl.notifier.ShowError(err)
+			cl.registry.Notifier.ShowError(err)
 			return
 		}
 		cl.removeBookmarkBtn.Hide()
@@ -72,15 +69,15 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 
 	cl.topBox = container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
 
-	image := canvas.NewImageFromResource(icons.FullCardLoadingResource)
-	image.FillMode = canvas.ImageFillOriginal
+	cl.image = canvas.NewImageFromResource(nil)
+	cl.image.FillMode = canvas.ImageFillOriginal
 	// Setting this image size to keep the image from overlapping.  Why does it work, I don't know ?!?
-	image.Resize(fyne.NewSize(450, 500))
+	cl.image.Resize(fyne.NewSize(450, 500))
 
 	cl.docTabs = container.NewDocTabs()
 	cl.docTabs.SetTabLocation(container.TabLocationLeading)
 
-	mainBox := container.NewBorder(cl.topBox, nil, container.NewPadded(image), nil, container.NewPadded(cl.docTabs))
+	mainBox := container.NewBorder(cl.topBox, nil, container.NewPadded(cl.image), nil, container.NewPadded(cl.docTabs))
 	cl.Container = mainBox
 
 	cl.setupLegalities()
@@ -91,17 +88,17 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 		if cardImgPath == "" && len(card.CardFaces) > 0 {
 			cardImgPath = card.CardFaces[0].ImageUris.Png
 		}
-		if img, err := cl.manager.LoadCardImage(cardImgPath); err == nil {
-			image.Resource = fyne.NewStaticResource(cardImgPath, cl.resizeImage(img))
-			image.Refresh()
+		if img, err := cl.registry.Manager.LoadCardImage(cardImgPath); err == nil {
+			cl.image.Resource = fyne.NewStaticResource(cardImgPath, cl.resizeImage(img))
+			cl.image.Refresh()
 		} else {
-			image.Resource = icons.FullCardFailedResource
-			image.Refresh()
+			cl.image.Resource = icons.FullCardFailedResource
+			cl.image.Refresh()
 		}
 	}()
 
 	go func() {
-		rulings, err := manager.LoadRulings(card)
+		rulings, err := cl.registry.Manager.LoadRulings(card)
 		if err != nil {
 			log.Println("error loading rulings", err)
 		} else if len(rulings) > 0 {
@@ -113,6 +110,11 @@ func NewCardLayout(card *cards.Card, symbolRepo symbol.SymbolRepo, manager *stor
 	}()
 
 	return cl
+}
+
+func (cl *CardLayout) SetResource(resource fyne.Resource) {
+	cl.image.Resource = resource
+	cl.image.Refresh()
 }
 
 func (cl *CardLayout) resizeImage(bs []byte) []byte {
