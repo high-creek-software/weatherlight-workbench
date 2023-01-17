@@ -39,6 +39,7 @@ func NewBrowseLayout(registry *platform.Registry, updateSetIcon ansel.LoaderCall
 	bl.cardTabs = container.NewDocTabs()
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
+	bl.cardAdapter.SetList(bl.cardList)
 
 	bl.filterEntry = widget.NewEntry()
 	bl.filterEntry.PlaceHolder = "Filter set name..."

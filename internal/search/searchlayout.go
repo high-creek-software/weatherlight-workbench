@@ -58,6 +58,7 @@ func NewSearchLayout(registry *platform.Registry) *SearchLayout {
 	sl.cardTabs = container.NewDocTabs()
 	sl.cardList = widget.NewList(sl.cardAdapter.Count, sl.cardAdapter.CreateTemplate, sl.cardAdapter.UpdateTemplate)
 	sl.cardList.OnSelected = sl.cardSelected
+	sl.cardAdapter.SetList(sl.cardList)
 
 	sl.name = widget.NewEntry()
 	sl.name.SetPlaceHolder("Card Name")

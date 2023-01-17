@@ -19,11 +19,13 @@ type DeckCardListItem struct {
 
 func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 	nameLbl := widget.NewRichTextFromMarkdown("Temp")
+	nameLbl.Wrapping = fyne.TextWrapWord
 	countLbl := widget.NewLabel("Temp")
 	cardFace := widget.NewIcon(nil)
 	cardFace.Resize(fyne.NewSize(128, 128))
 	manaBox := container.NewHBox()
 	typeLine := widget.NewLabel("")
+	typeLine.Wrapping = fyne.TextWrapWord
 	setName := widget.NewLabel("")
 
 	dr := &deckCardListItemRenderer{
@@ -81,36 +83,40 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 	d.cardFace.Move(topLeft)
 
 	nameSize := d.nameLbl.MinSize()
-	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 10))
+	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 8))
 	d.nameLbl.Move(nameTopLeft)
-	d.nameLbl.Resize(fyne.NewSize(size.Width, nameSize.Height))
+	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), nameSize.Height))
 
-	manaPos := nameTopLeft.Add(fyne.NewPos(8, 22))
+	manaPos := nameTopLeft.Add(fyne.NewPos(8, nameSize.Height-6))
 	manaSize := d.manaBox.MinSize()
 	d.manaBox.Move(manaPos)
-	d.manaBox.Resize(fyne.NewSize(float32(20*len(d.li.manaCost)), 32))
+	d.manaBox.Resize(fyne.NewSize(float32(20*len(d.li.manaCost)), manaSize.Height))
 
 	countSize := d.countLbl.MinSize()
-	topLeft = manaPos.Add(fyne.NewPos(-8, manaSize.Height))
+	topLeft = manaPos.Add(fyne.NewPos(-8, manaSize.Height-6))
 	d.countLbl.Move(topLeft)
 	d.countLbl.Resize(countSize)
 
-	//typeSize := d.typeLine.MinSize()
-	topLeft = topLeft.Add(fyne.NewPos(0, 22))
+	typeSize := d.typeLine.MinSize()
+	topLeft = topLeft.Add(fyne.NewPos(0, countSize.Height-6))
 	d.typeLine.Move(topLeft)
+	d.typeLine.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), typeSize.Height))
 
-	topLeft = topLeft.Add(fyne.NewPos(0, 22))
+	topLeft = topLeft.Add(fyne.NewPos(0, typeSize.Height-6))
 	d.setName.Move(topLeft)
 }
 
 func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	nameSize := d.nameLbl.MinSize()
 	typeSize := d.typeLine.MinSize()
-	//countSize := d.countLbl.Size()
-	//log.Println("--Name:", nameSize.Width, "X", nameSize.Height, "Count:", countSize.Width, "X", countSize.Height)
+	countSize := d.countLbl.Size()
+	setSize := d.setName.MinSize()
+	manaSize := d.manaBox.MinSize()
 	cardSize := d.cardFace.Size()
 
-	size := fyne.NewSize(theme.Padding()+cardSize.Width+theme.Padding()+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+theme.Padding(), cardSize.Height+2*theme.Padding())
+	height := fyne.Max(cardSize.Height, nameSize.Height-6+typeSize.Height-6+countSize.Height-6+setSize.Height+manaSize.Height-6) + 2*theme.Padding()
+
+	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
 	//log.Println("Min Size:", size.Width, "X", size.Height)
 	return size
 }

@@ -24,6 +24,7 @@ func NewBookmarkedLayout(registry *platform.Registry) *BookmarkedLayout {
 	bl.cardTabs = container.NewDocTabs()
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
+	bl.cardAdapter.SetList(bl.cardList)
 
 	bl.Split = container.NewHSplit(bl.cardList, bl.cardTabs)
 	bl.Split.SetOffset(0.18)

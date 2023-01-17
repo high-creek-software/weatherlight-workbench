@@ -11,13 +11,17 @@ import (
 var _ adapter.Adapter[cards.Card] = (*CardAdapter)(nil)
 
 type CardAdapter struct {
-	cards []cards.Card
-
+	cards    []cards.Card
+	list     *widget.List
 	registry *platform.Registry
 }
 
 func NewCardAdapter(registry *platform.Registry) *CardAdapter {
 	return &CardAdapter{registry: registry}
+}
+
+func (ca *CardAdapter) SetList(list *widget.List) {
+	ca.list = list
 }
 
 func (ca *CardAdapter) AppendCards(cs []cards.Card) {
@@ -63,7 +67,7 @@ func (ca *CardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 	}
 
 	ca.registry.CardThumbnailLoader.Load(card.Id, cardImgPath, listItem)
-
+	ca.list.SetItemHeight(id, listItem.MinSize().Height)
 }
 
 func (ca *CardAdapter) Item(id widget.ListItemID) cards.Card {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/high-creek-software/goscryfall/cards"
 	"log"
@@ -42,8 +43,10 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	icon := widget.NewIcon(nil)
 	icon.Resize(fyne.NewSize(128, 128))
 	name := widget.NewRichTextWithText("template")
+	name.Wrapping = fyne.TextWrapWord
 	manaBox := container.NewHBox()
 	typeLine := widget.NewLabel("template")
+	typeLine.Wrapping = fyne.TextWrapWord
 	setIcon := widget.NewIcon(nil)
 	setName := widget.NewLabel("template")
 
@@ -72,26 +75,39 @@ func (c CardListItemRenderer) Destroy() {
 }
 
 func (c CardListItemRenderer) Layout(size fyne.Size) {
-	iconPos := fyne.NewPos(12, 0)
+	iconPos := fyne.NewPos(theme.Padding(), theme.Padding())
+	iconSize := c.icon.Size()
 	c.icon.Move(iconPos)
 
-	iconSize := c.icon.Size()
-	namePos := fyne.NewPos(iconSize.Width+24, 10)
+	nameSize := c.name.MinSize()
+	namePos := iconPos.Add(fyne.NewPos(iconSize.Width+theme.Padding(), 8))
 	c.name.Move(namePos)
+	c.name.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), nameSize.Height))
 
-	manaPos := namePos.Add(fyne.NewPos(8, 22))
+	manaPos := namePos.Add(fyne.NewPos(8, nameSize.Height-6))
+	manaSize := c.manaBox.MinSize()
 	c.manaBox.Move(manaPos)
-	c.manaBox.Resize(fyne.NewSize(float32(20*len(c.listItem.manaCost)), 32))
+	c.manaBox.Resize(fyne.NewSize(float32(20*len(c.listItem.manaCost)), manaSize.Height))
 
-	typeLinePos := manaPos.Add(fyne.NewPos(-10, 26))
+	typeSize := c.typeLine.MinSize()
+	typeLinePos := manaPos.Add(fyne.NewPos(-10, manaSize.Height-6))
 	c.typeLine.Move(typeLinePos)
+	c.typeLine.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), typeSize.Height))
 
-	setNamePos := typeLinePos.Add(fyne.NewPos(0, 32))
+	setNamePos := typeLinePos.Add(fyne.NewPos(0, typeSize.Height-6))
 	c.setName.Move(setNamePos)
 }
 
 func (c CardListItemRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(250, 128)
+	iconSize := c.icon.Size()
+	nameSize := c.name.MinSize()
+	manaSize := c.manaBox.MinSize()
+	typeSize := c.typeLine.MinSize()
+	setNameSize := c.setName.MinSize()
+
+	height := fyne.Max(iconSize.Height, nameSize.Height-6+typeSize.Height-6+setNameSize.Height+manaSize.Height-6) + 2*theme.Padding()
+
+	return fyne.NewSize(iconSize.Width+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
 }
 
 func (c CardListItemRenderer) Objects() []fyne.CanvasObject {
