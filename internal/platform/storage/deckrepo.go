@@ -37,7 +37,7 @@ func (r *gormDeckRepo) ListDecks() ([]Deck, error) {
 
 	var ds []Deck
 	for _, gd := range gds {
-		ds = append(ds, Deck{ID: gd.ID, Name: gd.Name, CreatedAt: gd.CreateAt, CoverImage: gd.CoverImage, commanderID: gd.CommanderID})
+		ds = append(ds, Deck{ID: gd.ID, Name: gd.Name, CreatedAt: gd.CreateAt, CoverImage: gd.CoverImage, commanderID: gd.CommanderID, DeckType: gd.DeckType})
 	}
 	return ds, nil
 }
@@ -55,6 +55,7 @@ func (r *gormDeckRepo) findDeck(id string) (Deck, error) {
 		CreatedAt:   gd.CreateAt,
 		CoverImage:  gd.CoverImage,
 		commanderID: gd.CommanderID,
+		DeckType:    gd.DeckType,
 	}
 
 	return d, nil

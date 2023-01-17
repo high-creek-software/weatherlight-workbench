@@ -115,8 +115,11 @@ func (m *MtgStudio) showImport() {
 	data := widget.NewEntry()
 	data.MultiLine = true
 
+	//deckTypes := maps.Keys(cards.Legality())
+	//deckType := widget.NewSelect()
+
 	save := widget.NewButtonWithIcon("Save", theme.DocumentSaveIcon(), func() {
-		err := m.registry.Manager.ImportDeck(entry.Text, data.Text)
+		err := m.registry.Manager.ImportDeck(entry.Text, data.Text, "Unknown")
 		window.Hide()
 		window = nil
 		if err != nil {

@@ -10,6 +10,7 @@ type Deck struct {
 	Name        string
 	CreatedAt   time.Time
 	CoverImage  string
+	DeckType    string
 	Commander   *DeckCard
 	commanderID string
 	Sideboard   []DeckCard
@@ -28,6 +29,7 @@ type gormDeck struct {
 	CreateAt    time.Time
 	CoverImage  string
 	CommanderID string
+	DeckType    string
 }
 
 func (gormDeck) TableName() string {

@@ -163,7 +163,7 @@ func (m *Manager) LoadRulings(c *scryfallcards.Card) ([]rulings.Ruling, error) {
 	return m.client.List(c.RulingsUri)
 }
 
-func (m *Manager) ImportDeck(name, data string) error {
+func (m *Manager) ImportDeck(name, data, deckType string) error {
 	buf := bytes.NewBufferString(data)
 	d, err := decks.Unmarshal(name, buf)
 	if err != nil {
@@ -182,7 +182,7 @@ func (m *Manager) ImportDeck(name, data string) error {
 		}
 	}
 
-	gd := gormDeck{ID: deckID, Name: name, CreateAt: time.Now(), CoverImage: "", CommanderID: commanderID}
+	gd := gormDeck{ID: deckID, Name: name, CreateAt: time.Now(), CoverImage: "", CommanderID: commanderID, DeckType: deckType}
 	err = m.gormDeckRepo.create(gd)
 	if err != nil {
 		return err

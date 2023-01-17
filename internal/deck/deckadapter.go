@@ -38,6 +38,7 @@ func (da *DeckAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 	li := co.(*DeckListItem)
 
 	li.UpdateDeck(deck)
+	da.list.SetItemHeight(id, li.MinSize().Height)
 }
 func (da *DeckAdapter) Item(id widget.ListItemID) storage.Deck {
 	return da.ds[id]
