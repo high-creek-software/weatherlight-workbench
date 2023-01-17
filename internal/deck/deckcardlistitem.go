@@ -7,7 +7,6 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
-	"log"
 )
 
 type DeckCardListItem struct {
@@ -106,12 +105,13 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 
 func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	nameSize := d.nameLbl.MinSize()
+	typeSize := d.typeLine.MinSize()
 	//countSize := d.countLbl.Size()
 	//log.Println("--Name:", nameSize.Width, "X", nameSize.Height, "Count:", countSize.Width, "X", countSize.Height)
 	cardSize := d.cardFace.Size()
 
-	size := fyne.NewSize(theme.Padding()+cardSize.Width+theme.Padding()+fyne.Max(nameSize.Width, 200)+theme.Padding(), cardSize.Height+2*theme.Padding())
-	log.Println("Min Size:", size.Width, "X", size.Height)
+	size := fyne.NewSize(theme.Padding()+cardSize.Width+theme.Padding()+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+theme.Padding(), cardSize.Height+2*theme.Padding())
+	//log.Println("Min Size:", size.Width, "X", size.Height)
 	return size
 }
 
