@@ -13,6 +13,9 @@ type cardMetaAdapter struct {
 func newCardMetaAdapter(meta []cardMeta) *cardMetaAdapter {
 	return &cardMetaAdapter{meta: meta}
 }
+func (c *cardMetaAdapter) updateMeta(meta []cardMeta) {
+	c.meta = meta
+}
 
 func (c *cardMetaAdapter) SetList(list *widget.List) {
 	c.list = list

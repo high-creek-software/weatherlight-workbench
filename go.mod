@@ -6,7 +6,7 @@ require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde
-	gitlab.com/high-creek-software/goscryfall v0.0.0-20230114042127-07beb7a0658a
+	gitlab.com/high-creek-software/goscryfall v0.0.0-20230120141042-a95e3d9d1dee
 )
 
 require (
@@ -48,7 +48,3 @@ require (
 	gorm.io/gorm v1.24.3 // indirect
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )
-
-//replace gitlab.com/high-creek-software/ansel => ../HighCreekSoftware/ansel
-
-//replace gitlab.com/high-creek-software/goscryfall => ../HighCreekSoftware/goscryfall

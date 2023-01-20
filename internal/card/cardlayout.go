@@ -31,6 +31,9 @@ type CardLayout struct {
 	addBookmarkBtn    *widget.Button
 	removeBookmarkBtn *widget.Button
 	docTabs           *container.DocTabs
+
+	cardMetaAdapter *cardMetaAdapter
+	cardMetaList    *widget.List
 }
 
 func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
@@ -81,7 +84,34 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 	cl.Container = mainBox
 
 	cl.setupLegalities()
-	cl.setupDetails()
+
+	var cs cardSummary
+	if len(card.CardFaces) == 0 {
+		cs = cardSummary{
+			name:       card.Name,
+			cost:       card.ManaCost,
+			typeLine:   card.TypeLine,
+			oracleText: card.OracleText,
+			flavorText: card.FlavorText,
+			power:      card.Power,
+			toughness:  card.Toughness,
+			releasedAt: card.ReleasedAt,
+		}
+	} else {
+		face := card.CardFaces[0]
+		cs = cardSummary{
+			name:       face.Name,
+			cost:       face.ManaCost,
+			typeLine:   face.TypeLine,
+			oracleText: face.OracleText,
+			flavorText: face.FlavorName,
+			releasedAt: card.ReleasedAt,
+			power:      face.Power,
+			toughness:  face.Toughness,
+		}
+	}
+
+	cl.setupDetails(cs)
 
 	go func() {
 		cardImgPath := card.ImageUris.Png
@@ -132,29 +162,34 @@ func (cl *CardLayout) resizeImage(bs []byte) []byte {
 	return out.Bytes()
 }
 
-func (cl *CardLayout) setupDetails() {
+func (cl *CardLayout) setupDetails(cs cardSummary) {
 
 	metaData := []cardMeta{
-		{"Name", cl.card.Name},
-		{"Cost", cl.card.ManaCost},
-		{"Type Line", cl.card.TypeLine},
-		{"Oracle Text", cl.card.OracleText},
+		{"Name", cs.name},
+		{"Cost", cs.cost},
+		{"Type Line", cs.typeLine},
+		{"Oracle Text", cs.oracleText},
 	}
 
-	if cl.card.FlavorText != "" {
-		metaData = append(metaData, cardMeta{"Flavor Text", cl.card.FlavorText})
+	if cs.flavorText != "" {
+		metaData = append(metaData, cardMeta{"Flavor Text", cs.flavorText})
 	}
 
-	if cl.card.Power != "" && cl.card.Toughness != "" {
-		metaData = append(metaData, cardMeta{"Power/Toughness", fmt.Sprintf("%s/%s", cl.card.Power, cl.card.Toughness)})
+	if cs.power != "" && cs.toughness != "" {
+		metaData = append(metaData, cardMeta{"Power/Toughness", fmt.Sprintf("%s/%s", cs.power, cs.toughness)})
 	}
 
-	metaData = append(metaData, cardMeta{"Released At", cl.card.ReleasedAt})
+	metaData = append(metaData, cardMeta{"Released At", cs.releasedAt})
 
-	metaListAdapter := newCardMetaAdapter(metaData)
-	metaList := widget.NewList(metaListAdapter.Count, metaListAdapter.CreateTemplate, metaListAdapter.UpdateTemplate)
-	metaListAdapter.SetList(metaList)
-	cl.docTabs.Append(container.NewTabItem("Details", metaList))
+	if cl.cardMetaAdapter != nil {
+		cl.cardMetaAdapter.updateMeta(metaData)
+		cl.cardMetaList.Refresh()
+	} else {
+		cl.cardMetaAdapter = newCardMetaAdapter(metaData)
+		cl.cardMetaList = widget.NewList(cl.cardMetaAdapter.Count, cl.cardMetaAdapter.CreateTemplate, cl.cardMetaAdapter.UpdateTemplate)
+		cl.cardMetaAdapter.SetList(cl.cardMetaList)
+		cl.docTabs.Append(container.NewTabItem("Details", cl.cardMetaList))
+	}
 }
 
 func (cl *CardLayout) setupLegalities() {

@@ -95,8 +95,9 @@ func (m *MtgStudio) setupBody() {
 
 	// container.NewBorder(nil, nil, m.syncSetLbl, nil, m.syncProgress)
 	syncBorder := container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.settingsBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncLastLbl, layout.NewSpacer()), nil, container.NewVBox(m.syncSetLbl, m.syncProgress))))
+	mainBody := container.NewBorder(nil, syncBorder, nil, nil, appTabs)
 
-	m.window.SetContent(container.NewBorder(nil, syncBorder, nil, nil, appTabs))
+	m.window.SetContent(mainBody)
 
 	appTabs.OnSelected = func(ti *container.TabItem) {
 		if ti.Text == "Bookmarked" {
