@@ -151,6 +151,11 @@ func (sl *SearchLayout) doSearch() {
 	sr.OldschoolLegal = sl.oldschoolCheck.Checked
 	sr.PremodernLegal = sl.premodernCheck.Checked
 
+	if sr.IsEmpty() {
+		sl.registry.Notifier.ShowDialog("", "Please select a search term.")
+		return
+	}
+
 	go func() {
 		cards, err := sl.registry.Manager.Search(sr)
 		if err != nil {

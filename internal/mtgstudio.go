@@ -239,7 +239,7 @@ func (m *MtgStudio) showLastSyncedAt() {
 }
 
 func (m *MtgStudio) ShowDialog(title, message string) {
-	item := bento.NewItemWithMessage(message, bento.LengthIndefinite)
+	item := bento.NewItemWithMessage(message, bento.LengthLong)
 	item.SetBackgroundColor(colornames.Darkslateblue)
 	m.bentoBox.AddItem(item)
 }
