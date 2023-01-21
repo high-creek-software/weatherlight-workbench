@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/bento"
 	"gitlab.com/high-creek-software/ansel"
 	"gitlab.com/high-creek-software/goscryfall"
 	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
@@ -19,7 +20,7 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/sync"
 	"gitlab.com/kendellfab/mtgstudio/internal/search"
-	"os"
+	"golang.org/x/image/colornames"
 	"strings"
 	"time"
 )
@@ -44,10 +45,12 @@ type MtgStudio struct {
 	syncProgress *widget.ProgressBar
 	syncSetLbl   *widget.Label
 	settingsBtn  *widget.Button
+
+	bentoBox *bento.Box
 }
 
 func NewMtgStudio() *MtgStudio {
-	os.Setenv("FYNE_THEME", "dark")
+	//os.Setenv("FYNE_THEME", "dark")
 	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
 	mtgs.app.SetIcon(icons.AppIconResource)
 	mtgs.window = mtgs.app.NewWindow("MTG Studio")
@@ -97,7 +100,10 @@ func (m *MtgStudio) setupBody() {
 	syncBorder := container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.settingsBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncLastLbl, layout.NewSpacer()), nil, container.NewVBox(m.syncSetLbl, m.syncProgress))))
 	mainBody := container.NewBorder(nil, syncBorder, nil, nil, appTabs)
 
-	m.window.SetContent(mainBody)
+	m.bentoBox = bento.NewBox()
+	m.bentoBox.UpdateBottomOffset(45)
+
+	m.window.SetContent(container.NewMax(mainBody, m.bentoBox))
 
 	appTabs.OnSelected = func(ti *container.TabItem) {
 		if ti.Text == "Bookmarked" {
@@ -233,9 +239,13 @@ func (m *MtgStudio) showLastSyncedAt() {
 }
 
 func (m *MtgStudio) ShowDialog(title, message string) {
-	dialog.NewInformation(title, message, m.window).Show()
+	item := bento.NewItemWithMessage(message, bento.LengthIndefinite)
+	item.SetBackgroundColor(colornames.Darkslateblue)
+	m.bentoBox.AddItem(item)
 }
 
 func (m *MtgStudio) ShowError(err error) {
-	dialog.NewError(err, m.window).Show()
+	item := bento.NewItemWithMessage(err.Error(), bento.LengthIndefinite)
+	item.SetBackgroundColor(colornames.Rosybrown)
+	m.bentoBox.AddItem(item)
 }
