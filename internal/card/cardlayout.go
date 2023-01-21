@@ -24,13 +24,17 @@ type CardLayout struct {
 
 	card  *cards.Card
 	image *canvas.Image
+	//image *widget.Icon
 
 	registry *platform.Registry
 
 	topBox            *fyne.Container
 	addBookmarkBtn    *widget.Button
 	removeBookmarkBtn *widget.Button
+	switchBtn         *widget.Button
 	docTabs           *container.DocTabs
+
+	activeFace int
 
 	cardMetaAdapter *cardMetaAdapter
 	cardMetaList    *widget.List
@@ -73,14 +77,13 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 	cl.topBox = container.NewBorder(nil, nil, nil, cl.addBookmarkBtn, container.NewBorder(nil, nil, nil, cl.removeBookmarkBtn))
 
 	cl.image = canvas.NewImageFromResource(nil)
-	cl.image.FillMode = canvas.ImageFillOriginal
-	// Setting this image size to keep the image from overlapping.  Why does it work, I don't know ?!?
-	cl.image.Resize(fyne.NewSize(450, 500))
+	cl.image.FillMode = canvas.ImageFillContain
 
 	cl.docTabs = container.NewDocTabs()
 	cl.docTabs.SetTabLocation(container.TabLocationLeading)
-
-	mainBox := container.NewBorder(cl.topBox, nil, container.NewPadded(cl.image), nil, container.NewPadded(cl.docTabs))
+	cl.switchBtn = widget.NewButton("Switch", cl.switchFace)
+	//mainBox := container.NewBorder(cl.topBox, nil, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), nil, container.NewPadded(cl.docTabs))
+	mainBox := container.NewBorder(cl.topBox, nil, nil, nil, container.NewGridWithColumns(2, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), cl.docTabs))
 	cl.Container = mainBox
 
 	cl.setupLegalities()
@@ -89,6 +92,7 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 	if len(card.CardFaces) == 0 {
 		cs = cardSummary{
 			name:       card.Name,
+			setName:    card.SetName,
 			cost:       card.ManaCost,
 			typeLine:   card.TypeLine,
 			oracleText: card.OracleText,
@@ -97,35 +101,12 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 			toughness:  card.Toughness,
 			releasedAt: card.ReleasedAt,
 		}
+		cl.updateImage(card.ImageUris.Png)
+		cl.setupDetails(cs)
+		cl.switchBtn.Hide()
 	} else {
-		face := card.CardFaces[0]
-		cs = cardSummary{
-			name:       face.Name,
-			cost:       face.ManaCost,
-			typeLine:   face.TypeLine,
-			oracleText: face.OracleText,
-			flavorText: face.FlavorName,
-			releasedAt: card.ReleasedAt,
-			power:      face.Power,
-			toughness:  face.Toughness,
-		}
+		cl.switchFace()
 	}
-
-	cl.setupDetails(cs)
-
-	go func() {
-		cardImgPath := card.ImageUris.Png
-		if cardImgPath == "" && len(card.CardFaces) > 0 {
-			cardImgPath = card.CardFaces[0].ImageUris.Png
-		}
-		if img, err := cl.registry.Manager.LoadCardImage(cardImgPath); err == nil {
-			cl.image.Resource = fyne.NewStaticResource(cardImgPath, cl.resizeImage(img))
-			cl.image.Refresh()
-		} else {
-			cl.image.Resource = icons.FullCardFailedResource
-			cl.image.Refresh()
-		}
-	}()
 
 	go func() {
 		rulings, err := cl.registry.Manager.LoadRulings(card)
@@ -142,6 +123,48 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 	return cl
 }
 
+func (cl *CardLayout) switchFace() {
+	face := cl.card.CardFaces[cl.activeFace]
+	cs := cardSummary{
+		name:       face.Name,
+		setName:    cl.card.SetName,
+		cost:       face.ManaCost,
+		typeLine:   face.TypeLine,
+		oracleText: face.OracleText,
+		flavorText: face.FlavorName,
+		releasedAt: cl.card.ReleasedAt,
+		power:      face.Power,
+		toughness:  face.Toughness,
+	}
+	cl.updateImage(face.ImageUris.Png)
+	cl.setupDetails(cs)
+
+	switch cl.activeFace {
+	case 0:
+		cl.activeFace = 1
+	case 1:
+		cl.activeFace = 0
+	}
+}
+
+func (cl *CardLayout) updateImage(uri string) {
+	log.Println(uri)
+	go func() {
+		//cardImgPath := card.ImageUris.Png
+		//if cardImgPath == "" && len(card.CardFaces) > 0 {
+		//	cardImgPath = card.CardFaces[0].ImageUris.Png
+		//}
+		if img, err := cl.registry.Manager.LoadCardImage(uri); err == nil {
+			log.Println("Image load returned...")
+			cl.image.Resource = fyne.NewStaticResource(uri, cl.resizeImage(img))
+			cl.image.Refresh()
+		} else {
+			cl.image.Resource = icons.FullCardFailedResource
+			cl.image.Refresh()
+		}
+	}()
+}
+
 func (cl *CardLayout) SetResource(resource fyne.Resource) {
 	cl.image.Resource = resource
 	cl.image.Refresh()
@@ -155,7 +178,7 @@ func (cl *CardLayout) resizeImage(bs []byte) []byte {
 		return bs
 	}
 
-	r := resize.Resize(450, 0, img, resize.Lanczos3)
+	r := resize.Resize(400, 0, img, resize.Lanczos3)
 
 	var out bytes.Buffer
 	png.Encode(&out, r)
@@ -166,6 +189,7 @@ func (cl *CardLayout) setupDetails(cs cardSummary) {
 
 	metaData := []cardMeta{
 		{"Name", cs.name},
+		{"Set Name", cs.setName},
 		{"Cost", cs.cost},
 		{"Type Line", cs.typeLine},
 		{"Oracle Text", cs.oracleText},

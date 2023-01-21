@@ -106,6 +106,11 @@ func (m *Manager) LoadSetIcon(uri string) ([]byte, error) {
 func (m *Manager) LoadCardImage(uri string) ([]byte, error) {
 	res := path.Base(uri)
 	reconfiguredName := m.reconfigureName(res)
+	if strings.Contains(uri, "front") {
+		reconfiguredName = "front_" + reconfiguredName //fmt.Sprint("front_%s", reconfiguredName)
+	} else if strings.Contains(uri, "back") {
+		reconfiguredName = "back_" + reconfiguredName //fmt.Sprintf("back_%s", reconfiguredName)
+	}
 	resourcePath := filepath.Join(m.cardsDirectory, reconfiguredName)
 	data, err := os.ReadFile(resourcePath)
 	if err == nil {
