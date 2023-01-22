@@ -6,7 +6,7 @@ require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde
-	gitlab.com/high-creek-software/goscryfall v0.0.0-20230120141042-a95e3d9d1dee
+	gitlab.com/high-creek-software/goscryfall v0.0.0-20230122003418-546b026eeaa3
 )
 
 require (

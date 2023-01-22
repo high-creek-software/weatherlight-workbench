@@ -2,6 +2,7 @@ package sync
 
 import (
 	"gitlab.com/high-creek-software/goscryfall"
+	cards2 "gitlab.com/high-creek-software/goscryfall/cards"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
 	"time"
@@ -34,13 +35,13 @@ func (i *ImportManager) Import() (chan StatusUpdate, chan bool, error) {
 		for idx, set := range sets {
 			resChan <- StatusUpdate{Percent: (float64(idx) / total) * 100, SetName: set.Name}
 
-			cards, err := i.client.ListCards(set.Code, "")
+			cards, err := i.client.ListCards(set.Code, cards2.UniquePrints, "")
 			if err == nil {
 				i.manager.Store(cards.Data)
 
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(150 * time.Millisecond)
 				for cards.HasMore {
-					cards, err = i.client.ListCards(set.Code, cards.NextPage)
+					cards, err = i.client.ListCards(set.Code, cards2.UniquePrints, cards.NextPage)
 					if err == nil {
 						i.manager.Store(cards.Data)
 					}
