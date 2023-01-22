@@ -168,44 +168,26 @@ func (m *Manager) LoadRulings(c *scryfallcards.Card) ([]rulings.Ruling, error) {
 	return m.client.List(c.RulingsUri)
 }
 
-func (m *Manager) ImportDeck(name, data, deckType string) error {
+func (m *Manager) ParseDeckDefinition(deckName, data string) (*decks.Deck, error) {
 	buf := bytes.NewBufferString(data)
-	d, err := decks.Unmarshal(name, buf)
-	if err != nil {
-		return err
-	}
+	return decks.Unmarshal(deckName, buf)
+}
 
+func (m *Manager) CreateDeck(name, deckType string) (*Deck, error) {
 	deckID := xid.New().String()
-	var deckCards []gormDeckCard
-
-	commanderID := ""
-	if d.Commander.Name != "" {
-		cCard, err := m.gormCardRepo.FindByName(d.Commander.Name)
-		if err == nil {
-			commanderID = cCard.Id
-			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: d.Commander.Name, AssociationType: associationCommander, Count: 1})
-		}
-	}
-
-	gd := gormDeck{ID: deckID, Name: name, CreateAt: time.Now(), CoverImage: "", CommanderID: commanderID, DeckType: deckType}
-	err = m.gormDeckRepo.create(gd)
+	gd := gormDeck{ID: deckID, Name: name, CreateAt: time.Now(), CoverImage: "", DeckType: deckType}
+	err := m.gormDeckRepo.create(gd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, np := range d.Deck {
-		if cCard, err := m.gormCardRepo.FindByName(np.Name); err == nil {
-			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: np.Name, AssociationType: associationMain, Count: np.Count})
-		}
-	}
+	return &Deck{ID: deckID, Name: name, CreatedAt: gd.CreateAt, DeckType: deckType}, nil
+}
 
-	for _, np := range d.Sideboard {
-		if cCard, err := m.gormCardRepo.FindByName(np.Name); err == nil {
-			deckCards = append(deckCards, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: cCard.Id, CardName: np.Name, AssociationType: associationSideboard, Count: np.Count})
-		}
-	}
+func (m *Manager) AddCardToDeck(deck Deck, cardID, cardName string, count int, association AssociationType) error {
+	gdc := gormDeckCard{ID: xid.New().String(), DeckID: deck.ID, CardID: cardID, CardName: cardName, AssociationType: association, Count: count}
 
-	return m.gormDeckRepo.addCards(deckCards)
+	return m.gormDeckRepo.addCard(gdc)
 }
 
 func (m *Manager) LoadDeck(id string) (Deck, error) {
@@ -222,12 +204,12 @@ func (m *Manager) LoadDeck(id string) (Deck, error) {
 	for _, dc := range allCards {
 		if cCard, err := m.gormCardRepo.findById(dc.CardID); err == nil {
 			switch dc.AssociationType {
-			case associationSideboard:
-				d.Sideboard = append(d.Sideboard, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard})
-			case associationMain:
-				d.Main = append(d.Main, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard})
-			case associationCommander:
-				d.Commander = &DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard}
+			case AssociationSideboard:
+				d.Sideboard = append(d.Sideboard, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard, AssociationType: dc.AssociationType})
+			case AssociationMain:
+				d.Main = append(d.Main, DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard, AssociationType: dc.AssociationType})
+			case AssociationCommander:
+				d.Commander = &DeckCard{ID: dc.ID, Count: dc.Count, Card: cCard, AssociationType: dc.AssociationType}
 			}
 		}
 	}

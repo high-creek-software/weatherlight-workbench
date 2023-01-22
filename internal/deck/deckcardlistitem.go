@@ -27,15 +27,17 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 	typeLine := widget.NewLabel("")
 	typeLine.Wrapping = fyne.TextWrapWord
 	setName := widget.NewLabel("")
+	associationLabel := widget.NewLabel("")
 
 	dr := &deckCardListItemRenderer{
-		li:       li,
-		nameLbl:  nameLbl,
-		countLbl: countLbl,
-		cardFace: cardFace,
-		manaBox:  manaBox,
-		typeLine: typeLine,
-		setName:  setName,
+		li:               li,
+		nameLbl:          nameLbl,
+		countLbl:         countLbl,
+		cardFace:         cardFace,
+		manaBox:          manaBox,
+		typeLine:         typeLine,
+		setName:          setName,
+		associationLabel: associationLabel,
 	}
 
 	for i := 0; i < 4; i++ {
@@ -63,14 +65,15 @@ func (li *DeckCardListItem) SetResource(resource fyne.Resource) {
 }
 
 type deckCardListItemRenderer struct {
-	li         *DeckCardListItem
-	nameLbl    *widget.RichText
-	countLbl   *widget.Label
-	cardFace   *widget.Icon
-	manaBox    *fyne.Container
-	manaImages []*widget.Icon
-	typeLine   *widget.Label
-	setName    *widget.Label
+	li               *DeckCardListItem
+	nameLbl          *widget.RichText
+	countLbl         *widget.Label
+	cardFace         *widget.Icon
+	manaBox          *fyne.Container
+	manaImages       []*widget.Icon
+	typeLine         *widget.Label
+	setName          *widget.Label
+	associationLabel *widget.Label
 }
 
 func (d deckCardListItemRenderer) Destroy() {
@@ -82,10 +85,15 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 	cardSize := d.cardFace.Size()
 	d.cardFace.Move(topLeft)
 
+	assocSize := d.associationLabel.MinSize()
 	nameSize := d.nameLbl.MinSize()
 	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 8))
 	d.nameLbl.Move(nameTopLeft)
-	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), nameSize.Height))
+	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-assocSize.Width-3*theme.Padding(), nameSize.Height))
+
+	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, theme.Padding())
+	d.associationLabel.Move(assocTop)
+	d.associationLabel.Resize(assocSize)
 
 	manaPos := nameTopLeft.Add(fyne.NewPos(8, nameSize.Height-6))
 	manaSize := d.manaBox.MinSize()
@@ -108,6 +116,7 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 
 func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	nameSize := d.nameLbl.MinSize()
+	assocSize := d.associationLabel.MinSize()
 	typeSize := d.typeLine.MinSize()
 	countSize := d.countLbl.Size()
 	setSize := d.setName.MinSize()
@@ -116,13 +125,13 @@ func (d deckCardListItemRenderer) MinSize() fyne.Size {
 
 	height := fyne.Max(cardSize.Height, nameSize.Height-6+typeSize.Height-6+countSize.Height-6+setSize.Height+manaSize.Height-6) + 2*theme.Padding()
 
-	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
+	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width+assocSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
 	//log.Println("Min Size:", size.Width, "X", size.Height)
 	return size
 }
 
 func (d deckCardListItemRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName}
+	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName, d.associationLabel}
 }
 
 func (d deckCardListItemRenderer) Refresh() {
@@ -131,6 +140,17 @@ func (d deckCardListItemRenderer) Refresh() {
 	d.cardFace.SetResource(d.li.ico)
 	d.typeLine.SetText(d.li.card.Card.TypeLine)
 	d.setName.SetText(d.li.card.Card.SetName)
+
+	switch d.li.card.AssociationType {
+	case storage.AssociationMain:
+		d.associationLabel.SetText("M")
+	case storage.AssociationCommander:
+		d.associationLabel.SetText("C")
+	case storage.AssociationSideboard:
+		d.associationLabel.SetText("S")
+	default:
+		d.associationLabel.SetText("")
+	}
 
 	d.manaBox.RemoveAll()
 	for i, cost := range d.li.manaCost {

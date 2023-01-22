@@ -14,6 +14,7 @@ import (
 	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
 	"gitlab.com/kendellfab/mtgstudio/internal/browse"
 	"gitlab.com/kendellfab/mtgstudio/internal/deck"
+	"gitlab.com/kendellfab/mtgstudio/internal/importing"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/icons"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
@@ -108,37 +109,23 @@ func (m *MtgStudio) setupBody() {
 	appTabs.OnSelected = func(ti *container.TabItem) {
 		if ti.Text == "Bookmarked" {
 			m.bookmarkedLayout.LoadBookmarked()
+		} else if ti.Text == "Decks" {
+			m.deckLayout.LoadDecks()
 		}
 	}
 }
 
 func (m *MtgStudio) showImport() {
 	window := m.app.NewWindow("Import Deck")
-	window.Resize(fyne.NewSize(800, 400))
+	window.Resize(fyne.NewSize(1200, 700))
 
-	entry := widget.NewEntry()
-	entry.PlaceHolder = "Deck Name"
-
-	data := widget.NewEntry()
-	data.MultiLine = true
-
-	//deckTypes := maps.Keys(cards.Legality())
-	//deckType := widget.NewSelect()
-
-	save := widget.NewButtonWithIcon("Save", theme.DocumentSaveIcon(), func() {
-		err := m.registry.Manager.ImportDeck(entry.Text, data.Text, "Unknown")
-		window.Hide()
-		window = nil
-		if err != nil {
-			m.ShowError(err)
-			return
-		}
+	il := importing.NewImportLayout(m.registry, func() {
+		window.Close()
 		m.deckLayout.LoadDecks()
 	})
-
-	border := container.NewBorder(entry, save, nil, nil, data)
-	window.SetContent(border)
+	window.SetContent(il.Split)
 	window.Show()
+
 }
 
 func (m *MtgStudio) updateSetIcon(bs []byte) []byte {

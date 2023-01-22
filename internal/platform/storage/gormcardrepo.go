@@ -179,18 +179,23 @@ func (r *gormCardRepo) ListBySet(set string) ([]scryfallcards.Card, error) {
 	return res, nil
 }
 
-func (r *gormCardRepo) FindByName(name string) (scryfallcards.Card, error) {
-	var c gormCard
-	err := r.db.Where("name = ?", name).First(&c).Error
-	if err != nil {
+func (r *gormCardRepo) FindByName(name string) ([]scryfallcards.Card, error) {
+	var cs []gormCard
+	err := r.db.Where("name = ?", name).Find(&cs).Error
+	if err != nil || len(cs) == 0 {
 
-		err = r.db.Where("name LIKE ?", "%"+name+"%").First(&c).Error
+		err = r.db.Where("name LIKE ?", "%"+name+"%").Find(&cs).Error
 		if err != nil {
-			return scryfallcards.Card{}, err
+			return nil, err
 		}
 	}
 
-	return internalToExternal(c), err
+	var resp []scryfallcards.Card
+	for _, c := range cs {
+		resp = append(resp, internalToExternal(c))
+	}
+
+	return resp, err
 }
 
 func (r *gormCardRepo) findById(id string) (scryfallcards.Card, error) {

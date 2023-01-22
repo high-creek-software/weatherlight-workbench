@@ -18,31 +18,33 @@ type Deck struct {
 }
 
 type DeckCard struct {
-	ID    string
-	Count int
-	Card  scryfallcards.Card
+	ID              string
+	Count           int
+	Card            scryfallcards.Card
+	CreatedAt       time.Time
+	AssociationType AssociationType
 }
 
 type gormDeck struct {
-	ID          string `gorm:"primaryKey"`
-	Name        string
-	CreateAt    time.Time
-	CoverImage  string
-	CommanderID string
-	DeckType    string
+	ID         string `gorm:"primaryKey"`
+	Name       string `gorm:"index:idx_deck_name"`
+	CreateAt   time.Time
+	CoverImage string
+	DeckType   string `gorm:"index:idx_deck_type"`
 }
 
 func (gormDeck) TableName() string {
 	return "decks"
 }
 
-type associationType int
+type AssociationType int
 
 const (
-	associationUnknown associationType = iota
-	associationSideboard
-	associationMain
-	associationCommander
+	AssociationUnknown AssociationType = iota
+	AssociationSideboard
+	AssociationMain
+	AssociationCommander
+	AssociationCompanion
 )
 
 type gormDeckCard struct {
@@ -50,8 +52,9 @@ type gormDeckCard struct {
 	DeckID          string `gorm:"index:idx_deck_card_deck_id"`
 	CardID          string `gorm:"index:idx_deck_card_card_id"`
 	CardName        string
-	AssociationType associationType
+	AssociationType AssociationType
 	Count           int
+	CreatedAt       time.Time
 }
 
 func (gormDeckCard) TableName() string {
