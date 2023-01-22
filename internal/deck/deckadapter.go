@@ -39,6 +39,9 @@ func (da *DeckAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject
 
 	li.UpdateDeck(deck)
 	da.list.SetItemHeight(id, li.MinSize().Height)
+	if deck.CoverImage != "" {
+		da.registry.CardThumbnailLoader.Load(deck.ID, deck.CoverImage, li)
+	}
 }
 func (da *DeckAdapter) Item(id widget.ListItemID) storage.Deck {
 	return da.ds[id]

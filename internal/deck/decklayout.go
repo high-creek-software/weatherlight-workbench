@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	storage2 "gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
 )
 
@@ -23,12 +23,14 @@ type DeckLayout struct {
 	cardAdapter *DeckCardAdapter
 
 	registry *platform.Registry
+
+	selectedDeck storage.Deck
 }
 
 func NewDeckLayout(registry *platform.Registry, showImport func()) *DeckLayout {
 	dl := &DeckLayout{registry: registry}
 	dl.deckAdapter = NewDeckAdapter(nil, dl.registry)
-	dl.cardAdapter = NewDeckCardAdapter(dl.registry)
+	dl.cardAdapter = NewDeckCardAdapter(dl.registry, dl.setCover)
 
 	dl.deckList = widget.NewList(dl.deckAdapter.Count, dl.deckAdapter.CreateTemplate, dl.deckAdapter.UpdateTemplate)
 	dl.deckAdapter.SetList(dl.deckList)
@@ -63,15 +65,25 @@ func (dl *DeckLayout) LoadDecks() {
 	}()
 }
 
+func (dl *DeckLayout) setCover(dc storage.DeckCard) {
+	log.Println("Deck:", dl.selectedDeck.Name, dl.selectedDeck.ID, "Card", dc.Card.Name)
+	if err := dl.registry.Manager.UpdateCover(dl.selectedDeck.ID, dc.Card.ImageUris.ArtCrop); err == nil {
+		dl.LoadDecks()
+	} else {
+		dl.registry.Notifier.ShowError(err)
+	}
+}
+
 func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 	go func() {
 		deck := dl.deckAdapter.Item(id)
+		dl.selectedDeck = deck
 		dl.cardAdapter.Clear()
 		dl.cardList.Refresh()
 		if fullDeck, err := dl.registry.Manager.LoadDeck(deck.ID); err == nil {
 			dl.cardAdapter.Clear()
 			if fullDeck.Commander != nil {
-				dl.cardAdapter.AppendCards([]storage2.DeckCard{*fullDeck.Commander})
+				dl.cardAdapter.AppendCards([]storage.DeckCard{*fullDeck.Commander})
 			}
 			if fullDeck.Main != nil {
 				dl.cardAdapter.AppendCards(fullDeck.Main)

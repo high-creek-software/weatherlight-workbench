@@ -14,6 +14,7 @@ type DeckListItem struct {
 	widget.BaseWidget
 
 	deck storage.Deck
+	ico  fyne.Resource
 }
 
 func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
@@ -44,6 +45,10 @@ func (dll *DeckListItem) UpdateDeck(deck storage.Deck) {
 	dll.Refresh()
 }
 
+func (dll *DeckListItem) SetResource(resource fyne.Resource) {
+	dll.ico = resource
+}
+
 type deckListItemRenderer struct {
 	dll          *DeckListItem
 	nameLbl      *widget.RichText
@@ -61,7 +66,7 @@ func (d deckListItemRenderer) Layout(size fyne.Size) {
 	imgTopLeft := fyne.NewPos(theme.Padding(), theme.Padding())
 	d.img.Move(imgTopLeft)
 
-	topLeft := fyne.NewPos(imgSize.Width+2*theme.Padding(), theme.Padding())
+	topLeft := fyne.NewPos(imgSize.Width+2*theme.Padding(), 8+theme.Padding())
 	nameSize := d.nameLbl.MinSize()
 	d.nameLbl.Move(topLeft)
 	d.nameLbl.Resize(fyne.NewSize(size.Width, nameSize.Height))
@@ -89,4 +94,5 @@ func (d deckListItemRenderer) Refresh() {
 	d.nameLbl.ParseMarkdown(fmt.Sprintf("### %s", d.dll.deck.Name))
 	d.createdAtLbl.SetText(d.dll.deck.CreatedAt.Format(time.Stamp))
 	d.deckTypeLbl.SetText(d.dll.deck.DeckType)
+	d.img.SetResource(d.dll.ico)
 }

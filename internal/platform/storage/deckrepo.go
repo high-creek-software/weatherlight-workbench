@@ -42,6 +42,10 @@ func (r *gormDeckRepo) ListDecks() ([]Deck, error) {
 	return ds, nil
 }
 
+func (r *gormDeckRepo) UpdateCover(deckID, path string) error {
+	return r.db.Model(&gormDeck{}).Where("id", deckID).Update("cover_image", path).Error
+}
+
 func (r *gormDeckRepo) findDeck(id string) (Deck, error) {
 	var gd gormDeck
 	err := r.db.Where("id = ?", id).First(&gd).Error
