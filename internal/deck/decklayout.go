@@ -5,17 +5,20 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/fynecharts"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
 	"log"
+	"strings"
 )
 
 type DeckLayout struct {
 	*fyne.Container
 
-	deckList *widget.List
-	cardList *widget.List
+	deckList  *widget.List
+	cardList  *widget.List
+	manaChart *fynecharts.BarChart
 
 	cardTab *container.DocTabs
 
@@ -39,11 +42,12 @@ func NewDeckLayout(registry *platform.Registry, showImport func()) *DeckLayout {
 	dl.cardList = widget.NewList(dl.cardAdapter.Count, dl.cardAdapter.CreateTemplate, dl.cardAdapter.UpdateTemplate)
 	dl.cardAdapter.SetList(dl.cardList)
 	dl.cardList.OnSelected = dl.cardSelected
+	dl.manaChart = fynecharts.NewBarChart("Mana Curve", nil, nil)
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
 	dl.cardTab = container.NewDocTabs()
 
-	insideSplit := container.NewHSplit(dl.cardList, dl.cardTab)
+	insideSplit := container.NewHSplit(container.NewBorder(dl.manaChart, nil, nil, nil, dl.cardList), dl.cardTab)
 	insideSplit.SetOffset(0.25)
 	hSplit := container.NewHSplit(dl.deckList, insideSplit)
 	hSplit.SetOffset(0.18)
@@ -80,6 +84,8 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 		dl.selectedDeck = deck
 		dl.cardAdapter.Clear()
 		dl.cardList.Refresh()
+		lbls := []string{"0", "1", "2", "3", "4", "5", "6", "7+"}
+		data := []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 		if fullDeck, err := dl.registry.Manager.LoadDeck(deck.ID); err == nil {
 			dl.cardAdapter.Clear()
 			if fullDeck.Commander != nil {
@@ -92,6 +98,22 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 				dl.cardAdapter.AppendCards(fullDeck.Sideboard)
 			}
 			dl.cardList.Refresh()
+
+			for idx := 0; idx < dl.cardAdapter.Count(); idx++ {
+				card := dl.cardAdapter.Item(idx)
+				log.Println(card.Card.TypeLine, card.Card.Cmc)
+				idx := int(card.Card.Cmc)
+				if idx > 7 {
+					idx = 7
+				}
+				if idx == 0 && strings.Contains(card.Card.TypeLine, "Land") {
+					// For now continue, until I determine what is a land and what is not.
+					continue
+				}
+				data[idx] += float64(card.Count)
+			}
+			dl.manaChart.UpdateData(lbls, data)
+			dl.manaChart.Refresh()
 		} else {
 			log.Println("Error loading deck", err)
 		}
