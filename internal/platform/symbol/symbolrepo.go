@@ -28,7 +28,8 @@ func NewSymbolRepo(client *goscryfall.Client, loader func(string) ([]byte, error
 	r := &SymbolRepoImpl{client: client, cache: make(map[string]symbols.Symbol), loader: loader, images: make(map[string]fyne.Resource), workerChan: make(chan *symbols.Symbol, 50)}
 	ss, err := client.ListSymbols()
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return r
 	}
 
 	workers := 8

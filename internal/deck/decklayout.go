@@ -85,6 +85,7 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 		dl.cardAdapter.Clear()
 		dl.cardList.Refresh()
 		lbls := []string{"0", "1", "2", "3", "4", "5", "6", "7+"}
+		//lbls := []string{"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven+"}
 		data := []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 		if fullDeck, err := dl.registry.Manager.LoadDeck(deck.ID); err == nil {
 			dl.cardAdapter.Clear()
@@ -113,6 +114,7 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 				data[idx] += float64(card.Count)
 			}
 			dl.manaChart.UpdateData(lbls, data)
+			//dl.manaChart.SetXLabel("Converted Mana Cost")
 			dl.manaChart.Refresh()
 		} else {
 			log.Println("Error loading deck", err)
