@@ -213,6 +213,8 @@ github.com/high-creek-software/fynecharts v0.0.0-20230126011856-7d0167465281 h1:
 github.com/high-creek-software/fynecharts v0.0.0-20230126011856-7d0167465281/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
 github.com/high-creek-software/fynecharts v0.0.0-20230127044828-0452fd3ae8f1 h1:FVmRWy/sEKxNUSMCdk+lnoviuxhQM2ctAMjbpoY0LX4=
 github.com/high-creek-software/fynecharts v0.0.0-20230127044828-0452fd3ae8f1/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
+github.com/high-creek-software/fynecharts v0.0.0-20230127142235-e6af8bd58b81 h1:xoSQoZZ+F0Wx/L7uUQAnMRH9Ix5tNxTEgHKv7xR2q2Y=
+github.com/high-creek-software/fynecharts v0.0.0-20230127142235-e6af8bd58b81/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
@@ -364,6 +366,8 @@ golang.org/x/exp v0.0.0-20230118134722-a68e582fa157 h1:fiNkyhJPUvxbRPbCqY/D9qdjm
 golang.org/x/exp v0.0.0-20230118134722-a68e582fa157/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 golang.org/x/exp v0.0.0-20230126173853-a67bb567ff2e h1:nEzRHNOazEST44vMvEwxGxnYGrzXEmxJmnti5mKSWTk=
 golang.org/x/exp v0.0.0-20230126173853-a67bb567ff2e/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
+golang.org/x/exp v0.0.0-20230127140709-cafedaf64729 h1:H2kBA039yqxDv2DScpuC0knhZXO6Evfmt7mN8sGMh/4=
+golang.org/x/exp v0.0.0-20230127140709-cafedaf64729/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.0.0-20210504121937-7319ad40d33e/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=

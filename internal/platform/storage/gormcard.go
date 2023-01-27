@@ -1,6 +1,9 @@
 package storage
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type gormCard struct {
 	Object               string
@@ -110,4 +113,11 @@ type gormCardPrices struct {
 
 func (gormCardPrices) TableName() string {
 	return "card_prices"
+}
+
+type CardPrice struct {
+	ID        uint
+	CardID    string
+	CreatedAt time.Time
+	USD       float64
 }

@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/fynecharts"
 	"github.com/nfnt/resize"
 	"gitlab.com/high-creek-software/goscryfall/cards"
 	"gitlab.com/kendellfab/mtgstudio/internal/platform"
@@ -117,6 +118,28 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 			ruleList := widget.NewList(adapter.Count, adapter.CreateTemplate, adapter.UpdateTemplate)
 			adapter.SetList(ruleList)
 			cl.docTabs.Append(container.NewTabItem("Rulings", ruleList))
+		}
+	}()
+
+	go func() {
+		pricing, err := cl.registry.Manager.LoadPricing(card.Id)
+		if err == nil {
+			var labels []string
+			var data []float64
+			for idx := len(pricing) - 1; idx >= 0; idx-- {
+				p := pricing[idx]
+				if p.USD > 0 {
+					labels = append(labels, p.CreatedAt.Format("Jan 2, 2006"))
+					data = append(data, p.USD)
+				}
+			}
+
+			if len(data) > 0 {
+				lineChart := fynecharts.NewTimeSeriesChart(nil, "Card Prices", labels, data)
+				cl.docTabs.Append(container.NewTabItem("Pricing", lineChart))
+			}
+		} else {
+			log.Println("error loading card pricing data", err)
 		}
 	}()
 

@@ -5,13 +5,13 @@ go 1.19
 require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/high-creek-software/bento v0.0.0-20230121041827-2d8404f2e7ca
-	github.com/high-creek-software/fynecharts v0.0.0-20230127044828-0452fd3ae8f1
+	github.com/high-creek-software/fynecharts v0.0.0-20230127142235-e6af8bd58b81
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rs/xid v1.4.0
 	gitlab.com/high-creek-software/ansel v0.0.0-20230110041907-530ffa263fde
 	gitlab.com/high-creek-software/goscryfall v0.0.0-20230122003418-546b026eeaa3
-	golang.org/x/exp v0.0.0-20230126173853-a67bb567ff2e
+	golang.org/x/exp v0.0.0-20230127140709-cafedaf64729
 	golang.org/x/image v0.3.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.3

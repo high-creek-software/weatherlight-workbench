@@ -224,6 +224,19 @@ func (r *gormCardRepo) ListByIds(ids []string) ([]scryfallcards.Card, error) {
 	return res, nil
 }
 
+func (r *gormCardRepo) LoadPricing(cardID string) ([]CardPrice, error) {
+	var cps []gormCardPrices
+	err := r.db.Where("card_id = ?", cardID).Order("created_at desc").Limit(5).Find(&cps).Error
+	if err != nil {
+		return nil, err
+	}
+	var res []CardPrice
+	for _, cp := range cps {
+		res = append(res, CardPrice{ID: cp.ID, CardID: cp.CardID, USD: cp.USD, CreatedAt: cp.CreatedAt})
+	}
+	return res, nil
+}
+
 func (r *gormCardRepo) Search(sr SearchRequest) ([]scryfallcards.Card, error) {
 	queryDB := r.db.Session(&gorm.Session{})
 	if sr.Name != "" {
