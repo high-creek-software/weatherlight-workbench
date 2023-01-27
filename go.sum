@@ -209,6 +209,8 @@ github.com/high-creek-software/fynecharts v0.0.0-20230124141652-fa9e9289bb26 h1:
 github.com/high-creek-software/fynecharts v0.0.0-20230124141652-fa9e9289bb26/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
 github.com/high-creek-software/fynecharts v0.0.0-20230124142527-32d50126126a h1:xzcsPQ90fvWSjx7W7tLDZ1nqB6cBky91p5MLtdmGoZ8=
 github.com/high-creek-software/fynecharts v0.0.0-20230124142527-32d50126126a/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
+github.com/high-creek-software/fynecharts v0.0.0-20230126011856-7d0167465281 h1:znhxx8+QoH24JQOKNs3FysLsF9/Zpx4sRuS962B6J2M=
+github.com/high-creek-software/fynecharts v0.0.0-20230126011856-7d0167465281/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=

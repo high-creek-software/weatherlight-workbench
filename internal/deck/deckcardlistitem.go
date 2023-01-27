@@ -101,7 +101,7 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 	d.nameLbl.Move(nameTopLeft)
 	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-assocSize.Width-3*theme.Padding(), nameSize.Height))
 
-	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, theme.Padding())
+	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, 12)
 	d.associationLabel.Move(assocTop)
 	d.associationLabel.Resize(assocSize)
 

@@ -15,6 +15,7 @@ import (
 
 type DeckLayout struct {
 	*fyne.Container
+	canvas fyne.Canvas
 
 	deckList  *widget.List
 	cardList  *widget.List
@@ -30,8 +31,8 @@ type DeckLayout struct {
 	selectedDeck storage.Deck
 }
 
-func NewDeckLayout(registry *platform.Registry, showImport func()) *DeckLayout {
-	dl := &DeckLayout{registry: registry}
+func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport func()) *DeckLayout {
+	dl := &DeckLayout{canvas: canvas, registry: registry}
 	dl.deckAdapter = NewDeckAdapter(nil, dl.registry)
 	dl.cardAdapter = NewDeckCardAdapter(dl.registry, dl.setCover)
 
@@ -42,7 +43,8 @@ func NewDeckLayout(registry *platform.Registry, showImport func()) *DeckLayout {
 	dl.cardList = widget.NewList(dl.cardAdapter.Count, dl.cardAdapter.CreateTemplate, dl.cardAdapter.UpdateTemplate)
 	dl.cardAdapter.SetList(dl.cardList)
 	dl.cardList.OnSelected = dl.cardSelected
-	dl.manaChart = fynecharts.NewBarChart("Mana Curve", nil, nil)
+	dl.manaChart = fynecharts.NewBarChart(dl.canvas, "Mana Curve", nil, nil)
+	dl.manaChart.SetMinHeight(150)
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
 	dl.cardTab = container.NewDocTabs()
@@ -101,17 +103,17 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 			dl.cardList.Refresh()
 
 			for idx := 0; idx < dl.cardAdapter.Count(); idx++ {
-				card := dl.cardAdapter.Item(idx)
-				log.Println(card.Card.TypeLine, card.Card.Cmc)
-				idx := int(card.Card.Cmc)
+				crd := dl.cardAdapter.Item(idx)
+				log.Println(crd.Card.TypeLine, crd.Card.Cmc)
+				idx := int(crd.Card.Cmc)
 				if idx > 7 {
 					idx = 7
 				}
-				if idx == 0 && strings.Contains(card.Card.TypeLine, "Land") {
+				if idx == 0 && strings.Contains(crd.Card.TypeLine, "Land") {
 					// For now continue, until I determine what is a land and what is not.
 					continue
 				}
-				data[idx] += float64(card.Count)
+				data[idx] += float64(crd.Count)
 			}
 			dl.manaChart.UpdateData(lbls, data)
 			//dl.manaChart.SetXLabel("Converted Mana Cost")
