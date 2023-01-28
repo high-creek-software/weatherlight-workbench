@@ -1,6 +1,7 @@
 package search
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
@@ -11,6 +12,7 @@ import (
 
 type SearchLayout struct {
 	*container.Split
+	canvas fyne.Canvas
 
 	registry *platform.Registry
 
@@ -50,8 +52,8 @@ type SearchLayout struct {
 	premodernCheck       *widget.Check
 }
 
-func NewSearchLayout(registry *platform.Registry) *SearchLayout {
-	sl := &SearchLayout{registry: registry}
+func NewSearchLayout(cvs fyne.Canvas, registry *platform.Registry) *SearchLayout {
+	sl := &SearchLayout{canvas: cvs, registry: registry}
 
 	sl.cardAdapter = card.NewCardAdapter(sl.registry)
 
@@ -180,7 +182,7 @@ func (sl *SearchLayout) doSearch() {
 func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	c := sl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, sl.registry)
+	cardLayout := card.NewCardLayout(sl.canvas, &c, sl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)

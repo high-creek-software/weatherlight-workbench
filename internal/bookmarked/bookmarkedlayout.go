@@ -1,6 +1,7 @@
 package bookmarked
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"gitlab.com/kendellfab/mtgstudio/internal/card"
@@ -9,6 +10,7 @@ import (
 
 type BookmarkedLayout struct {
 	*container.Split
+	canvas fyne.Canvas
 
 	registry *platform.Registry
 
@@ -17,8 +19,8 @@ type BookmarkedLayout struct {
 	cardTabs    *container.DocTabs
 }
 
-func NewBookmarkedLayout(registry *platform.Registry) *BookmarkedLayout {
-	bl := &BookmarkedLayout{registry: registry}
+func NewBookmarkedLayout(cvs fyne.Canvas, registry *platform.Registry) *BookmarkedLayout {
+	bl := &BookmarkedLayout{canvas: cvs, registry: registry}
 
 	bl.cardAdapter = card.NewCardAdapter(bl.registry)
 	bl.cardTabs = container.NewDocTabs()
@@ -50,7 +52,7 @@ func (bl *BookmarkedLayout) LoadBookmarked() {
 func (bl *BookmarkedLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, bl.registry)
+	cardLayout := card.NewCardLayout(bl.canvas, &c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)

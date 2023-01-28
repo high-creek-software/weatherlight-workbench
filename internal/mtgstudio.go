@@ -77,9 +77,9 @@ func NewMtgStudio() *MtgStudio {
 }
 
 func (m *MtgStudio) setupBody() {
-	m.browseLayout = browse.NewBrowseLayout(m.registry, m.updateSetIcon, m.resizeCardArt)
-	m.searchLayout = search.NewSearchLayout(m.registry)
-	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.registry)
+	m.browseLayout = browse.NewBrowseLayout(m.window.Canvas(), m.registry, m.updateSetIcon, m.resizeCardArt)
+	m.searchLayout = search.NewSearchLayout(m.window.Canvas(), m.registry)
+	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.window.Canvas(), m.registry)
 	m.deckLayout = deck.NewDeckLayout(m.window.Canvas(), m.registry, m.showImport)
 	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
 		container.NewTabItem("Search", m.searchLayout.Split),

@@ -22,6 +22,7 @@ import (
 type CardLayout struct {
 	//Container *container.Scroll
 	*fyne.Container
+	canvas fyne.Canvas
 
 	card  *cards.Card
 	image *canvas.Image
@@ -41,8 +42,8 @@ type CardLayout struct {
 	cardMetaList    *widget.List
 }
 
-func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
-	cl := &CardLayout{card: card, registry: registry}
+func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registry) *CardLayout {
+	cl := &CardLayout{canvas: cvs, card: card, registry: registry}
 
 	bookmark, _ := cl.registry.Manager.FindBookmark(card.Id)
 	cl.addBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkResource, func() {
@@ -135,7 +136,10 @@ func NewCardLayout(card *cards.Card, registry *platform.Registry) *CardLayout {
 			}
 
 			if len(data) > 0 {
-				lineChart := fynecharts.NewTimeSeriesChart(nil, "Card Prices", labels, data)
+				lineChart := fynecharts.NewTimeSeriesChart(cl.canvas, "Card Prices", labels, data)
+				lineChart.UpdateHoverFormat(func(input float64) string {
+					return fmt.Sprintf("$%.2f", input)
+				})
 				cl.docTabs.Append(container.NewTabItem("Pricing", lineChart))
 			}
 		} else {

@@ -1,6 +1,7 @@
 package browse
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -13,6 +14,7 @@ import (
 
 type BrowseLayout struct {
 	*container.Split
+	canvas fyne.Canvas
 
 	filterEntry *widget.Entry
 	filterClear *widget.Button
@@ -27,8 +29,8 @@ type BrowseLayout struct {
 	registry *platform.Registry
 }
 
-func NewBrowseLayout(registry *platform.Registry, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
-	bl := &BrowseLayout{registry: registry}
+func NewBrowseLayout(cvs fyne.Canvas, registry *platform.Registry, updateSetIcon ansel.LoaderCallback, resizeCardArt ansel.LoaderCallback) *BrowseLayout {
+	bl := &BrowseLayout{canvas: cvs, registry: registry}
 
 	bl.setAdapter = set.NewSetAdapter(bl.registry.SetIconLoader)
 	bl.cardAdapter = card.NewCardAdapter(bl.registry)
@@ -87,7 +89,7 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c, bl.registry)
+	cardLayout := card.NewCardLayout(bl.canvas, &c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)

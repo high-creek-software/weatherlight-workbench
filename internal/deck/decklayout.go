@@ -128,7 +128,7 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 func (dl *DeckLayout) cardSelected(id widget.ListItemID) {
 	c := dl.cardAdapter.Item(id)
 
-	cardLayout := card.NewCardLayout(&c.Card, dl.registry)
+	cardLayout := card.NewCardLayout(dl.canvas, &c.Card, dl.registry)
 	tab := container.NewTabItem(c.Card.Name, cardLayout.Container)
 	dl.cardTab.Append(tab)
 	dl.cardTab.Select(tab)
