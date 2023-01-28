@@ -137,7 +137,12 @@ func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registr
 
 			if len(data) > 0 {
 				lineChart := fynecharts.NewTimeSeriesChart(cl.canvas, "Card Prices", labels, data)
+				lineChart.SetXLabel("Most recent days with synced pricing data")
+				lineChart.SetYLabel("Price in USD")
 				lineChart.UpdateHoverFormat(func(input float64) string {
+					return fmt.Sprintf("$%.2f", input)
+				})
+				lineChart.UpdateTickFormat(func(input float64) string {
 					return fmt.Sprintf("$%.2f", input)
 				})
 				cl.docTabs.Append(container.NewTabItem("Pricing", lineChart))

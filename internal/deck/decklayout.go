@@ -104,7 +104,6 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 
 			for idx := 0; idx < dl.cardAdapter.Count(); idx++ {
 				crd := dl.cardAdapter.Item(idx)
-				log.Println(crd.Card.TypeLine, crd.Card.Cmc)
 				idx := int(crd.Card.Cmc)
 				if idx > 7 {
 					idx = 7
