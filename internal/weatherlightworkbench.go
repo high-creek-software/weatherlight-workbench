@@ -8,19 +8,19 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/ansel"
 	"github.com/high-creek-software/bento"
-	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/high-creek-software/goscryfall"
-	"gitlab.com/kendellfab/mtgstudio/internal/bookmarked"
-	"gitlab.com/kendellfab/mtgstudio/internal/browse"
-	"gitlab.com/kendellfab/mtgstudio/internal/deck"
-	"gitlab.com/kendellfab/mtgstudio/internal/importing"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/icons"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/sync"
-	"gitlab.com/kendellfab/mtgstudio/internal/search"
+	"github.com/high-creek-software/goscryfall"
+	"github.com/high-creek-software/weatherlight-workbench/internal/bookmarked"
+	"github.com/high-creek-software/weatherlight-workbench/internal/browse"
+	"github.com/high-creek-software/weatherlight-workbench/internal/deck"
+	"github.com/high-creek-software/weatherlight-workbench/internal/importing"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/icons"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/symbol"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/sync"
+	"github.com/high-creek-software/weatherlight-workbench/internal/search"
 	"golang.org/x/image/colornames"
 	"strings"
 	"time"
@@ -31,7 +31,7 @@ const (
 	syncFormat  = "2006-01-02 15:04:05"
 )
 
-type MtgStudio struct {
+type WeatherlightWorkbench struct {
 	app              fyne.App
 	window           fyne.Window
 	browseLayout     *browse.BrowseLayout
@@ -50,33 +50,33 @@ type MtgStudio struct {
 	bentoBox *bento.Box
 }
 
-func NewMtgStudio() *MtgStudio {
+func NewWeatherlightWorkbench() *WeatherlightWorkbench {
 	//os.Setenv("FYNE_THEME", "dark")
-	mtgs := &MtgStudio{app: app.NewWithID("gitlab.com/kendellfab/mtgstudio")}
-	mtgs.app.SetIcon(icons.AppIconResource)
-	mtgs.window = mtgs.app.NewWindow("MTG Studio")
-	mtgs.window.SetMaster()
-	mtgs.window.Resize(fyne.NewSize(1920, 1080))
+	wm := &WeatherlightWorkbench{app: app.NewWithID("github.com/high-creek-software/weatherlight-workbench")}
+	wm.app.SetIcon(icons.AppIconResource)
+	wm.window = wm.app.NewWindow("Weatherlight Workbench")
+	wm.window.SetMaster()
+	wm.window.Resize(fyne.NewSize(1920, 1080))
 	client := goscryfall.NewClient()
 	manager := storage.NewManager(client)
 	importManager := sync.NewImportManager(client, manager)
 	symbolRepo := symbol.NewSymbolRepo(client, manager.LoadSymbolImage)
 
-	mtgs.registry = platform.NewRegistry(manager, symbolRepo, client, importManager, mtgs)
-	mtgs.registry.SymbolRepo = symbolRepo
+	wm.registry = platform.NewRegistry(manager, symbolRepo, client, importManager, wm)
+	wm.registry.SymbolRepo = symbolRepo
 
-	mtgs.registry.SetIconLoader = ansel.NewAnsel[string](200, ansel.SetLoadedCallback[string](mtgs.updateSetIcon), ansel.SetLoader[string](mtgs.registry.Manager.LoadSetIcon))
-	mtgs.registry.CardThumbnailLoader = ansel.NewAnsel[string](800, ansel.SetLoader[string](mtgs.registry.Manager.LoadCardImage), ansel.SetWorkerCount[string](20), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource))
-	mtgs.registry.CardFullLoader = ansel.NewAnsel[string](200, ansel.SetLoader[string](mtgs.registry.Manager.LoadCardImage), ansel.SetLoadingImage[string](icons.FullCardLoadingResource), ansel.SetFailedImage[string](icons.FullCardFailedResource))
+	wm.registry.SetIconLoader = ansel.NewAnsel[string](200, ansel.SetLoadedCallback[string](wm.updateSetIcon), ansel.SetLoader[string](wm.registry.Manager.LoadSetIcon))
+	wm.registry.CardThumbnailLoader = ansel.NewAnsel[string](800, ansel.SetLoader[string](wm.registry.Manager.LoadCardImage), ansel.SetWorkerCount[string](20), ansel.SetLoadingImage[string](icons.CardLoadingResource), ansel.SetFailedImage[string](icons.CardFailedResource))
+	wm.registry.CardFullLoader = ansel.NewAnsel[string](200, ansel.SetLoader[string](wm.registry.Manager.LoadCardImage), ansel.SetLoadingImage[string](icons.FullCardLoadingResource), ansel.SetFailedImage[string](icons.FullCardFailedResource))
 
-	mtgs.app.Lifecycle().SetOnStarted(mtgs.appStartedCallback)
+	wm.app.Lifecycle().SetOnStarted(wm.appStartedCallback)
 
-	mtgs.setupBody()
+	wm.setupBody()
 
-	return mtgs
+	return wm
 }
 
-func (m *MtgStudio) setupBody() {
+func (m *WeatherlightWorkbench) setupBody() {
 	m.browseLayout = browse.NewBrowseLayout(m.window.Canvas(), m.registry, m.updateSetIcon, m.resizeCardArt)
 	m.searchLayout = search.NewSearchLayout(m.window.Canvas(), m.registry)
 	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.window.Canvas(), m.registry)
@@ -115,7 +115,7 @@ func (m *MtgStudio) setupBody() {
 	}
 }
 
-func (m *MtgStudio) showImport() {
+func (m *WeatherlightWorkbench) showImport() {
 	window := m.app.NewWindow("Import Deck")
 	window.Resize(fyne.NewSize(1200, 700))
 
@@ -128,7 +128,7 @@ func (m *MtgStudio) showImport() {
 
 }
 
-func (m *MtgStudio) updateSetIcon(bs []byte) []byte {
+func (m *WeatherlightWorkbench) updateSetIcon(bs []byte) []byte {
 	if m.app.Settings().ThemeVariant() == theme.VariantDark {
 		strData := string(bs)
 		if strings.Contains(strData, `fill="#000"`) {
@@ -141,7 +141,7 @@ func (m *MtgStudio) updateSetIcon(bs []byte) []byte {
 	return bs
 }
 
-func (m *MtgStudio) resizeCardArt(bs []byte) []byte {
+func (m *WeatherlightWorkbench) resizeCardArt(bs []byte) []byte {
 	return bs
 	//buff := bytes.NewBuffer(bs)
 	//img, err := jpeg.Decode(buff)
@@ -157,19 +157,19 @@ func (m *MtgStudio) resizeCardArt(bs []byte) []byte {
 	//return out.Bytes()
 }
 
-func (m *MtgStudio) Start() {
+func (m *WeatherlightWorkbench) Start() {
 	m.window.ShowAndRun()
 }
 
-func (m *MtgStudio) settingsBtnTouched() {
+func (m *WeatherlightWorkbench) settingsBtnTouched() {
 	dialog.ShowInformation("Settings", "Does nothing yet", m.window)
 }
 
-func (m *MtgStudio) syncBtnTouched() {
+func (m *WeatherlightWorkbench) syncBtnTouched() {
 	m.runSync()
 }
 
-func (m *MtgStudio) appStartedCallback() {
+func (m *WeatherlightWorkbench) appStartedCallback() {
 	// TODO: Figure out how to determine if an import is needed.
 	m.showLastSyncedAt()
 	setCount := m.registry.Manager.SetCount()
@@ -180,7 +180,7 @@ func (m *MtgStudio) appStartedCallback() {
 	}
 }
 
-func (m *MtgStudio) runSync() {
+func (m *WeatherlightWorkbench) runSync() {
 	m.syncSetLbl.Show()
 	m.syncProgress.Show()
 	startCount := m.registry.Manager.SetCount()
@@ -212,7 +212,7 @@ func (m *MtgStudio) runSync() {
 	}
 }
 
-func (m *MtgStudio) showLastSyncedAt() {
+func (m *WeatherlightWorkbench) showLastSyncedAt() {
 	syncedStr := m.app.Preferences().StringWithFallback(lastSyncKey, "--")
 	if syncedStr == "--" {
 		m.syncLastLbl.SetText(syncedStr)
@@ -225,13 +225,13 @@ func (m *MtgStudio) showLastSyncedAt() {
 
 }
 
-func (m *MtgStudio) ShowDialog(title, message string) {
+func (m *WeatherlightWorkbench) ShowDialog(title, message string) {
 	item := bento.NewItemWithMessage(message, bento.LengthLong)
 	item.SetBackgroundColor(colornames.Darkslateblue)
 	m.bentoBox.AddItem(item)
 }
 
-func (m *MtgStudio) ShowError(err error) {
+func (m *WeatherlightWorkbench) ShowError(err error) {
 	item := bento.NewItemWithMessage(err.Error(), bento.LengthIndefinite)
 	item.SetBackgroundColor(colornames.Rosybrown)
 	m.bentoBox.AddItem(item)

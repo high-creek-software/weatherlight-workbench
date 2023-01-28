@@ -3,10 +3,10 @@ package set
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/ansel"
+	"github.com/high-creek-software/goscryfall/sets"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/adapter"
 	"github.com/lithammer/fuzzysearch/fuzzy"
-	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/high-creek-software/goscryfall/sets"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/adapter"
 	"sync"
 )
 

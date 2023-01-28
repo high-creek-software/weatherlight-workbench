@@ -5,10 +5,10 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	"gitlab.com/kendellfab/mtgstudio/internal/set"
+	"github.com/high-creek-software/ansel"
+	"github.com/high-creek-software/weatherlight-workbench/internal/card"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/set"
 	"log"
 )
 

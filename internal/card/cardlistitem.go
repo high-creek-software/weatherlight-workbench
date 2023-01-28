@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/goscryfall/cards"
+	"github.com/high-creek-software/goscryfall/cards"
 	"log"
 )
 

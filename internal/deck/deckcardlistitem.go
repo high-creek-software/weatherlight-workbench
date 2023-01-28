@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 )
 
 type DeckCardListItem struct {

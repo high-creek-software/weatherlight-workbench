@@ -2,8 +2,8 @@ package symbol
 
 import (
 	"fyne.io/fyne/v2"
-	"gitlab.com/high-creek-software/goscryfall"
-	"gitlab.com/high-creek-software/goscryfall/symbols"
+	"github.com/high-creek-software/goscryfall"
+	"github.com/high-creek-software/goscryfall/symbols"
 	"log"
 	"sync"
 )

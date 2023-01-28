@@ -5,7 +5,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/goscryfall/sets"
+	"github.com/high-creek-software/goscryfall/sets"
 )
 
 var _ fyne.Widget = (*SetListItem)(nil)

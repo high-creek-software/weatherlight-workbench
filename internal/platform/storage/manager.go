@@ -3,11 +3,11 @@ package storage
 import (
 	"bytes"
 	"errors"
+	"github.com/high-creek-software/goscryfall"
+	scryfallcards "github.com/high-creek-software/goscryfall/cards"
+	"github.com/high-creek-software/goscryfall/decks"
+	"github.com/high-creek-software/goscryfall/rulings"
 	"github.com/rs/xid"
-	"gitlab.com/high-creek-software/goscryfall"
-	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
-	"gitlab.com/high-creek-software/goscryfall/decks"
-	"gitlab.com/high-creek-software/goscryfall/rulings"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -21,7 +21,7 @@ import (
 // Application data directory: https://hub.jmonkeyengine.org/t/appdata-equivalent-on-macos-and-linux/43735
 
 const (
-	appName = "mtgstudio"
+	appName = "weatherlightworkbench"
 	sets    = "sets"
 	cards   = "cards"
 	symbols = "symbols"
@@ -66,7 +66,7 @@ func NewManager(client *goscryfall.Client) *Manager {
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
-	m.dbPath = filepath.Join(m.applicationDirectory, "mtgstudio.db")
+	m.dbPath = filepath.Join(m.applicationDirectory, "weatherlightworkbench.db")
 	m.db, err = gorm.Open(sqlite.Open(m.dbPath), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)

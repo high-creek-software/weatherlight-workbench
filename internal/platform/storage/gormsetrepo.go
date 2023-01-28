@@ -1,10 +1,10 @@
 package storage
 
 import (
+	scryfallset "github.com/high-creek-software/goscryfall/sets"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
-import scryfallset "gitlab.com/high-creek-software/goscryfall/sets"
 
 type gormSetRepo struct {
 	db *gorm.DB

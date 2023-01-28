@@ -3,8 +3,8 @@ package ruling
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/goscryfall/rulings"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/adapter"
+	"github.com/high-creek-software/goscryfall/rulings"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/adapter"
 )
 
 var _ adapter.Adapter[rulings.Ruling] = (*RulingAdapter)(nil)

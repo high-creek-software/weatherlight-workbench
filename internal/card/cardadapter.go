@@ -3,9 +3,9 @@ package card
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/goscryfall/cards"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/adapter"
+	"github.com/high-creek-software/goscryfall/cards"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/adapter"
 )
 
 var _ adapter.Adapter[cards.Card] = (*CardAdapter)(nil)

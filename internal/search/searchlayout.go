@@ -4,9 +4,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	storage2 "gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/card"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	storage2 "github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 	"log"
 )
 

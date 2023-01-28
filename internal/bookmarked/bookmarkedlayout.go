@@ -4,8 +4,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/card"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 )
 
 type BookmarkedLayout struct {

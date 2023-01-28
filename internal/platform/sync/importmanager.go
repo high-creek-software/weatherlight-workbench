@@ -1,9 +1,9 @@
 package sync
 
 import (
-	"gitlab.com/high-creek-software/goscryfall"
-	cards2 "gitlab.com/high-creek-software/goscryfall/cards"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"github.com/high-creek-software/goscryfall"
+	cards2 "github.com/high-creek-software/goscryfall/cards"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 	"log"
 	"time"
 )

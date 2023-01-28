@@ -4,7 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"gitlab.com/high-creek-software/goscryfall/rulings"
+	"github.com/high-creek-software/goscryfall/rulings"
 )
 
 type RulingListItem struct {

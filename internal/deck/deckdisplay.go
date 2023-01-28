@@ -5,8 +5,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/high-creek-software/fynecharts"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 )
 
 type DeckDisplay struct {

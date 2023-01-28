@@ -1,12 +1,12 @@
 package platform
 
 import (
-	"gitlab.com/high-creek-software/ansel"
-	"gitlab.com/high-creek-software/goscryfall"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/notifier"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/symbol"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/sync"
+	"github.com/high-creek-software/ansel"
+	"github.com/high-creek-software/goscryfall"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/notifier"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/symbol"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/sync"
 )
 
 type Registry struct {

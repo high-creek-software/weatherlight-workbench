@@ -2,12 +2,12 @@ package storage
 
 import (
 	"encoding/json"
+	scryfallcards "github.com/high-creek-software/goscryfall/cards"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"log"
 	"strconv"
 )
-import scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
 
 type gormCardRepo struct {
 	db *gorm.DB

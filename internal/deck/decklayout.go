@@ -6,9 +6,9 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/high-creek-software/fynecharts"
-	"gitlab.com/kendellfab/mtgstudio/internal/card"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform"
-	"gitlab.com/kendellfab/mtgstudio/internal/platform/storage"
+	"github.com/high-creek-software/weatherlight-workbench/internal/card"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
+	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 	"log"
 	"strings"
 )

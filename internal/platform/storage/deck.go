@@ -1,7 +1,7 @@
 package storage
 
 import (
-	scryfallcards "gitlab.com/high-creek-software/goscryfall/cards"
+	scryfallcards "github.com/high-creek-software/goscryfall/cards"
 	"time"
 )
 
