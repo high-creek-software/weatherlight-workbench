@@ -1,6 +1,7 @@
 package deck
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
@@ -45,6 +46,9 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.cardList.OnSelected = dl.cardSelected
 	dl.manaChart = fynecharts.NewBarChart(dl.canvas, "Mana Curve", nil, nil)
 	dl.manaChart.SetMinHeight(150)
+	dl.manaChart.UpdateHoverFormat(func(v float64) string {
+		return fmt.Sprintf("%d", int(v))
+	})
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
 	dl.cardTab = container.NewDocTabs()
@@ -87,7 +91,6 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 		dl.cardAdapter.Clear()
 		dl.cardList.Refresh()
 		lbls := []string{"0", "1", "2", "3", "4", "5", "6", "7+"}
-		//lbls := []string{"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven+"}
 		data := []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 		if fullDeck, err := dl.registry.Manager.LoadDeck(deck.ID); err == nil {
 			dl.cardAdapter.Clear()
@@ -115,7 +118,6 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 				data[idx] += float64(crd.Count)
 			}
 			dl.manaChart.UpdateData(lbls, data)
-			//dl.manaChart.SetXLabel("Converted Mana Cost")
 			dl.manaChart.Refresh()
 		} else {
 			log.Println("Error loading deck", err)
