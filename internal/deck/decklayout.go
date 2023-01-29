@@ -21,6 +21,7 @@ type DeckLayout struct {
 	deckList  *widget.List
 	cardList  *widget.List
 	manaChart *fynecharts.BarChart
+	//manaChart *fynecharts.TimeSeriesChart
 
 	cardTab *container.DocTabs
 
@@ -49,6 +50,14 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.manaChart.UpdateHoverFormat(func(v float64) string {
 		return fmt.Sprintf("%d", int(v))
 	})
+	dl.manaChart.UpdateOnTouched(func(idx int) {
+		log.Println("Index:", idx)
+	})
+	//dl.manaChart = fynecharts.NewTimeSeriesChart(dl.canvas, "Mana Curve", nil, nil)
+	//dl.manaChart.SetMinHeight(150)
+	//dl.manaChart.UpdateHoverFormat(func(v float64) string {
+	//	return fmt.Sprintf("%d", int(v))
+	//})
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
 	dl.cardTab = container.NewDocTabs()
