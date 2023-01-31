@@ -217,6 +217,14 @@ func (m *Manager) LoadDeck(id string) (Deck, error) {
 	return d, nil
 }
 
+func (m *Manager) RemoveDeck(d Deck) error {
+	err := m.gormDeckRepo.removeDeckCards(d.ID)
+	if err != nil {
+		return err
+	}
+	return m.gormDeckRepo.removeDeck(d.ID)
+}
+
 func (m *Manager) reconfigureName(name string) string {
 	if !strings.Contains(name, "?") {
 		return name

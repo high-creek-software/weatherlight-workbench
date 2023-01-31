@@ -10,6 +10,7 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
+	"golang.org/x/exp/maps"
 )
 
 //type currentCardType int
@@ -28,6 +29,7 @@ type ImportLayout struct {
 	registry *platform.Registry
 
 	nameEntry *widget.Entry
+	deckType  *widget.Select
 	deckEntry *widget.Entry
 	saveBtn   *widget.Button
 
@@ -49,6 +51,10 @@ type ImportLayout struct {
 func NewImportLayout(reg *platform.Registry, importComplete func()) *ImportLayout {
 	il := &ImportLayout{registry: reg, importComplete: importComplete}
 	il.nameEntry = widget.NewEntry()
+	il.nameEntry.PlaceHolder = "Deck Name"
+	names := maps.Keys(scryfallcards.LegalitiesNameMap)
+	il.deckType = widget.NewSelect(names, func(val string) {})
+	il.deckType.PlaceHolder = "Deck type"
 	il.deckEntry = widget.NewEntry()
 	il.deckEntry.MultiLine = true
 	il.saveBtn = widget.NewButtonWithIcon("Import", theme.DownloadIcon(), il.doImport)
@@ -61,7 +67,7 @@ func NewImportLayout(reg *platform.Registry, importComplete func()) *ImportLayou
 	il.cardList.OnSelected = il.cardSelected
 	il.cardAdapter.SetList(il.cardList)
 
-	importSide := container.NewBorder(il.nameEntry, il.saveBtn, nil, nil, il.deckEntry)
+	importSide := container.NewBorder(il.nameEntry, il.saveBtn, nil, nil, container.NewBorder(il.deckType, nil, nil, nil, il.deckEntry))
 	resolveSide := container.NewBorder(il.nameLbl, nil, nil, nil, container.NewBorder(il.cardNameLbl, nil, nil, nil, il.cardList))
 
 	il.Split = container.NewHSplit(importSide, resolveSide)
@@ -79,7 +85,8 @@ func (il *ImportLayout) doImport() {
 
 	il.deck = deck
 
-	il.createdDeck, err = il.registry.Manager.CreateDeck(il.nameEntry.Text, "")
+	typ := scryfallcards.LegalitiesNameMap[il.deckType.Selected]
+	il.createdDeck, err = il.registry.Manager.CreateDeck(il.nameEntry.Text, typ)
 	if err != nil {
 		il.registry.Notifier.ShowError(err)
 		return

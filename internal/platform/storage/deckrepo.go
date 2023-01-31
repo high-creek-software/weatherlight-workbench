@@ -18,6 +18,10 @@ func (r *gormDeckRepo) create(gd gormDeck) error {
 	return err
 }
 
+func (r *gormDeckRepo) removeDeck(id string) error {
+	return r.db.Where("id = ?", id).Delete(&gormDeck{}).Error
+}
+
 func (r *gormDeckRepo) addCard(gdc gormDeckCard) error {
 	err := r.db.Create(&gdc).Error
 	return err
@@ -68,4 +72,8 @@ func (r *gormDeckRepo) listDeckCards(deckID string) ([]gormDeckCard, error) {
 	var gdcs []gormDeckCard
 	err := r.db.Order("created_at asc").Where("deck_id = ?", deckID).Find(&gdcs).Error
 	return gdcs, err
+}
+
+func (r *gormDeckRepo) removeDeckCards(deckID string) error {
+	return r.db.Where("deck_id = ?", deckID).Delete(&gormDeckCard{}).Error
 }

@@ -13,8 +13,9 @@ import (
 type DeckListItem struct {
 	widget.BaseWidget
 
-	deck storage.Deck
-	ico  fyne.Resource
+	deck       storage.Deck
+	ico        fyne.Resource
+	removeFunc func(d storage.Deck)
 }
 
 func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
@@ -23,6 +24,9 @@ func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
 	img.Resize(fyne.NewSize(128, 128))
 	createdAtLbl := widget.NewLabel("")
 	deckTypeLbl := widget.NewLabel("")
+	removeBtn := widget.NewButtonWithIcon("Remove", theme.DeleteIcon(), func() {
+		dll.removeFunc(dll.deck)
+	})
 
 	return &deckListItemRenderer{
 		dll:          dll,
@@ -30,11 +34,12 @@ func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
 		img:          img,
 		createdAtLbl: createdAtLbl,
 		deckTypeLbl:  deckTypeLbl,
+		removeBtn:    removeBtn,
 	}
 }
 
-func NewDeckListItem(deck storage.Deck) *DeckListItem {
-	dll := &DeckListItem{deck: deck}
+func NewDeckListItem(deck storage.Deck, removeFunc func(d storage.Deck)) *DeckListItem {
+	dll := &DeckListItem{deck: deck, removeFunc: removeFunc}
 	dll.ExtendBaseWidget(dll)
 
 	return dll
@@ -55,6 +60,7 @@ type deckListItemRenderer struct {
 	img          *widget.Icon
 	createdAtLbl *widget.Label
 	deckTypeLbl  *widget.Label
+	removeBtn    *widget.Button
 }
 
 func (d deckListItemRenderer) Destroy() {
@@ -65,6 +71,11 @@ func (d deckListItemRenderer) Layout(size fyne.Size) {
 	imgSize := d.img.Size()
 	imgTopLeft := fyne.NewPos(theme.Padding(), theme.Padding())
 	d.img.Move(imgTopLeft)
+
+	delSize := d.removeBtn.MinSize()
+	delTop := fyne.NewPos(theme.Padding(), imgSize.Height+theme.Padding())
+	d.removeBtn.Move(delTop)
+	d.removeBtn.Resize(delSize)
 
 	topLeft := fyne.NewPos(imgSize.Width+2*theme.Padding(), 8+theme.Padding())
 	nameSize := d.nameLbl.MinSize()
@@ -82,12 +93,13 @@ func (d deckListItemRenderer) Layout(size fyne.Size) {
 func (d deckListItemRenderer) MinSize() fyne.Size {
 	nameSize := d.nameLbl.MinSize()
 	imgSize := d.img.Size()
-	height := fyne.Max(nameSize.Height, imgSize.Height) + 2*theme.Padding()
+	delSize := d.removeBtn.MinSize()
+	height := fyne.Max(nameSize.Height, imgSize.Height+theme.Padding()+delSize.Height+theme.Padding()) + 2*theme.Padding()
 	return fyne.NewSize(imgSize.Width+nameSize.Width+3*theme.Padding(), height)
 }
 
 func (d deckListItemRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{d.nameLbl, d.img, d.createdAtLbl, d.deckTypeLbl}
+	return []fyne.CanvasObject{d.nameLbl, d.img, d.createdAtLbl, d.deckTypeLbl, d.removeBtn}
 }
 
 func (d deckListItemRenderer) Refresh() {

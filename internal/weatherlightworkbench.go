@@ -233,6 +233,13 @@ func (m *WeatherlightWorkbench) ShowDialog(title, message string) {
 
 func (m *WeatherlightWorkbench) ShowError(err error) {
 	item := bento.NewItemWithMessage(err.Error(), bento.LengthIndefinite)
-	item.SetBackgroundColor(colornames.Rosybrown)
+	item.SetBackgroundColor(colornames.Red)
 	m.bentoBox.AddItem(item)
+}
+
+func (m *WeatherlightWorkbench) VerifyAction(message, actionTitle string, action func()) {
+	item := bento.NewItemWithMessage(message, bento.LengthIndefinite)
+	item.SetBackgroundColor(theme.PrimaryColor())
+	m.bentoBox.AddItem(item)
+	item.AddAction(actionTitle, action)
 }

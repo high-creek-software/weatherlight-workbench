@@ -35,7 +35,7 @@ type DeckLayout struct {
 
 func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport func()) *DeckLayout {
 	dl := &DeckLayout{canvas: canvas, registry: registry}
-	dl.deckAdapter = NewDeckAdapter(nil, dl.registry)
+	dl.deckAdapter = NewDeckAdapter(nil, dl.registry, dl.removeDeck)
 	dl.cardAdapter = NewDeckCardAdapter(dl.registry, dl.setCover)
 
 	dl.deckList = widget.NewList(dl.deckAdapter.Count, dl.deckAdapter.CreateTemplate, dl.deckAdapter.UpdateTemplate)
@@ -71,6 +71,17 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.LoadDecks()
 
 	return dl
+}
+
+func (dl *DeckLayout) removeDeck(d storage.Deck) {
+	dl.registry.Notifier.VerifyAction(fmt.Sprintf("Are you sure you want to remove deck: %s", d.Name), "Remove", func() {
+		err := dl.registry.Manager.RemoveDeck(d)
+		if err != nil {
+			dl.registry.Notifier.ShowError(err)
+		} else {
+			dl.LoadDecks()
+		}
+	})
 }
 
 func (dl *DeckLayout) LoadDecks() {
