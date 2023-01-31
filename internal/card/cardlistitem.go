@@ -49,8 +49,9 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	typeLine.Wrapping = fyne.TextWrapWord
 	setIcon := widget.NewIcon(nil)
 	setName := widget.NewLabel("template")
+	priceLbl := widget.NewLabel("template")
 
-	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine, setIcon: setIcon, setName: setName}
+	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine, setIcon: setIcon, setName: setName, priceLbl: priceLbl}
 
 	for i := 0; i < 4; i++ {
 		renderer.manaImages = append(renderer.manaImages, widget.NewIcon(nil))
@@ -68,6 +69,7 @@ type CardListItemRenderer struct {
 	typeLine   *widget.Label
 	setIcon    *widget.Icon
 	setName    *widget.Label
+	priceLbl   *widget.Label
 }
 
 func (c CardListItemRenderer) Destroy() {
@@ -96,6 +98,14 @@ func (c CardListItemRenderer) Layout(size fyne.Size) {
 
 	setNamePos := typeLinePos.Add(fyne.NewPos(0, typeSize.Height-6))
 	c.setName.Move(setNamePos)
+
+	if c.priceLbl.Visible() {
+		priceSize := c.priceLbl.MinSize()
+		pricePos := setNamePos.AddXY(0, priceSize.Height-6)
+		c.priceLbl.Move(pricePos)
+		c.priceLbl.Resize(priceSize)
+	}
+
 }
 
 func (c CardListItemRenderer) MinSize() fyne.Size {
@@ -104,14 +114,18 @@ func (c CardListItemRenderer) MinSize() fyne.Size {
 	manaSize := c.manaBox.MinSize()
 	typeSize := c.typeLine.MinSize()
 	setNameSize := c.setName.MinSize()
+	priceSize := fyne.NewSize(0, 0)
+	if c.priceLbl.Visible() {
+		priceSize = c.priceLbl.MinSize()
+	}
 
-	height := fyne.Max(iconSize.Height, nameSize.Height-6+typeSize.Height-6+setNameSize.Height+manaSize.Height-6) + 2*theme.Padding()
+	height := fyne.Max(iconSize.Height, nameSize.Height-6+typeSize.Height-6+setNameSize.Height+manaSize.Height-6+priceSize.Height-6) + 2*theme.Padding()
 
-	return fyne.NewSize(iconSize.Width+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
+	return fyne.NewSize(iconSize.Width+fyne.Max(fyne.Max(nameSize.Width, 200), typeSize.Width)+4*theme.Padding(), height)
 }
 
 func (c CardListItemRenderer) Objects() []fyne.CanvasObject {
-	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine, c.setName}
+	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine, c.setName, c.priceLbl}
 
 	return base
 }
@@ -122,6 +136,13 @@ func (c CardListItemRenderer) Refresh() {
 	c.setName.SetText(c.listItem.card.SetName)
 	c.name.ParseMarkdown(fmt.Sprintf("### %s", c.listItem.card.Name))
 	c.manaBox.RemoveAll()
+
+	if c.listItem.card.Prices.Usd != "" {
+		c.priceLbl.SetText(fmt.Sprintf("$%s", c.listItem.card.Prices.Usd))
+		c.priceLbl.Visible()
+	} else {
+		c.priceLbl.Hide()
+	}
 
 	for i, cost := range c.listItem.manaCost {
 		var ico *widget.Icon

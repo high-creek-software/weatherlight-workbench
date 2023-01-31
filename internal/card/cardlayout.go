@@ -130,7 +130,7 @@ func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registr
 			for idx := len(pricing) - 1; idx >= 0; idx-- {
 				p := pricing[idx]
 				if p.USD > 0 {
-					labels = append(labels, p.CreatedAt.Format("Jan 2, 2006"))
+					labels = append(labels, p.CreatedAt.Format("Jan 2, 06"))
 					data = append(data, p.USD)
 				}
 			}
@@ -145,6 +145,7 @@ func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registr
 				lineChart.UpdateTickFormat(func(input float64) string {
 					return fmt.Sprintf("$%.2f", input)
 				})
+				lineChart.UpdateDotDiameter(8)
 				cl.docTabs.Append(container.NewTabItem("Pricing", lineChart))
 			}
 		} else {
