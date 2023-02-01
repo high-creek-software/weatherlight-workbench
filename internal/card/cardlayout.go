@@ -145,7 +145,6 @@ func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registr
 				lineChart.UpdateTickFormat(func(input float64) string {
 					return fmt.Sprintf("$%.2f", input)
 				})
-				lineChart.UpdateDotDiameter(8)
 				cl.docTabs.Append(container.NewTabItem("Pricing", lineChart))
 			}
 		} else {
@@ -257,7 +256,7 @@ func (cl *CardLayout) setupLegalities() {
 	var lls []fyne.CanvasObject
 	maxSize := fyne.NewSize(0, 0)
 	for _, key := range keys {
-		ll := newLegalityItem(key, legalities[key])
+		ll := newLegalityItem(cards.LegalitiesKeysMap[key], legalities[key])
 		maxSize = maxSize.Max(ll.MinSize())
 		lls = append(lls, ll)
 	}

@@ -110,16 +110,16 @@ func (r *SetListItemRenderer) releaseSize() fyne.Size {
 
 func (r *SetListItemRenderer) MinSize() fyne.Size {
 	iconSize := r.icon.MinSize()
-	nameSize := r.nameSize()
-	countSubheadSize := r.countSubheadSize()
-	countSize := r.countSize()
-	releaseSubheadSize := r.releaseSubheadSize()
-	releaseSize := r.releaseSize()
+	//nameSize := r.nameSize()
+	//countSubheadSize := r.countSubheadSize()
+	//countSize := r.countSize()
+	//releaseSubheadSize := r.releaseSubheadSize()
+	//releaseSize := r.releaseSize()
 
-	topRow := iconSize.Width + 12 + nameSize.Width + 32
-	bottomRow := iconSize.Width + 12 + countSubheadSize.Width + 8 + countSize.Width + 16 + releaseSubheadSize.Width + 8 + releaseSize.Width + 32
+	//topRow := iconSize.Width + 12 + nameSize.Width + 32
+	//bottomRow := iconSize.Width + 12 + countSubheadSize.Width + 8 + countSize.Width + 16 + releaseSubheadSize.Width + 8 + releaseSize.Width + 32
 
-	return fyne.NewSize(fyne.Max(topRow, bottomRow), 64)
+	return fyne.NewSize(iconSize.Width+2*theme.Padding(), 64)
 }
 
 func (r *SetListItemRenderer) Objects() []fyne.CanvasObject {

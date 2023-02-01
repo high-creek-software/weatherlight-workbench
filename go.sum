@@ -209,8 +209,12 @@ github.com/high-creek-software/bento v0.0.0-20230121041827-2d8404f2e7ca h1:n9FGn
 github.com/high-creek-software/bento v0.0.0-20230121041827-2d8404f2e7ca/go.mod h1:ZpTKp6SWGGVgi8g2ipJCLVsWaIZGK71a8qB1Ac2ufps=
 github.com/high-creek-software/fynecharts v0.0.0-20230128150947-76a00470b4c1 h1:kOqILn0gQVfI2EMYD3+fTj1gtqfPfKXsKoOPvXHqKwk=
 github.com/high-creek-software/fynecharts v0.0.0-20230128150947-76a00470b4c1/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
+github.com/high-creek-software/fynecharts v0.0.0-20230131021351-4fc1575fb5e5 h1:+8BxwNHDAJ4XNroL0XLxstVVslejYDGo+jjBtWnGNHM=
+github.com/high-creek-software/fynecharts v0.0.0-20230131021351-4fc1575fb5e5/go.mod h1:uimCInCVw2R8k9LUeypBKNsMdSBfhsNioB7kCNVkEYI=
 github.com/high-creek-software/goscryfall v0.0.0-20230128183938-6867f053de14 h1:qvOPgJHrgyAZZu1aO3nWTDQVGQ+YxqHA6YjmQIRc/ls=
 github.com/high-creek-software/goscryfall v0.0.0-20230128183938-6867f053de14/go.mod h1:oQASybJvmmYget3GC+nGRV1+g4UadHXPgEbq7MRNpak=
+github.com/high-creek-software/goscryfall v0.0.0-20230131044021-29aca7e9e86d h1:VaA6KAQ/VUEXlrNL3LHHzpHm9mtQF/11sg/8VWsu7ws=
+github.com/high-creek-software/goscryfall v0.0.0-20230131044021-29aca7e9e86d/go.mod h1:oQASybJvmmYget3GC+nGRV1+g4UadHXPgEbq7MRNpak=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
@@ -356,6 +360,8 @@ golang.org/x/exp v0.0.0-20200207192155-f17229e696bd/go.mod h1:J/WKrq2StrnmMY6+EH
 golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6/go.mod h1:3jZMyOhIsHpP37uCMkUooju7aAi5cS1Q23tOzKc+0MU=
 golang.org/x/exp v0.0.0-20230127193734-31bee513bff7 h1:pXR8mGh4q8ooBT7HXruL4Xa2IxoL8XZ6lOgXY/0Ryg8=
 golang.org/x/exp v0.0.0-20230127193734-31bee513bff7/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
+golang.org/x/exp v0.0.0-20230131160201-f062dba9d201 h1:BEABXpNXLEz0WxtA+6CQIz2xkg80e+1zrhWyMcq8VzE=
+golang.org/x/exp v0.0.0-20230131160201-f062dba9d201/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.0.0-20210504121937-7319ad40d33e/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=

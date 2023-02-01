@@ -97,21 +97,22 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 
 	assocSize := d.associationLabel.MinSize()
 	nameSize := d.nameLbl.MinSize()
-	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 8))
-	d.nameLbl.Move(nameTopLeft)
-	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-assocSize.Width-3*theme.Padding(), nameSize.Height))
-
-	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, 12)
-	d.associationLabel.Move(assocTop)
-	d.associationLabel.Resize(assocSize)
-
-	manaPos := nameTopLeft.Add(fyne.NewPos(8, nameSize.Height-6))
 	manaSize := d.manaBox.MinSize()
+	countSize := d.countLbl.MinSize()
+
+	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 0))
+	d.nameLbl.Move(nameTopLeft)
+	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-manaSize.Width-3*theme.Padding(), nameSize.Height))
+
+	manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
 	d.manaBox.Move(manaPos)
 	d.manaBox.Resize(fyne.NewSize(float32(20*len(d.li.manaCost)), manaSize.Height))
 
-	countSize := d.countLbl.MinSize()
-	topLeft = manaPos.Add(fyne.NewPos(-8, manaSize.Height-6))
+	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, manaPos.Y+manaSize.Height)
+	d.associationLabel.Move(assocTop)
+	d.associationLabel.Resize(assocSize)
+
+	topLeft = nameTopLeft.Add(fyne.NewPos(0, nameSize.Height))
 	d.countLbl.Move(topLeft)
 	d.countLbl.Resize(countSize)
 
@@ -145,9 +146,9 @@ func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	//sepSize := d.separator.MinSize()
 	setCoverSize := d.setCover.MinSize()
 
-	height := fyne.Max(cardSize.Height+setCoverSize.Height, nameSize.Height-6+typeSize.Height-6+countSize.Height-6+setSize.Height+manaSize.Height-6) + 2*theme.Padding()
+	height := fyne.Max(cardSize.Height+setCoverSize.Height, nameSize.Height-6+typeSize.Height-6+countSize.Height-6+setSize.Height) + 2*theme.Padding()
 
-	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width+assocSize.Width, 200), typeSize.Width)+3*theme.Padding(), height)
+	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width+manaSize.Width, 200), typeSize.Width+assocSize.Width)+3*theme.Padding(), height)
 	//log.Println("Min Size:", size.Width, "X", size.Height)
 	return size
 }

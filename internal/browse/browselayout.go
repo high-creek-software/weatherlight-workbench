@@ -74,6 +74,7 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 	log.Println("Selected:", set.Id)
 	bl.cardAdapter.Clear()
 	bl.cardList.Refresh()
+	bl.cardList.UnselectAll()
 	go func() {
 		allCards, err := bl.registry.Manager.ListBySet(set.Code)
 		if err != nil {
