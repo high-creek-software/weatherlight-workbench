@@ -9,6 +9,13 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 )
 
+type ManagementCallback interface {
+	SetCover(c storage.DeckCard)
+	RemoveCard(c storage.DeckCard)
+	IncCard(c storage.DeckCard)
+	DecCard(c storage.DeckCard)
+}
+
 type DeckCardListItem struct {
 	widget.BaseWidget
 
@@ -16,7 +23,7 @@ type DeckCardListItem struct {
 	ico      fyne.Resource
 	manaCost []fyne.Resource
 
-	setCover func(card storage.DeckCard)
+	callback ManagementCallback
 }
 
 func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
@@ -32,7 +39,16 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 	associationLabel := widget.NewLabel("")
 	sep := widget.NewSeparator()
 	setCover := widget.NewButton("Set As Cover", func() {
-		li.setCover(li.card)
+		li.callback.SetCover(li.card)
+	})
+	removeBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
+		li.callback.RemoveCard(li.card)
+	})
+	incCard := widget.NewButtonWithIcon("", theme.ContentAddIcon(), func() {
+		li.callback.IncCard(li.card)
+	})
+	decCard := widget.NewButtonWithIcon("", theme.ContentRemoveIcon(), func() {
+		li.callback.DecCard(li.card)
 	})
 
 	dr := &deckCardListItemRenderer{
@@ -46,6 +62,9 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 		associationLabel: associationLabel,
 		separator:        sep,
 		setCover:         setCover,
+		removeCard:       removeBtn,
+		incCard:          incCard,
+		decCard:          decCard,
 	}
 
 	for i := 0; i < 4; i++ {
@@ -55,8 +74,8 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 	return dr
 }
 
-func NewDeckCardListItem(setCover func(card storage.DeckCard)) *DeckCardListItem {
-	li := &DeckCardListItem{setCover: setCover}
+func NewDeckCardListItem(callback ManagementCallback) *DeckCardListItem {
+	li := &DeckCardListItem{callback: callback}
 	li.ExtendBaseWidget(li)
 
 	return li
@@ -84,6 +103,10 @@ type deckCardListItemRenderer struct {
 	associationLabel *widget.Label
 	separator        *widget.Separator
 	setCover         *widget.Button
+
+	removeCard *widget.Button
+	incCard    *widget.Button
+	decCard    *widget.Button
 }
 
 func (d deckCardListItemRenderer) Destroy() {
@@ -91,19 +114,62 @@ func (d deckCardListItemRenderer) Destroy() {
 }
 
 func (d deckCardListItemRenderer) Layout(size fyne.Size) {
-	topLeft := fyne.NewPos(theme.Padding(), theme.Padding())
-	cardSize := d.cardFace.Size()
-	d.cardFace.Move(topLeft)
 
+	/** Get sizes **/
 	assocSize := d.associationLabel.MinSize()
 	nameSize := d.nameLbl.MinSize()
 	manaSize := d.manaBox.MinSize()
 	countSize := d.countLbl.MinSize()
+	typeSize := d.typeLine.MinSize()
+	setSize := d.setName.MinSize()
+	incSize := d.incCard.MinSize()
+	decSize := d.decCard.MinSize()
+	delSize := d.removeCard.MinSize()
 
+	/** Cover Image & Set Cover Button **/
+	topLeft := fyne.NewPos(theme.Padding(), theme.Padding())
+	cardSize := d.cardFace.Size()
+	d.cardFace.Move(topLeft)
+
+	/** Setup Center **/
 	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 0))
 	d.nameLbl.Move(nameTopLeft)
 	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-manaSize.Width-3*theme.Padding(), nameSize.Height))
 
+	topLeft = nameTopLeft.Add(fyne.NewPos(0, nameSize.Height))
+	d.typeLine.Move(topLeft)
+	d.typeLine.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), typeSize.Height))
+
+	topLeft = topLeft.Add(fyne.NewPos(0, typeSize.Height-6))
+	d.setName.Move(topLeft)
+	d.setName.Resize(setSize)
+
+	/*** Setup bottom buttons ***/
+	cardOffset := cardSize.Height
+	textOffset := topLeft.Y + setSize.Height
+	sepPos := fyne.NewPos(theme.Padding(), fyne.Max(cardOffset, textOffset)+theme.Padding())
+
+	setCoverPos := fyne.NewPos(theme.Padding(), sepPos.Y+theme.Padding())
+	d.setCover.Move(setCoverPos)
+	d.setCover.Resize(d.setCover.MinSize())
+
+	topLeft = fyne.NewPos(topLeft.X+8, setCoverPos.Y)
+	d.decCard.Move(topLeft)
+	d.decCard.Resize(decSize)
+
+	topLeft = topLeft.AddXY(incSize.Width, 0)
+	d.countLbl.Move(topLeft)
+	d.countLbl.Resize(countSize)
+
+	topLeft = topLeft.AddXY(countSize.Width, 0)
+	d.incCard.Move(topLeft)
+	d.incCard.Resize(incSize)
+
+	topLeft = fyne.NewPos(size.Width-theme.Padding()-delSize.Width, topLeft.Y)
+	d.removeCard.Move(topLeft)
+	d.removeCard.Resize(delSize)
+
+	/** Setup Left Side **/
 	manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
 	d.manaBox.Move(manaPos)
 	d.manaBox.Resize(fyne.NewSize(float32(20*len(d.li.manaCost)), manaSize.Height))
@@ -111,27 +177,6 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, manaPos.Y+manaSize.Height)
 	d.associationLabel.Move(assocTop)
 	d.associationLabel.Resize(assocSize)
-
-	topLeft = nameTopLeft.Add(fyne.NewPos(0, nameSize.Height))
-	d.countLbl.Move(topLeft)
-	d.countLbl.Resize(countSize)
-
-	typeSize := d.typeLine.MinSize()
-	topLeft = topLeft.Add(fyne.NewPos(0, countSize.Height-6))
-	d.typeLine.Move(topLeft)
-	d.typeLine.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), typeSize.Height))
-
-	topLeft = topLeft.Add(fyne.NewPos(0, typeSize.Height-6))
-	d.setName.Move(topLeft)
-	//setSize := d.setName.MinSize()
-
-	//topLeft = topLeft.Add(fyne.NewPos(0, setSize.Height+theme.Padding()))
-	//d.separator.Move(topLeft)
-	//sepSize := d.separator.MinSize()
-
-	setCoverPos := fyne.NewPos(theme.Padding(), cardSize.Height)
-	d.setCover.Move(setCoverPos)
-	d.setCover.Resize(d.setCover.MinSize())
 }
 
 func (d deckCardListItemRenderer) MinSize() fyne.Size {
@@ -142,11 +187,10 @@ func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	setSize := d.setName.MinSize()
 	manaSize := d.manaBox.MinSize()
 	cardSize := d.cardFace.Size()
-
-	//sepSize := d.separator.MinSize()
+	incSize := d.incCard.MinSize()
 	setCoverSize := d.setCover.MinSize()
 
-	height := fyne.Max(cardSize.Height+setCoverSize.Height, nameSize.Height-6+typeSize.Height-6+countSize.Height-6+setSize.Height) + 2*theme.Padding()
+	height := fyne.Max(cardSize.Height+setCoverSize.Height, nameSize.Height+typeSize.Height+setSize.Height+fyne.Max(countSize.Height, incSize.Height)) + 3*theme.Padding()
 
 	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width+manaSize.Width, 200), typeSize.Width+assocSize.Width)+3*theme.Padding(), height)
 	//log.Println("Min Size:", size.Width, "X", size.Height)
@@ -154,12 +198,12 @@ func (d deckCardListItemRenderer) MinSize() fyne.Size {
 }
 
 func (d deckCardListItemRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName, d.associationLabel, d.separator, d.setCover}
+	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName, d.associationLabel, d.separator, d.setCover, d.removeCard, d.incCard, d.decCard}
 }
 
 func (d deckCardListItemRenderer) Refresh() {
 	d.nameLbl.ParseMarkdown(fmt.Sprintf("#### %s", d.li.card.Card.Name))
-	d.countLbl.SetText(fmt.Sprintf("X %d", d.li.card.Count))
+	d.countLbl.SetText(fmt.Sprintf("  %d  ", d.li.card.Count))
 	d.cardFace.SetResource(d.li.ico)
 	d.typeLine.SetText(d.li.card.Card.TypeLine)
 	d.setName.SetText(d.li.card.Card.SetName)

@@ -12,11 +12,11 @@ type DeckCardAdapter struct {
 	registry *platform.Registry
 	list     *widget.List
 
-	setCover func(card storage.DeckCard)
+	callback ManagementCallback
 }
 
-func NewDeckCardAdapter(registry *platform.Registry, setCover func(card storage.DeckCard)) *DeckCardAdapter {
-	return &DeckCardAdapter{registry: registry, setCover: setCover}
+func NewDeckCardAdapter(registry *platform.Registry, callback ManagementCallback) *DeckCardAdapter {
+	return &DeckCardAdapter{registry: registry, callback: callback}
 }
 
 func (dca *DeckCardAdapter) SetList(list *widget.List) {
@@ -36,7 +36,7 @@ func (dca *DeckCardAdapter) Count() int {
 }
 
 func (dca *DeckCardAdapter) CreateTemplate() fyne.CanvasObject {
-	return NewDeckCardListItem(dca.setCover)
+	return NewDeckCardListItem(dca.callback)
 }
 
 func (dca *DeckCardAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject) {

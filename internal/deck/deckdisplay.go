@@ -31,10 +31,33 @@ type DeckDisplay struct {
 	loadDecks func()
 }
 
+func (dd *DeckDisplay) SetCover(c storage.DeckCard) {
+	log.Println("Deck:", dd.selectedDeck.Name, dd.selectedDeck.ID, "Card", c.Card.Name)
+	if err := dd.registry.Manager.UpdateCover(dd.selectedDeck.ID, c.Card.ImageUris.ArtCrop); err == nil {
+		if dd.loadDecks != nil {
+			dd.loadDecks()
+		}
+	} else {
+		dd.registry.Notifier.ShowError(err)
+	}
+}
+
+func (dd *DeckDisplay) RemoveCard(c storage.DeckCard) {
+	dd.registry.Notifier.ShowDialog("", fmt.Sprintf("Removing card: %s", c.Card.Name))
+}
+
+func (dd *DeckDisplay) IncCard(c storage.DeckCard) {
+	dd.registry.Notifier.ShowDialog("", fmt.Sprintf("Increment card: %s", c.Card.Name))
+}
+
+func (dd *DeckDisplay) DecCard(c storage.DeckCard) {
+	dd.registry.Notifier.ShowDialog("", fmt.Sprintf("Decrement card: %s", c.Card.Name))
+}
+
 func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck storage.Deck, loadDecks func()) *DeckDisplay {
 	dd := &DeckDisplay{canvas: canvas, registry: registry, loadDecks: loadDecks}
 
-	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd.setCover)
+	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd)
 
 	dd.manaChart = fynecharts.NewBarChart(dd.canvas, "Mana Curve", nil, nil)
 	dd.manaChart.SetMinHeight(150)
@@ -122,18 +145,6 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 	dd.Container = container.NewBorder(container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart), nil, nil, nil, hSplit)
 
 	return dd
-}
-
-func (dd *DeckDisplay) setCover(dc storage.DeckCard) {
-	log.Println("Deck:", dd.selectedDeck.Name, dd.selectedDeck.ID, "Card", dc.Card.Name)
-	if err := dd.registry.Manager.UpdateCover(dd.selectedDeck.ID, dc.Card.ImageUris.ArtCrop); err == nil {
-		//dd.LoadDecks()
-		if dd.loadDecks != nil {
-			dd.loadDecks()
-		}
-	} else {
-		dd.registry.Notifier.ShowError(err)
-	}
 }
 
 func (dd *DeckDisplay) cardSelected(id widget.ListItemID) {
