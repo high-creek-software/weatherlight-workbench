@@ -27,17 +27,11 @@ type DeckLayout struct {
 
 func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport func()) *DeckLayout {
 	dl := &DeckLayout{canvas: canvas, registry: registry}
-	dl.deckAdapter = NewDeckAdapter(nil, dl.registry, dl.removeDeck)
+	dl.deckAdapter = NewDeckAdapter(nil, dl.registry, dl)
 
 	dl.deckList = widget.NewList(dl.deckAdapter.Count, dl.deckAdapter.CreateTemplate, dl.deckAdapter.UpdateTemplate)
 	dl.deckAdapter.SetList(dl.deckList)
 	dl.deckList.OnSelected = dl.deckSelected
-
-	//dl.manaChart = fynecharts.NewTimeSeriesChart(dl.canvas, "Mana Curve", nil, nil)
-	//dl.manaChart.SetMinHeight(150)
-	//dl.manaChart.UpdateHoverFormat(func(v float64) string {
-	//	return fmt.Sprintf("%d", int(v))
-	//})
 
 	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
 	dl.deckTabs = container.NewDocTabs()
@@ -51,7 +45,7 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	return dl
 }
 
-func (dl *DeckLayout) removeDeck(d storage.Deck) {
+func (dl *DeckLayout) Remove(d storage.Deck) {
 	dl.registry.Notifier.VerifyAction(fmt.Sprintf("Are you sure you want to remove deck: %s", d.Name), "Remove", func() {
 		err := dl.registry.Manager.RemoveDeck(d)
 		if err != nil {
@@ -60,6 +54,10 @@ func (dl *DeckLayout) removeDeck(d storage.Deck) {
 			dl.LoadDecks()
 		}
 	})
+}
+
+func (dl *DeckLayout) Copy(d storage.Deck) {
+	dl.registry.Notifier.ShowDialog("", fmt.Sprintf("Copy %s; not done yet", d.Name))
 }
 
 func (dl *DeckLayout) LoadDecks() {

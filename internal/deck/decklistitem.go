@@ -10,12 +10,17 @@ import (
 	"time"
 )
 
+type DeckManagementCallback interface {
+	Remove(d storage.Deck)
+	Copy(d storage.Deck)
+}
+
 type DeckListItem struct {
 	widget.BaseWidget
 
-	deck       storage.Deck
-	ico        fyne.Resource
-	removeFunc func(d storage.Deck)
+	deck     storage.Deck
+	ico      fyne.Resource
+	callback DeckManagementCallback
 }
 
 func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
@@ -25,7 +30,10 @@ func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
 	createdAtLbl := widget.NewLabel("")
 	deckTypeLbl := widget.NewLabel("")
 	removeBtn := widget.NewButtonWithIcon("Remove", theme.DeleteIcon(), func() {
-		dll.removeFunc(dll.deck)
+		dll.callback.Remove(dll.deck)
+	})
+	copyBtn := widget.NewButtonWithIcon("Copy", theme.ContentCopyIcon(), func() {
+		dll.callback.Copy(dll.deck)
 	})
 
 	return &deckListItemRenderer{
@@ -35,11 +43,12 @@ func (dll *DeckListItem) CreateRenderer() fyne.WidgetRenderer {
 		createdAtLbl: createdAtLbl,
 		deckTypeLbl:  deckTypeLbl,
 		removeBtn:    removeBtn,
+		copyBtn:      copyBtn,
 	}
 }
 
-func NewDeckListItem(deck storage.Deck, removeFunc func(d storage.Deck)) *DeckListItem {
-	dll := &DeckListItem{deck: deck, removeFunc: removeFunc}
+func NewDeckListItem(deck storage.Deck, callback DeckManagementCallback) *DeckListItem {
+	dll := &DeckListItem{deck: deck, callback: callback}
 	dll.ExtendBaseWidget(dll)
 
 	return dll
@@ -61,6 +70,7 @@ type deckListItemRenderer struct {
 	createdAtLbl *widget.Label
 	deckTypeLbl  *widget.Label
 	removeBtn    *widget.Button
+	copyBtn      *widget.Button
 }
 
 func (d deckListItemRenderer) Destroy() {
@@ -73,9 +83,14 @@ func (d deckListItemRenderer) Layout(size fyne.Size) {
 	d.img.Move(imgTopLeft)
 
 	delSize := d.removeBtn.MinSize()
-	delTop := fyne.NewPos(theme.Padding(), imgSize.Height+theme.Padding())
+	delTop := fyne.NewPos(size.Width-theme.Padding()-delSize.Width, imgSize.Height+theme.Padding())
 	d.removeBtn.Move(delTop)
 	d.removeBtn.Resize(delSize)
+
+	copySize := d.copyBtn.MinSize()
+	copyTop := fyne.NewPos(theme.Padding(), imgSize.Height+theme.Padding())
+	d.copyBtn.Move(copyTop)
+	d.copyBtn.Resize(copySize)
 
 	topLeft := fyne.NewPos(imgSize.Width+2*theme.Padding(), 8+theme.Padding())
 	nameSize := d.nameLbl.MinSize()
@@ -99,7 +114,7 @@ func (d deckListItemRenderer) MinSize() fyne.Size {
 }
 
 func (d deckListItemRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{d.nameLbl, d.img, d.createdAtLbl, d.deckTypeLbl, d.removeBtn}
+	return []fyne.CanvasObject{d.nameLbl, d.img, d.createdAtLbl, d.deckTypeLbl, d.removeBtn, d.copyBtn}
 }
 
 func (d deckListItemRenderer) Refresh() {

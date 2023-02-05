@@ -8,14 +8,14 @@ import (
 )
 
 type DeckAdapter struct {
-	ds         []storage.Deck
-	list       *widget.List
-	registry   *platform.Registry
-	removeFunc func(d storage.Deck)
+	ds       []storage.Deck
+	list     *widget.List
+	registry *platform.Registry
+	callback DeckManagementCallback
 }
 
-func NewDeckAdapter(ds []storage.Deck, registry *platform.Registry, removeFunc func(d storage.Deck)) *DeckAdapter {
-	return &DeckAdapter{ds: ds, registry: registry, removeFunc: removeFunc}
+func NewDeckAdapter(ds []storage.Deck, registry *platform.Registry, callback DeckManagementCallback) *DeckAdapter {
+	return &DeckAdapter{ds: ds, registry: registry, callback: callback}
 }
 
 func (da *DeckAdapter) SetList(list *widget.List) {
@@ -31,7 +31,7 @@ func (da *DeckAdapter) Count() int {
 }
 
 func (da *DeckAdapter) CreateTemplate() fyne.CanvasObject {
-	return NewDeckListItem(storage.Deck{}, da.removeFunc)
+	return NewDeckListItem(storage.Deck{}, da.callback)
 }
 
 func (da *DeckAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject) {
