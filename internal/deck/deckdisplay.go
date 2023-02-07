@@ -10,6 +10,7 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 	"log"
+	"strconv"
 	"strings"
 )
 
@@ -18,6 +19,7 @@ type DeckDisplay struct {
 	canvas fyne.Canvas
 
 	registry     *platform.Registry
+	deckID       string
 	selectedDeck storage.Deck
 
 	cardList    *widget.List
@@ -27,6 +29,11 @@ type DeckDisplay struct {
 	tpsChart    *fynecharts.BarChart
 	deckImage   *widget.Icon
 	deckNameLbl *widget.Label
+
+	estimatedCost   *widget.Label
+	addCommanderBtn *widget.Button
+	addMainBtn      *widget.Button
+	addSideboardBtn *widget.Button
 
 	loadDecks func()
 }
@@ -55,7 +62,7 @@ func (dd *DeckDisplay) DecCard(c storage.DeckCard) {
 }
 
 func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck storage.Deck, loadDecks func()) *DeckDisplay {
-	dd := &DeckDisplay{canvas: canvas, registry: registry, loadDecks: loadDecks}
+	dd := &DeckDisplay{canvas: canvas, registry: registry, loadDecks: loadDecks, deckID: deck.ID}
 
 	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd)
 
@@ -77,13 +84,45 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 	dd.cardAdapter.SetList(dd.cardList)
 	dd.cardList.OnSelected = dd.cardSelected
 
+	dd.cardTabs = container.NewDocTabs()
+	hSplit := container.NewHSplit(dd.cardList, dd.cardTabs)
+	hSplit.SetOffset(0.2)
+
+	dd.estimatedCost = widget.NewLabel("")
+	dd.addCommanderBtn = widget.NewButton("Add Commander", dd.addCommander)
+	dd.addMainBtn = widget.NewButton("Add Main Deck", dd.addMain)
+	dd.addSideboardBtn = widget.NewButton("Add Sideboard", dd.addSideboard)
+
+	actionGrid := container.NewGridWithRows(4, dd.estimatedCost, dd.addCommanderBtn, dd.addMainBtn, dd.addSideboardBtn)
+	//container.NewBorder(nil, actionGrid, nil, nil, container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))
+
+	dd.Container = container.NewBorder(container.NewBorder(nil, nil, nil, actionGrid, container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart)), nil, nil, nil, hSplit)
+
+	dd.load()
+
+	return dd
+}
+
+func (dd *DeckDisplay) addCommander() {
+
+}
+
+func (dd *DeckDisplay) addMain() {
+
+}
+
+func (dd *DeckDisplay) addSideboard() {
+
+}
+
+func (dd *DeckDisplay) load() {
 	dd.cardAdapter.Clear()
 	dd.cardList.Refresh()
 	lbls := []string{"0", "1", "2", "3", "4", "5", "6", "7+"}
 	data := []float64{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	tps := []string{"Land", "Artifact", "Creature", "Enchantment", "Sorcery", "Instant", "Planeswalker"}
 	typData := []float64{0, 0, 0, 0, 0, 0, 0}
-	if fullDeck, err := dd.registry.Manager.LoadDeck(deck.ID); err == nil {
+	if fullDeck, err := dd.registry.Manager.LoadDeck(dd.deckID); err == nil {
 		dd.selectedDeck = fullDeck
 		dd.cardAdapter.Clear()
 		if fullDeck.Commander != nil {
@@ -97,7 +136,6 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 		}
 		dd.cardList.Refresh()
 
-		log.Println(dd.cardAdapter.Count())
 		for i := 0; i < dd.cardAdapter.Count(); i++ {
 			crd := dd.cardAdapter.Item(i)
 			idx := int(crd.Card.Cmc)
@@ -134,17 +172,18 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 		dd.manaChart.Refresh()
 		dd.tpsChart.UpdateData(tps, typData)
 		dd.tpsChart.Refresh()
+
+		runningTotal := 0.0
+		for i := 0; i < dd.cardAdapter.Count(); i++ {
+			crd := dd.cardAdapter.Item(i)
+			if price, err := strconv.ParseFloat(crd.Card.Prices.Usd, 64); err == nil {
+				runningTotal += float64(crd.Count) * price
+			}
+		}
+		dd.estimatedCost.SetText(fmt.Sprintf("Estimated Cost: $%.2f", runningTotal))
 	} else {
 		dd.registry.Notifier.ShowError(err)
 	}
-
-	dd.cardTabs = container.NewDocTabs()
-	hSplit := container.NewHSplit(dd.cardList, dd.cardTabs)
-	hSplit.SetOffset(0.2)
-
-	dd.Container = container.NewBorder(container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart), nil, nil, nil, hSplit)
-
-	return dd
 }
 
 func (dd *DeckDisplay) cardSelected(id widget.ListItemID) {

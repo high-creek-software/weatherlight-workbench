@@ -6,8 +6,10 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	scryfallcards "github.com/high-creek-software/goscryfall/cards"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
+	"golang.org/x/exp/maps"
 	"log"
 )
 
@@ -33,7 +35,32 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.deckAdapter.SetList(dl.deckList)
 	dl.deckList.OnSelected = dl.deckSelected
 
-	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.ContentAddIcon(), showImport))
+	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.DownloadIcon(), showImport), widget.NewToolbarAction(theme.ContentAddIcon(), func() {
+		var popup *widget.PopUp
+		nameEntry := widget.NewEntry()
+		legalities := maps.Keys(scryfallcards.LegalitiesNameMap)
+		legalitySelect := widget.NewSelect(legalities, nil)
+
+		frm := widget.NewForm(widget.NewFormItem("Deck Name", nameEntry), widget.NewFormItem("Deck Type", legalitySelect))
+
+		cancelBtn := widget.NewButton("Cancel", func() {
+			popup.Hide()
+		})
+		saveBtn := widget.NewButton("Save", func() {
+			typ := scryfallcards.LegalitiesNameMap[legalitySelect.Selected]
+			_, err := dl.registry.Manager.CreateDeck(nameEntry.Text, typ)
+			if err != nil {
+				dl.registry.Notifier.ShowError(err)
+			} else {
+				dl.LoadDecks()
+			}
+			popup.Hide()
+		})
+		grid := container.NewGridWithColumns(2, cancelBtn, saveBtn)
+
+		popup = widget.NewModalPopUp(container.NewVBox(frm, grid), dl.canvas)
+		popup.Show()
+	}))
 	dl.deckTabs = container.NewDocTabs()
 
 	hSplit := container.NewHSplit(dl.deckList, dl.deckTabs)
