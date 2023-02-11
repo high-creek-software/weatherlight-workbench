@@ -77,6 +77,11 @@ func (c CardListItemRenderer) Destroy() {
 }
 
 func (c CardListItemRenderer) Layout(size fyne.Size) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in card list item:", r)
+		}
+	}()
 	iconPos := fyne.NewPos(theme.Padding(), theme.Padding())
 	iconSize := c.icon.Size()
 	c.icon.Move(iconPos)
@@ -110,6 +115,11 @@ func (c CardListItemRenderer) Layout(size fyne.Size) {
 }
 
 func (c CardListItemRenderer) MinSize() fyne.Size {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in card list item:", r)
+		}
+	}()
 	iconSize := c.icon.Size()
 	nameSize := c.name.MinSize()
 	manaSize := c.manaBox.MinSize()
@@ -120,7 +130,7 @@ func (c CardListItemRenderer) MinSize() fyne.Size {
 		priceSize = c.priceLbl.MinSize()
 	}
 
-	height := fyne.Max(iconSize.Height, nameSize.Height-6+typeSize.Height-6+setNameSize.Height+manaSize.Height-6+priceSize.Height-6) + 2*theme.Padding()
+	height := fyne.Max(iconSize.Height, nameSize.Height+typeSize.Height+setNameSize.Height+manaSize.Height+priceSize.Height) + 2*theme.Padding()
 
 	return fyne.NewSize(iconSize.Width+fyne.Max(fyne.Max(nameSize.Width+manaSize.Width, 200), typeSize.Width)+4*theme.Padding(), height)
 }

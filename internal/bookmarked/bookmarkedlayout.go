@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/tabman"
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 )
@@ -14,9 +15,10 @@ type BookmarkedLayout struct {
 
 	registry *platform.Registry
 
-	cardList    *widget.List
-	cardAdapter *card.CardAdapter
-	cardTabs    *container.DocTabs
+	cardList       *widget.List
+	cardAdapter    *card.CardAdapter
+	cardTabs       *container.DocTabs
+	cardTabManager *tabman.Manager[string]
 }
 
 func NewBookmarkedLayout(cvs fyne.Canvas, registry *platform.Registry) *BookmarkedLayout {
@@ -27,6 +29,8 @@ func NewBookmarkedLayout(cvs fyne.Canvas, registry *platform.Registry) *Bookmark
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
 	bl.cardAdapter.SetList(bl.cardList)
+	bl.cardTabManager = tabman.NewManager[string]()
+	bl.cardTabs.OnClosed = bl.cardTabManager.RemoveTab
 
 	bl.Split = container.NewHSplit(bl.cardList, bl.cardTabs)
 	bl.Split.SetOffset(0.18)
@@ -51,9 +55,15 @@ func (bl *BookmarkedLayout) LoadBookmarked() {
 
 func (bl *BookmarkedLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
+	bl.cardList.UnselectAll()
+	if ti, ok := bl.cardTabManager.GetTabItem(c.Id); ok {
+		bl.cardTabs.Select(ti)
+		return
+	}
 
 	cardLayout := card.NewCardLayout(bl.canvas, &c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)
+	bl.cardTabManager.AddTabItem(c.Id, tab)
 }

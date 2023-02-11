@@ -7,12 +7,12 @@ require (
 	github.com/high-creek-software/ansel v0.0.0-20230128183917-df691c71acdb
 	github.com/high-creek-software/bento v0.0.0-20230121041827-2d8404f2e7ca
 	github.com/high-creek-software/fynecharts v0.0.0-20230131021351-4fc1575fb5e5
-	github.com/high-creek-software/goscryfall v0.0.0-20230131044021-29aca7e9e86d
+	github.com/high-creek-software/goscryfall v0.0.0-20230211024333-4344106363e4
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rs/xid v1.4.0
 	golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
-	golang.org/x/image v0.3.0
+	golang.org/x/image v0.4.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.3
 )
@@ -33,6 +33,7 @@ require (
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
+	github.com/high-creek-software/tabman v0.0.0-20230211024428-dde80e79de00 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
@@ -44,9 +45,9 @@ require (
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/yuin/goldmark v1.5.4 // indirect
 	golang.org/x/mobile v0.0.0-20211207041440-4e6c2922fdee // indirect
-	golang.org/x/net v0.5.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )

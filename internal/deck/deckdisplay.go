@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/high-creek-software/fynecharts"
+	"github.com/high-creek-software/tabman"
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
@@ -22,9 +23,11 @@ type DeckDisplay struct {
 	deckID       string
 	selectedDeck storage.Deck
 
-	cardList    *widget.List
-	cardAdapter *DeckCardAdapter
-	cardTabs    *container.DocTabs
+	cardList       *widget.List
+	cardAdapter    *DeckCardAdapter
+	cardTabs       *container.DocTabs
+	cardTabManager *tabman.Manager[string]
+
 	manaChart   *fynecharts.BarChart
 	tpsChart    *fynecharts.BarChart
 	deckImage   *widget.Icon
@@ -64,7 +67,7 @@ func (dd *DeckDisplay) DecCard(c storage.DeckCard) {
 func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck storage.Deck, loadDecks func()) *DeckDisplay {
 	dd := &DeckDisplay{canvas: canvas, registry: registry, loadDecks: loadDecks, deckID: deck.ID}
 
-	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd)
+	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd, deck.DeckType)
 
 	dd.manaChart = fynecharts.NewBarChart(dd.canvas, "Mana Curve", nil, nil)
 	dd.manaChart.SetMinHeight(150)
@@ -83,8 +86,10 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 	dd.cardList = widget.NewList(dd.cardAdapter.Count, dd.cardAdapter.CreateTemplate, dd.cardAdapter.UpdateTemplate)
 	dd.cardAdapter.SetList(dd.cardList)
 	dd.cardList.OnSelected = dd.cardSelected
-
 	dd.cardTabs = container.NewDocTabs()
+	dd.cardTabManager = tabman.NewManager[string]()
+	dd.cardTabs.OnClosed = dd.cardTabManager.RemoveTab
+
 	hSplit := container.NewHSplit(dd.cardList, dd.cardTabs)
 	hSplit.SetOffset(0.2)
 
@@ -96,7 +101,7 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 	actionGrid := container.NewGridWithRows(4, dd.estimatedCost, dd.addCommanderBtn, dd.addMainBtn, dd.addSideboardBtn)
 	//container.NewBorder(nil, actionGrid, nil, nil, container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))
 
-	dd.Container = container.NewBorder(container.NewBorder(nil, nil, nil, actionGrid, container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart)), nil, nil, nil, hSplit)
+	dd.Container = container.NewBorder(container.NewBorder(nil, nil, nil, container.NewPadded(actionGrid), container.NewPadded(container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))), nil, nil, nil, hSplit)
 
 	dd.load()
 
@@ -188,9 +193,15 @@ func (dd *DeckDisplay) load() {
 
 func (dd *DeckDisplay) cardSelected(id widget.ListItemID) {
 	c := dd.cardAdapter.Item(id)
+	dd.cardList.UnselectAll()
+	if ti, ok := dd.cardTabManager.GetTabItem(c.ID); ok {
+		dd.cardTabs.Select(ti)
+		return
+	}
 
 	cardLayout := card.NewCardLayout(dd.canvas, &c.Card, dd.registry)
 	tab := container.NewTabItem(c.Card.Name, cardLayout.Container)
 	dd.cardTabs.Append(tab)
 	dd.cardTabs.Select(tab)
+	dd.cardTabManager.AddTabItem(c.ID, tab)
 }

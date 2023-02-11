@@ -6,10 +6,12 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/high-creek-software/ansel"
+	"github.com/high-creek-software/tabman"
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/set"
 	"log"
+	"time"
 )
 
 type BrowseLayout struct {
@@ -22,9 +24,12 @@ type BrowseLayout struct {
 	setList    *widget.List
 	setAdapter *set.SetAdapter
 
-	cardTabs    *container.DocTabs
-	cardList    *widget.List
-	cardAdapter *card.CardAdapter
+	cardTabs       *container.DocTabs
+	cardList       *widget.List
+	cardAdapter    *card.CardAdapter
+	cardTabManager *tabman.Manager[string]
+
+	filterTimer *time.Timer
 
 	registry *platform.Registry
 }
@@ -42,6 +47,8 @@ func NewBrowseLayout(cvs fyne.Canvas, registry *platform.Registry, updateSetIcon
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)
 	bl.cardList.OnSelected = bl.cardSelected
 	bl.cardAdapter.SetList(bl.cardList)
+	bl.cardTabManager = tabman.NewManager[string]()
+	bl.cardTabs.OnClosed = bl.cardTabManager.RemoveTab
 
 	bl.filterEntry = widget.NewEntry()
 	bl.filterEntry.PlaceHolder = "Filter set name..."
@@ -65,8 +72,16 @@ func (bl *BrowseLayout) clearFilter() {
 }
 
 func (bl *BrowseLayout) filterChanged(input string) {
-	bl.setAdapter.ExecuteFilter(input)
-	bl.setList.Refresh()
+	if bl.filterTimer != nil {
+		bl.filterTimer.Stop()
+		bl.filterTimer = nil
+	}
+	bl.filterTimer = time.NewTimer(500 * time.Millisecond)
+	go func() {
+		<-bl.filterTimer.C
+		bl.setAdapter.ExecuteFilter(input)
+		bl.setList.Refresh()
+	}()
 }
 
 func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
@@ -89,11 +104,17 @@ func (bl *BrowseLayout) setSelected(id widget.ListItemID) {
 
 func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
 	c := bl.cardAdapter.Item(id)
+	bl.cardList.UnselectAll()
+	if ti, ok := bl.cardTabManager.GetTabItem(c.Id); ok {
+		bl.cardTabs.Select(ti)
+		return
+	}
 
 	cardLayout := card.NewCardLayout(bl.canvas, &c, bl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)
+	bl.cardTabManager.AddTabItem(c.Id, tab)
 }
 
 func (bl *BrowseLayout) LoadSets() {

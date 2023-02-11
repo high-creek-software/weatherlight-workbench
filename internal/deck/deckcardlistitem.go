@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	scryfallcards "github.com/high-creek-software/goscryfall/cards"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 )
 
@@ -24,6 +25,7 @@ type DeckCardListItem struct {
 	manaCost []fyne.Resource
 
 	callback ManagementCallback
+	deckType string
 }
 
 func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
@@ -74,8 +76,8 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 	return dr
 }
 
-func NewDeckCardListItem(callback ManagementCallback) *DeckCardListItem {
-	li := &DeckCardListItem{callback: callback}
+func NewDeckCardListItem(callback ManagementCallback, deckType string) *DeckCardListItem {
+	li := &DeckCardListItem{callback: callback, deckType: deckType}
 	li.ExtendBaseWidget(li)
 
 	return li
@@ -109,11 +111,11 @@ type deckCardListItemRenderer struct {
 	decCard    *widget.Button
 }
 
-func (d deckCardListItemRenderer) Destroy() {
+func (d *deckCardListItemRenderer) Destroy() {
 
 }
 
-func (d deckCardListItemRenderer) Layout(size fyne.Size) {
+func (d *deckCardListItemRenderer) Layout(size fyne.Size) {
 
 	/** Get sizes **/
 	assocSize := d.associationLabel.MinSize()
@@ -179,7 +181,7 @@ func (d deckCardListItemRenderer) Layout(size fyne.Size) {
 	d.associationLabel.Resize(assocSize)
 }
 
-func (d deckCardListItemRenderer) MinSize() fyne.Size {
+func (d *deckCardListItemRenderer) MinSize() fyne.Size {
 	nameSize := d.nameLbl.MinSize()
 	assocSize := d.associationLabel.MinSize()
 	typeSize := d.typeLine.MinSize()
@@ -197,11 +199,11 @@ func (d deckCardListItemRenderer) MinSize() fyne.Size {
 	return size
 }
 
-func (d deckCardListItemRenderer) Objects() []fyne.CanvasObject {
+func (d *deckCardListItemRenderer) Objects() []fyne.CanvasObject {
 	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName, d.associationLabel, d.separator, d.setCover, d.removeCard, d.incCard, d.decCard}
 }
 
-func (d deckCardListItemRenderer) Refresh() {
+func (d *deckCardListItemRenderer) Refresh() {
 	d.nameLbl.ParseMarkdown(fmt.Sprintf("#### %s", d.li.card.Card.Name))
 	d.countLbl.SetText(fmt.Sprintf("  %d  ", d.li.card.Count))
 	d.cardFace.SetResource(d.li.ico)
@@ -219,6 +221,8 @@ func (d deckCardListItemRenderer) Refresh() {
 		d.associationLabel.SetText("")
 	}
 
+	d.handleIncDecVisibility()
+
 	d.manaBox.RemoveAll()
 	for i, cost := range d.li.manaCost {
 		var ico *widget.Icon
@@ -230,5 +234,18 @@ func (d deckCardListItemRenderer) Refresh() {
 		}
 		ico.SetResource(cost)
 		d.manaBox.Add(ico)
+	}
+}
+
+func (d *deckCardListItemRenderer) handleIncDecVisibility() {
+	switch d.li.deckType {
+	case scryfallcards.Commander, scryfallcards.PauperCommander, scryfallcards.Brawl, scryfallcards.HistoricBrawl:
+		if !d.li.card.Card.IsBasicLand() {
+			d.incCard.Hide()
+			d.decCard.Hide()
+		} else {
+			d.incCard.Show()
+			d.decCard.Show()
+		}
 	}
 }

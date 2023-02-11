@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/high-creek-software/tabman"
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	storage2 "github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
@@ -16,9 +17,10 @@ type SearchLayout struct {
 
 	registry *platform.Registry
 
-	cardTabs    *container.DocTabs
-	cardList    *widget.List
-	cardAdapter *card.CardAdapter
+	cardTabs       *container.DocTabs
+	cardList       *widget.List
+	cardAdapter    *card.CardAdapter
+	cardTabManager *tabman.Manager[string]
 
 	name        *widget.Entry
 	typeLine    *widget.Entry
@@ -61,6 +63,8 @@ func NewSearchLayout(cvs fyne.Canvas, registry *platform.Registry) *SearchLayout
 	sl.cardList = widget.NewList(sl.cardAdapter.Count, sl.cardAdapter.CreateTemplate, sl.cardAdapter.UpdateTemplate)
 	sl.cardList.OnSelected = sl.cardSelected
 	sl.cardAdapter.SetList(sl.cardList)
+	sl.cardTabManager = tabman.NewManager[string]()
+	sl.cardTabs.OnClosed = sl.cardTabManager.RemoveTab
 
 	sl.name = widget.NewEntry()
 	sl.name.SetPlaceHolder("Card Name")
@@ -181,9 +185,15 @@ func (sl *SearchLayout) doSearch() {
 
 func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	c := sl.cardAdapter.Item(id)
+	sl.cardList.UnselectAll()
+	if ti, ok := sl.cardTabManager.GetTabItem(c.Id); ok {
+		sl.cardTabs.Select(ti)
+		return
+	}
 
 	cardLayout := card.NewCardLayout(sl.canvas, &c, sl.registry)
 	tab := container.NewTabItem(c.Name, cardLayout.Container)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)
+	sl.cardTabManager.AddTabItem(c.Id, tab)
 }
