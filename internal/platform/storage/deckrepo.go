@@ -77,3 +77,7 @@ func (r *gormDeckRepo) listDeckCards(deckID string) ([]gormDeckCard, error) {
 func (r *gormDeckRepo) removeDeckCards(deckID string) error {
 	return r.db.Where("deck_id = ?", deckID).Delete(&gormDeckCard{}).Error
 }
+
+func (r *gormDeckRepo) RemoveCard(c DeckCard) error {
+	return r.db.Where("id = ?", c.ID).Delete(&gormDeckCard{}).Error
+}

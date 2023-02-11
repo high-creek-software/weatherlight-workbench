@@ -53,7 +53,12 @@ func (dd *DeckDisplay) SetCover(c storage.DeckCard) {
 }
 
 func (dd *DeckDisplay) RemoveCard(c storage.DeckCard) {
-	dd.registry.Notifier.ShowDialog("", fmt.Sprintf("Removing card: %s", c.Card.Name))
+	delErr := dd.registry.Manager.RemoveCard(c)
+	if delErr != nil {
+		dd.registry.Notifier.ShowError(delErr)
+		return
+	}
+	dd.load()
 }
 
 func (dd *DeckDisplay) IncCard(c storage.DeckCard) {

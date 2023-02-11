@@ -88,7 +88,31 @@ func (dl *DeckLayout) Remove(d storage.Deck) {
 }
 
 func (dl *DeckLayout) Copy(d storage.Deck) {
-	dl.registry.Notifier.ShowDialog("", fmt.Sprintf("Copy %s; not done yet", d.Name))
+	//dl.registry.Notifier.ShowDialog("", fmt.Sprintf("Copy %s; not done yet", d.Name))
+	var popup *widget.PopUp
+	nameEntry := widget.NewEntry()
+	frm := widget.NewForm(widget.NewFormItem("Deck Name:", nameEntry))
+	cancelBtn := widget.NewButton("Cancel", func() {
+
+		popup.Hide()
+	})
+	saveBtn := widget.NewButton("Save", func() {
+		name := nameEntry.Text
+		popup.Hide()
+
+		go func() {
+			_, err := dl.registry.Manager.CopyDeck(d, name)
+			if err != nil {
+				dl.registry.Notifier.ShowError(err)
+				return
+			}
+			dl.LoadDecks()
+		}()
+	})
+	title := widget.NewLabel(fmt.Sprintf("Copy existing deck %s", d.Name))
+	bottom := container.NewGridWithColumns(2, cancelBtn, saveBtn)
+	popup = widget.NewModalPopUp(container.NewBorder(container.NewGridWithColumns(3, widget.NewLabel("	"), title, widget.NewLabel("	")), bottom, nil, nil, frm), dl.canvas)
+	popup.Show()
 }
 
 func (dl *DeckLayout) LoadDecks() {

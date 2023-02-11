@@ -3,6 +3,7 @@ package storage
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/high-creek-software/goscryfall"
 	scryfallcards "github.com/high-creek-software/goscryfall/cards"
 	"github.com/high-creek-software/goscryfall/decks"
@@ -215,6 +216,30 @@ func (m *Manager) LoadDeck(id string) (Deck, error) {
 	}
 
 	return d, nil
+}
+
+func (m *Manager) CopyDeck(d Deck, copyName string) (Deck, error) {
+	deckID := xid.New().String()
+	gd := gormDeck{ID: deckID, Name: copyName, CreateAt: time.Now(), CoverImage: "", DeckType: d.DeckType}
+	err := m.gormDeckRepo.create(gd)
+	if err != nil {
+		return Deck{}, fmt.Errorf("error creating copy: %w", err)
+	}
+	newDeck := Deck{ID: deckID, Name: copyName, DeckType: d.DeckType, CreatedAt: gd.CreateAt}
+
+	deckCards, err := m.gormDeckRepo.listDeckCards(d.ID)
+	if err != nil {
+		return newDeck, fmt.Errorf("error loading source deck cards: %w", err)
+	}
+	var gdcs []gormDeckCard
+	for _, dc := range deckCards {
+		gdcs = append(gdcs, gormDeckCard{ID: xid.New().String(), DeckID: deckID, CardID: dc.CardID, CardName: dc.CardName, AssociationType: dc.AssociationType, Count: dc.Count})
+	}
+	err = m.gormDeckRepo.addCards(gdcs)
+	if err != nil {
+		return newDeck, fmt.Errorf("error saving cards %w", err)
+	}
+	return newDeck, nil
 }
 
 func (m *Manager) RemoveDeck(d Deck) error {
