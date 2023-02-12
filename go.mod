@@ -6,12 +6,12 @@ require (
 	fyne.io/fyne/v2 v2.3.0
 	github.com/high-creek-software/ansel v0.0.0-20230128183917-df691c71acdb
 	github.com/high-creek-software/bento v0.0.0-20230121041827-2d8404f2e7ca
-	github.com/high-creek-software/fynecharts v0.0.0-20230131021351-4fc1575fb5e5
+	github.com/high-creek-software/fynecharts v0.0.0-20230212013557-4486c6a2cf45
 	github.com/high-creek-software/goscryfall v0.0.0-20230211024333-4344106363e4
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rs/xid v1.4.0
-	golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
+	golang.org/x/exp v0.0.0-20230210204819-062eb4c674ab
 	golang.org/x/image v0.4.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.3
