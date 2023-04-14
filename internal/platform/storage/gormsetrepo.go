@@ -43,7 +43,7 @@ func (r *gormSetRepo) StoreSets(sets []scryfallset.Set) error {
 
 func (r *gormSetRepo) ListSets() ([]scryfallset.Set, error) {
 	var all []gormSet
-	r.db.Find(&all)
+	r.db.Order("released_at desc").Find(&all)
 
 	var res []scryfallset.Set
 	for _, a := range all {
