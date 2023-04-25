@@ -134,7 +134,7 @@ func (m *WeatherlightWorkbench) updateSetIcon(bs []byte) []byte {
 		if strings.Contains(strData, `fill="#000"`) {
 			strData = strings.Replace(strData, `fill="#000"`, `fill="#999"`, -1)
 		} else {
-			strData = strings.Replace(strData, "<path d=", `<path style="fill:#999999" d=`, -1)
+			strData = strings.Replace(strData, "<path", `<path style="fill:#999999"`, -1)
 		}
 		return []byte(strData)
 	}
