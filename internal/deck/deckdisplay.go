@@ -16,7 +16,7 @@ import (
 )
 
 type DeckDisplay struct {
-	*fyne.Container
+	widget.BaseWidget
 	canvas fyne.Canvas
 
 	registry     *platform.Registry
@@ -39,6 +39,17 @@ type DeckDisplay struct {
 	addSideboardBtn *widget.Button
 
 	loadDecks func()
+}
+
+func (dd *DeckDisplay) CreateRenderer() fyne.WidgetRenderer {
+	hSplit := container.NewHSplit(dd.cardList, dd.cardTabs)
+	hSplit.SetOffset(0.2)
+
+	actionGrid := container.NewGridWithColumns(4, dd.estimatedCost, dd.addCommanderBtn, dd.addMainBtn, dd.addSideboardBtn)
+	insideBorder := container.NewBorder(actionGrid, nil, nil, nil, hSplit)
+	con := container.NewBorder(container.NewBorder(nil, nil, nil, nil, container.NewPadded(container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))), nil, nil, nil, insideBorder)
+
+	return widget.NewSimpleRenderer(con)
 }
 
 func (dd *DeckDisplay) SetCover(c storage.DeckCard) {
@@ -71,6 +82,7 @@ func (dd *DeckDisplay) DecCard(c storage.DeckCard) {
 
 func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck storage.Deck, loadDecks func()) *DeckDisplay {
 	dd := &DeckDisplay{canvas: canvas, registry: registry, loadDecks: loadDecks, deckID: deck.ID}
+	dd.ExtendBaseWidget(dd)
 
 	dd.cardAdapter = NewDeckCardAdapter(dd.registry, dd, deck.DeckType)
 
@@ -95,18 +107,10 @@ func NewDeckMetaDisplay(canvas fyne.Canvas, registry *platform.Registry, deck st
 	dd.cardTabManager = tabman.NewManager[string]()
 	dd.cardTabs.OnClosed = dd.cardTabManager.RemoveTab
 
-	hSplit := container.NewHSplit(dd.cardList, dd.cardTabs)
-	hSplit.SetOffset(0.2)
-
 	dd.estimatedCost = widget.NewLabel("")
 	dd.addCommanderBtn = widget.NewButton("Add Commander", dd.addCommander)
 	dd.addMainBtn = widget.NewButton("Add Main Deck", dd.addMain)
 	dd.addSideboardBtn = widget.NewButton("Add Sideboard", dd.addSideboard)
-
-	actionGrid := container.NewGridWithRows(4, dd.estimatedCost, dd.addCommanderBtn, dd.addMainBtn, dd.addSideboardBtn)
-	//container.NewBorder(nil, actionGrid, nil, nil, container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))
-
-	dd.Container = container.NewBorder(container.NewBorder(nil, nil, nil, container.NewPadded(actionGrid), container.NewPadded(container.NewGridWithColumns(2, dd.manaChart, dd.tpsChart))), nil, nil, nil, hSplit)
 
 	dd.load()
 
@@ -205,7 +209,7 @@ func (dd *DeckDisplay) cardSelected(id widget.ListItemID) {
 	}
 
 	cardLayout := card.NewCardLayout(dd.canvas, &c.Card, dd.registry)
-	tab := container.NewTabItem(c.Card.Name, cardLayout.Container)
+	tab := container.NewTabItem(c.Card.Name, cardLayout)
 	dd.cardTabs.Append(tab)
 	dd.cardTabs.Select(tab)
 	dd.cardTabManager.AddTabItem(c.ID, tab)

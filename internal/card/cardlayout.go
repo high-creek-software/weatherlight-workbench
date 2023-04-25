@@ -21,7 +21,7 @@ import (
 
 type CardLayout struct {
 	//Container *container.Scroll
-	*fyne.Container
+	widget.BaseWidget
 	canvas fyne.Canvas
 
 	card  *cards.Card
@@ -42,8 +42,16 @@ type CardLayout struct {
 	cardMetaList    *widget.List
 }
 
+func (cl *CardLayout) CreateRenderer() fyne.WidgetRenderer {
+	//mainBox := container.NewBorder(cl.topBox, nil, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), nil, container.NewPadded(cl.docTabs))
+	mainBox := container.NewBorder(cl.topBox, nil, nil, nil, container.NewGridWithColumns(2, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), cl.docTabs))
+
+	return widget.NewSimpleRenderer(mainBox)
+}
+
 func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registry) *CardLayout {
 	cl := &CardLayout{canvas: cvs, card: card, registry: registry}
+	cl.ExtendBaseWidget(cl)
 
 	bookmark, _ := cl.registry.Manager.FindBookmark(card.Id)
 	cl.addBookmarkBtn = widget.NewButtonWithIcon("", icons.BookmarkResource, func() {
@@ -84,9 +92,6 @@ func NewCardLayout(cvs fyne.Canvas, card *cards.Card, registry *platform.Registr
 	cl.docTabs = container.NewDocTabs()
 	cl.docTabs.SetTabLocation(container.TabLocationLeading)
 	cl.switchBtn = widget.NewButton("Switch", cl.switchFace)
-	//mainBox := container.NewBorder(cl.topBox, nil, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), nil, container.NewPadded(cl.docTabs))
-	mainBox := container.NewBorder(cl.topBox, nil, nil, nil, container.NewGridWithColumns(2, container.NewBorder(nil, cl.switchBtn, nil, nil, container.NewPadded(cl.image)), cl.docTabs))
-	cl.Container = mainBox
 
 	cl.setupLegalities()
 

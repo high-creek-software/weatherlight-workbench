@@ -3,10 +3,10 @@ package deck
 import (
 	"fmt"
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	scryfallcards "github.com/high-creek-software/goscryfall/cards"
+	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
 )
 
@@ -29,17 +29,9 @@ type DeckCardListItem struct {
 }
 
 func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
-	nameLbl := widget.NewRichTextFromMarkdown("Temp")
-	nameLbl.Wrapping = fyne.TextWrapWord
 	countLbl := widget.NewLabel("Temp")
-	cardFace := widget.NewIcon(nil)
-	cardFace.Resize(fyne.NewSize(128, 128))
-	manaBox := container.NewHBox()
-	typeLine := widget.NewLabel("")
-	typeLine.Wrapping = fyne.TextWrapWord
-	setName := widget.NewLabel("")
-	associationLabel := widget.NewLabel("")
-	sep := widget.NewSeparator()
+	cardListItem := card.NewCardListItem(nil)
+	associationLabel := widget.NewRichTextWithText("")
 	setCover := widget.NewButton("Set As Cover", func() {
 		li.callback.SetCover(li.card)
 	})
@@ -55,22 +47,13 @@ func (li *DeckCardListItem) CreateRenderer() fyne.WidgetRenderer {
 
 	dr := &deckCardListItemRenderer{
 		li:               li,
-		nameLbl:          nameLbl,
+		cardListItem:     cardListItem,
 		countLbl:         countLbl,
-		cardFace:         cardFace,
-		manaBox:          manaBox,
-		typeLine:         typeLine,
-		setName:          setName,
 		associationLabel: associationLabel,
-		separator:        sep,
 		setCover:         setCover,
 		removeCard:       removeBtn,
 		incCard:          incCard,
 		decCard:          decCard,
-	}
-
-	for i := 0; i < 4; i++ {
-		dr.manaImages = append(dr.manaImages, widget.NewIcon(nil))
 	}
 
 	return dr
@@ -91,19 +74,14 @@ func (li *DeckCardListItem) Update(card storage.DeckCard, mc []fyne.Resource) {
 
 func (li *DeckCardListItem) SetResource(resource fyne.Resource) {
 	li.ico = resource
+	li.Refresh()
 }
 
 type deckCardListItemRenderer struct {
 	li               *DeckCardListItem
-	nameLbl          *widget.RichText
+	cardListItem     *card.CardListItem
 	countLbl         *widget.Label
-	cardFace         *widget.Icon
-	manaBox          *fyne.Container
-	manaImages       []*widget.Icon
-	typeLine         *widget.Label
-	setName          *widget.Label
-	associationLabel *widget.Label
-	separator        *widget.Separator
+	associationLabel *widget.RichText
 	setCover         *widget.Button
 
 	removeCard *widget.Button
@@ -116,46 +94,32 @@ func (d *deckCardListItemRenderer) Destroy() {
 }
 
 func (d *deckCardListItemRenderer) Layout(size fyne.Size) {
-
 	/** Get sizes **/
+	cardSize := d.cardListItem.MinSize()
 	assocSize := d.associationLabel.MinSize()
-	nameSize := d.nameLbl.MinSize()
-	manaSize := d.manaBox.MinSize()
 	countSize := d.countLbl.MinSize()
-	typeSize := d.typeLine.MinSize()
-	setSize := d.setName.MinSize()
 	incSize := d.incCard.MinSize()
 	decSize := d.decCard.MinSize()
 	delSize := d.removeCard.MinSize()
 
-	/** Cover Image & Set Cover Button **/
+	/*** Setup Association ***/
 	topLeft := fyne.NewPos(theme.Padding(), theme.Padding())
-	cardSize := d.cardFace.Size()
-	d.cardFace.Move(topLeft)
+	d.associationLabel.Move(topLeft)
+	d.associationLabel.Resize(assocSize)
 
-	/** Setup Center **/
-	nameTopLeft := topLeft.Add(fyne.NewPos(cardSize.Width+theme.Padding(), 0))
-	d.nameLbl.Move(nameTopLeft)
-	d.nameLbl.Resize(fyne.NewSize(size.Width-cardSize.Width-manaSize.Width-3*theme.Padding(), nameSize.Height))
-
-	topLeft = nameTopLeft.Add(fyne.NewPos(0, nameSize.Height))
-	d.typeLine.Move(topLeft)
-	d.typeLine.Resize(fyne.NewSize(size.Width-cardSize.Width-2*theme.Padding(), typeSize.Height))
-
-	topLeft = topLeft.Add(fyne.NewPos(0, typeSize.Height-6))
-	d.setName.Move(topLeft)
-	d.setName.Resize(setSize)
+	/*** Setup card ***/
+	topLeft = topLeft.AddXY(0, 15)
+	d.cardListItem.Move(topLeft)
+	d.cardListItem.Resize(size)
 
 	/*** Setup bottom buttons ***/
 	cardOffset := cardSize.Height
-	textOffset := topLeft.Y + setSize.Height
-	sepPos := fyne.NewPos(theme.Padding(), fyne.Max(cardOffset, textOffset)+theme.Padding())
+	topLeft = topLeft.AddXY(5, cardOffset)
 
-	setCoverPos := fyne.NewPos(theme.Padding(), sepPos.Y+theme.Padding())
-	d.setCover.Move(setCoverPos)
+	d.setCover.Move(topLeft)
 	d.setCover.Resize(d.setCover.MinSize())
 
-	topLeft = fyne.NewPos(topLeft.X+8, setCoverPos.Y)
+	topLeft = topLeft.AddXY(d.setCover.MinSize().Width+2*theme.Padding(), 0)
 	d.decCard.Move(topLeft)
 	d.decCard.Resize(decSize)
 
@@ -170,71 +134,37 @@ func (d *deckCardListItemRenderer) Layout(size fyne.Size) {
 	topLeft = fyne.NewPos(size.Width-theme.Padding()-delSize.Width, topLeft.Y)
 	d.removeCard.Move(topLeft)
 	d.removeCard.Resize(delSize)
-
-	/** Setup Left Side **/
-	manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
-	d.manaBox.Move(manaPos)
-	d.manaBox.Resize(fyne.NewSize(float32(20*len(d.li.manaCost)), manaSize.Height))
-
-	assocTop := fyne.NewPos(size.Width-theme.Padding()-assocSize.Width, manaPos.Y+manaSize.Height)
-	d.associationLabel.Move(assocTop)
-	d.associationLabel.Resize(assocSize)
 }
 
 func (d *deckCardListItemRenderer) MinSize() fyne.Size {
-	nameSize := d.nameLbl.MinSize()
-	assocSize := d.associationLabel.MinSize()
-	typeSize := d.typeLine.MinSize()
-	countSize := d.countLbl.Size()
-	setSize := d.setName.MinSize()
-	manaSize := d.manaBox.MinSize()
-	cardSize := d.cardFace.Size()
-	incSize := d.incCard.MinSize()
+	cardSize := d.cardListItem.MinSize()
 	setCoverSize := d.setCover.MinSize()
 
-	height := fyne.Max(cardSize.Height+setCoverSize.Height, nameSize.Height+typeSize.Height+setSize.Height+fyne.Max(countSize.Height, incSize.Height)) + 3*theme.Padding()
-
-	size := fyne.NewSize(cardSize.Width+fyne.Max(fyne.Max(nameSize.Width+manaSize.Width, 200), typeSize.Width+assocSize.Width)+3*theme.Padding(), height)
-	//log.Println("Min Size:", size.Width, "X", size.Height)
-	return size
+	return fyne.NewSize(cardSize.Width, cardSize.Height+setCoverSize.Height+4*theme.Padding()+15)
 }
 
 func (d *deckCardListItemRenderer) Objects() []fyne.CanvasObject {
-	return []fyne.CanvasObject{d.nameLbl, d.countLbl, d.cardFace, d.manaBox, d.typeLine, d.setName, d.associationLabel, d.separator, d.setCover, d.removeCard, d.incCard, d.decCard}
+	return []fyne.CanvasObject{d.cardListItem, d.countLbl, d.associationLabel, d.setCover, d.removeCard, d.incCard, d.decCard}
 }
 
 func (d *deckCardListItemRenderer) Refresh() {
-	d.nameLbl.ParseMarkdown(fmt.Sprintf("#### %s", d.li.card.Card.Name))
 	d.countLbl.SetText(fmt.Sprintf("  %d  ", d.li.card.Count))
-	d.cardFace.SetResource(d.li.ico)
-	d.typeLine.SetText(d.li.card.Card.TypeLine)
-	d.setName.SetText(d.li.card.Card.SetName)
 
 	switch d.li.card.AssociationType {
 	case storage.AssociationMain:
-		d.associationLabel.SetText("M")
+		d.associationLabel.ParseMarkdown("**Main Deck**")
 	case storage.AssociationCommander:
-		d.associationLabel.SetText("C")
+		d.associationLabel.ParseMarkdown("**Commander**")
 	case storage.AssociationSideboard:
-		d.associationLabel.SetText("S")
+		d.associationLabel.ParseMarkdown("**Sideboard**")
 	default:
-		d.associationLabel.SetText("")
+		d.associationLabel.ParseMarkdown("")
 	}
 
 	d.handleIncDecVisibility()
 
-	d.manaBox.RemoveAll()
-	for i, cost := range d.li.manaCost {
-		var ico *widget.Icon
-		if i > len(d.manaImages)-1 {
-			ico = widget.NewIcon(nil)
-			d.manaImages = append(d.manaImages, ico)
-		} else {
-			ico = d.manaImages[i]
-		}
-		ico.SetResource(cost)
-		d.manaBox.Add(ico)
-	}
+	d.cardListItem.UpdateCard(&d.li.card.Card, d.li.manaCost)
+	d.cardListItem.SetResource(d.li.ico)
 }
 
 func (d *deckCardListItemRenderer) handleIncDecVisibility() {

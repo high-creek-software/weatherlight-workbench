@@ -45,10 +45,11 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	name := widget.NewRichTextWithText("template")
 	name.Wrapping = fyne.TextWrapWord
 	manaBox := container.NewHBox()
-	typeLine := widget.NewLabel("template")
+	typeLine := widget.NewRichTextWithText("template")
 	typeLine.Wrapping = fyne.TextWrapWord
 	setIcon := widget.NewIcon(nil)
 	setName := widget.NewLabel("template")
+	setName.Wrapping = fyne.TextWrapWord
 	priceLbl := widget.NewLabel("template")
 
 	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine, setIcon: setIcon, setName: setName, priceLbl: priceLbl}
@@ -66,22 +67,22 @@ type CardListItemRenderer struct {
 	name       *widget.RichText
 	manaBox    *fyne.Container
 	manaImages []*widget.Icon
-	typeLine   *widget.Label
+	typeLine   *widget.RichText
 	setIcon    *widget.Icon
 	setName    *widget.Label
 	priceLbl   *widget.Label
 }
 
-func (c CardListItemRenderer) Destroy() {
+func (c *CardListItemRenderer) Destroy() {
 
 }
 
-func (c CardListItemRenderer) Layout(size fyne.Size) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Recovered in card list item:", r)
-		}
-	}()
+func (c *CardListItemRenderer) Layout(size fyne.Size) {
+	//defer func() {
+	//	if r := recover(); r != nil {
+	//		log.Println("Recovered in card list item:", r)
+	//	}
+	//}()
 	iconPos := fyne.NewPos(theme.Padding(), theme.Padding())
 	iconSize := c.icon.Size()
 	c.icon.Move(iconPos)
@@ -91,35 +92,36 @@ func (c CardListItemRenderer) Layout(size fyne.Size) {
 
 	namePos := iconPos.Add(fyne.NewPos(iconSize.Width+theme.Padding(), 0))
 	c.name.Move(namePos)
-	c.name.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding()-manaSize.Width-2*theme.Padding(), nameSize.Height))
+	c.name.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), nameSize.Height))
 
-	manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
-	c.manaBox.Move(manaPos)
+	//manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
+	manaPos := namePos.AddXY(0, nameSize.Height-5)
+	c.manaBox.Move(manaPos.AddXY(8, 0))
 	c.manaBox.Resize(fyne.NewSize(float32(20*len(c.listItem.manaCost)), manaSize.Height))
 
 	typeSize := c.typeLine.MinSize()
-	typeLinePos := namePos.Add(fyne.NewPos(0, nameSize.Height+2))
+	typeLinePos := manaPos.Add(fyne.NewPos(0, manaSize.Height-4))
 	c.typeLine.Move(typeLinePos)
 	c.typeLine.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), typeSize.Height))
 
 	setSize := c.setName.MinSize()
-	setNamePos := typeLinePos.Add(fyne.NewPos(0, typeSize.Height))
+	setNamePos := typeLinePos.Add(fyne.NewPos(0, typeSize.Height-8))
 	c.setName.Move(setNamePos)
 	c.setName.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), setSize.Height))
 
 	priceSize := c.priceLbl.MinSize()
-	pricePos := setNamePos.Add(fyne.NewPos(0, priceSize.Height))
+	pricePos := setNamePos.Add(fyne.NewPos(0, setSize.Height))
 	c.priceLbl.Move(pricePos)
 	c.priceLbl.Resize(priceSize)
 
 }
 
-func (c CardListItemRenderer) MinSize() fyne.Size {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Recovered in card list item:", r)
-		}
-	}()
+func (c *CardListItemRenderer) MinSize() fyne.Size {
+	//defer func() {
+	//	if r := recover(); r != nil {
+	//		log.Println("Recovered in card list item:", r)
+	//	}
+	//}()
 	iconSize := c.icon.Size()
 	nameSize := c.name.MinSize()
 	manaSize := c.manaBox.MinSize()
@@ -130,18 +132,18 @@ func (c CardListItemRenderer) MinSize() fyne.Size {
 		priceSize = c.priceLbl.MinSize()
 	}
 
-	height := fyne.Max(iconSize.Height, nameSize.Height+typeSize.Height+setNameSize.Height+manaSize.Height+priceSize.Height) + 2*theme.Padding()
+	height := fyne.Max(iconSize.Height, nameSize.Height+typeSize.Height+setNameSize.Height+manaSize.Height+priceSize.Height)
 
 	return fyne.NewSize(iconSize.Width+fyne.Max(fyne.Max(nameSize.Width+manaSize.Width, 200), typeSize.Width)+4*theme.Padding(), height)
 }
 
-func (c CardListItemRenderer) Objects() []fyne.CanvasObject {
+func (c *CardListItemRenderer) Objects() []fyne.CanvasObject {
 	base := []fyne.CanvasObject{c.icon, c.name, c.manaBox, c.typeLine, c.setName, c.priceLbl}
 
 	return base
 }
 
-func (c CardListItemRenderer) Refresh() {
+func (c *CardListItemRenderer) Refresh() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("Recovered in card list item:", r)
@@ -180,5 +182,5 @@ func (c CardListItemRenderer) Refresh() {
 		}
 	}
 
-	c.typeLine.SetText(c.listItem.card.TypeLine)
+	c.typeLine.ParseMarkdown(fmt.Sprintf("##### %s", c.listItem.card.TypeLine))
 }

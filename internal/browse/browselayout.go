@@ -111,7 +111,7 @@ func (bl *BrowseLayout) cardSelected(id widget.ListItemID) {
 	}
 
 	cardLayout := card.NewCardLayout(bl.canvas, &c, bl.registry)
-	tab := container.NewTabItem(c.Name, cardLayout.Container)
+	tab := container.NewTabItem(c.Name, cardLayout)
 	bl.cardTabs.Append(tab)
 	bl.cardTabs.Select(tab)
 	bl.cardTabManager.AddTabItem(c.Id, tab)

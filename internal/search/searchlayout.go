@@ -192,7 +192,7 @@ func (sl *SearchLayout) cardSelected(id widget.ListItemID) {
 	}
 
 	cardLayout := card.NewCardLayout(sl.canvas, &c, sl.registry)
-	tab := container.NewTabItem(c.Name, cardLayout.Container)
+	tab := container.NewTabItem(c.Name, cardLayout)
 	sl.cardTabs.Append(tab)
 	sl.cardTabs.Select(tab)
 	sl.cardTabManager.AddTabItem(c.Id, tab)

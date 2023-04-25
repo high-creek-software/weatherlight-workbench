@@ -15,9 +15,10 @@ import (
 )
 
 type DeckLayout struct {
-	*fyne.Container
+	widget.BaseWidget
 	canvas fyne.Canvas
 
+	toolbar  *widget.Toolbar
 	deckList *widget.List
 	cardList *widget.List
 
@@ -29,8 +30,16 @@ type DeckLayout struct {
 	selectedDeck storage.Deck
 }
 
+func (dl *DeckLayout) CreateRenderer() fyne.WidgetRenderer {
+	hSplit := container.NewHSplit(dl.deckList, dl.deckTabs)
+	hSplit.SetOffset(0.15)
+	con := container.NewBorder(dl.toolbar, nil, nil, nil, hSplit)
+	return widget.NewSimpleRenderer(con)
+}
+
 func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport func()) *DeckLayout {
 	dl := &DeckLayout{canvas: canvas, registry: registry}
+	dl.ExtendBaseWidget(dl)
 	dl.deckAdapter = NewDeckAdapter(nil, dl.registry, dl)
 
 	dl.deckList = widget.NewList(dl.deckAdapter.Count, dl.deckAdapter.CreateTemplate, dl.deckAdapter.UpdateTemplate)
@@ -40,7 +49,7 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.deckTabManager = tabman.NewManager[string]()
 	dl.deckTabs.OnClosed = dl.deckTabManager.RemoveTab
 
-	toolbar := widget.NewToolbar(widget.NewToolbarAction(theme.DownloadIcon(), showImport), widget.NewToolbarAction(theme.ContentAddIcon(), func() {
+	dl.toolbar = widget.NewToolbar(widget.NewToolbarAction(theme.DownloadIcon(), showImport), widget.NewToolbarAction(theme.ContentAddIcon(), func() {
 		var popup *widget.PopUp
 		nameEntry := widget.NewEntry()
 		legalities := maps.Keys(scryfallcards.LegalitiesNameMap)
@@ -66,10 +75,6 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 		popup = widget.NewModalPopUp(container.NewVBox(frm, grid), dl.canvas)
 		popup.Show()
 	}))
-
-	hSplit := container.NewHSplit(dl.deckList, dl.deckTabs)
-	hSplit.SetOffset(0.15)
-	dl.Container = container.NewBorder(toolbar, nil, nil, nil, hSplit)
 
 	dl.LoadDecks()
 
@@ -137,7 +142,7 @@ func (dl *DeckLayout) deckSelected(id widget.ListItemID) {
 
 	dl.selectedDeck = deck
 	deckDisplay := NewDeckMetaDisplay(dl.canvas, dl.registry, deck, dl.LoadDecks)
-	tab := container.NewTabItem(deck.Name, deckDisplay.Container)
+	tab := container.NewTabItem(deck.Name, deckDisplay)
 	dl.deckTabs.Append(tab)
 	dl.deckTabs.Select(tab)
 	dl.deckTabManager.AddTabItem(deck.ID, tab)

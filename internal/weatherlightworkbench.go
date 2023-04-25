@@ -51,7 +51,7 @@ type WeatherlightWorkbench struct {
 }
 
 func NewWeatherlightWorkbench() *WeatherlightWorkbench {
-	//os.Setenv("FYNE_THEME", "dark")
+	//os.Setenv("FYNE_THEME", "light")
 	wm := &WeatherlightWorkbench{app: app.NewWithID("github.com/high-creek-software/weatherlight-workbench")}
 	wm.app.SetIcon(icons.AppIconResource)
 	wm.window = wm.app.NewWindow("Weatherlight Workbench")
@@ -84,7 +84,7 @@ func (m *WeatherlightWorkbench) setupBody() {
 	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
 		container.NewTabItem("Search", m.searchLayout.Split),
 		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
-		container.NewTabItem("Decks", m.deckLayout.Container),
+		container.NewTabItem("Decks", m.deckLayout),
 	)
 
 	m.syncBtn = widget.NewButton("Sync", m.syncBtnTouched)
