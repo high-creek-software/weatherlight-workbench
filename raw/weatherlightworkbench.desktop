@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Weatherlight Workbench
+Exec=/usr/bin/weatherlightworkbench
+Comment=Run a magic the gathering card discovery application
+Terminal=false
+Type=Application
+Icon=weatherlightworkbench.png
