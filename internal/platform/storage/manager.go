@@ -46,12 +46,13 @@ type Manager struct {
 	*gormDeckRepo
 }
 
-func NewManager(client *goscryfall.Client) *Manager {
-	m := &Manager{applicationDirectory: getApplicationDirectory(), client: client}
+func NewManager(applicationDirectory string, client *goscryfall.Client) *Manager {
+	m := &Manager{applicationDirectory: applicationDirectory, client: client}
 	err := os.Mkdir(m.applicationDirectory, os.ModePerm)
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		log.Fatal(err)
 	}
+	//var err error
 	m.setsDirectory = filepath.Join(m.applicationDirectory, sets)
 	err = os.Mkdir(m.setsDirectory, os.ModePerm)
 	if err != nil && !errors.Is(err, os.ErrExist) {

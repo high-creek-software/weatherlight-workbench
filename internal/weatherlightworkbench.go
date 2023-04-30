@@ -21,6 +21,7 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/symbol"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/sync"
 	"github.com/high-creek-software/weatherlight-workbench/internal/search"
+	"golang.org/x/exp/slog"
 	"golang.org/x/image/colornames"
 	"strings"
 	"time"
@@ -57,8 +58,10 @@ func NewWeatherlightWorkbench() *WeatherlightWorkbench {
 	wm.window = wm.app.NewWindow("Weatherlight Workbench")
 	wm.window.SetMaster()
 	wm.window.Resize(fyne.NewSize(1920, 1080))
+	slog.Info("storage root", "path", wm.app.Storage().RootURI())
+
 	client := goscryfall.NewClient()
-	manager := storage.NewManager(client)
+	manager := storage.NewManager(wm.app.Storage().RootURI().Path(), client)
 	importManager := sync.NewImportManager(client, manager)
 	symbolRepo := symbol.NewSymbolRepo(client, manager.LoadSymbolImage)
 
@@ -172,8 +175,8 @@ func (m *WeatherlightWorkbench) syncBtnTouched() {
 func (m *WeatherlightWorkbench) appStartedCallback() {
 	// TODO: Figure out how to determine if an import is needed.
 	m.showLastSyncedAt()
-	setCount := m.registry.Manager.SetCount()
-	if setCount == 0 {
+	lastSync := m.app.Preferences().String(lastSyncKey)
+	if lastSync == "" {
 		m.runSync()
 	} else {
 		m.browseLayout.LoadSets()

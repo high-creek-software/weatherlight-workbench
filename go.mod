@@ -12,7 +12,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rs/xid v1.4.0
-	golang.org/x/exp v0.0.0-20230210204819-062eb4c674ab
+	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb
 	golang.org/x/image v0.4.0
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.3
@@ -37,6 +37,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
+	github.com/lmittmann/tint v0.3.2 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
