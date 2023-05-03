@@ -44,15 +44,12 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	icon.Resize(fyne.NewSize(128, 128))
 	name := widget.NewRichTextWithText("template")
 	name.Wrapping = fyne.TextWrapWord
-	manaBox := container.NewHBox()
 	typeLine := widget.NewRichTextWithText("template")
 	typeLine.Wrapping = fyne.TextWrapWord
-	setIcon := widget.NewIcon(nil)
 	setName := widget.NewLabel("template")
 	setName.Wrapping = fyne.TextWrapWord
-	priceLbl := widget.NewLabel("template")
 
-	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: manaBox, typeLine: typeLine, setIcon: setIcon, setName: setName, priceLbl: priceLbl}
+	renderer := &CardListItemRenderer{listItem: cli, icon: icon, name: name, manaBox: container.NewHBox(), typeLine: typeLine, setIcon: widget.NewIcon(nil), setName: setName, priceLbl: widget.NewLabel("template")}
 
 	for i := 0; i < 4; i++ {
 		renderer.manaImages = append(renderer.manaImages, widget.NewIcon(nil))
