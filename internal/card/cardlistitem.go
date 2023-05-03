@@ -18,7 +18,8 @@ type CardListItem struct {
 	ico     fyne.Resource
 	setIcon fyne.Resource
 
-	manaCost []fyne.Resource
+	manaCost   []fyne.Resource
+	coverImage *widget.Icon
 }
 
 func NewCardListItem(card *cards.Card) *CardListItem {
@@ -35,13 +36,17 @@ func (cli *CardListItem) UpdateCard(card *cards.Card, manaCost []fyne.Resource) 
 }
 
 func (cli *CardListItem) SetResource(resource fyne.Resource) {
-	cli.ico = resource
-	cli.Refresh()
+	//cli.ico = resource
+	//cli.Refresh()
+	cli.coverImage.SetResource(resource)
 }
 
 func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 	icon := widget.NewIcon(nil)
 	icon.Resize(fyne.NewSize(128, 128))
+	// This is breaking the rules of fyne, the widgets are not meant to be stored with the data. But there has been some performance and crashing issues, reloading the manabox takes too much time to empty and reload
+	// by setting the cover image on the cardlistitem an image load callback won't require refreshing the entire renderer
+	cli.coverImage = icon
 	name := widget.NewRichTextWithText("template")
 	name.Wrapping = fyne.TextWrapWord
 	typeLine := widget.NewRichTextWithText("template")
@@ -85,7 +90,10 @@ func (c *CardListItemRenderer) Layout(size fyne.Size) {
 	c.icon.Move(iconPos)
 
 	nameSize := c.name.MinSize()
-	manaSize := c.manaBox.MinSize()
+	manaSize := fyne.NewSize(0, 0)
+	if c.manaBox != nil && len(c.manaBox.Objects) > 0 {
+		manaSize = c.manaBox.MinSize()
+	}
 
 	namePos := iconPos.Add(fyne.NewPos(iconSize.Width+theme.Padding(), 0))
 	c.name.Move(namePos)
@@ -116,12 +124,15 @@ func (c *CardListItemRenderer) Layout(size fyne.Size) {
 func (c *CardListItemRenderer) MinSize() fyne.Size {
 	//defer func() {
 	//	if r := recover(); r != nil {
-	//		log.Println("Recovered in card list item:", r)
+	//		log.Println("Recovered in card list item renderer minSize:", r)
 	//	}
 	//}()
 	iconSize := c.icon.Size()
 	nameSize := c.name.MinSize()
-	manaSize := c.manaBox.MinSize()
+	manaSize := fyne.NewSize(0, 0)
+	if c.manaBox != nil && len(c.manaBox.Objects) > 0 {
+		manaSize = c.manaBox.MinSize()
+	}
 	typeSize := c.typeLine.MinSize()
 	setNameSize := c.setName.MinSize()
 	priceSize := fyne.NewSize(0, 0)
@@ -143,10 +154,10 @@ func (c *CardListItemRenderer) Objects() []fyne.CanvasObject {
 func (c *CardListItemRenderer) Refresh() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("Recovered in card list item:", r)
+			log.Println("Recovered in card list item renderer refresh:", r)
 		}
 	}()
-	c.icon.SetResource(c.listItem.ico)
+	//c.icon.SetResource(c.listItem.ico)
 	c.setIcon.SetResource(c.listItem.setIcon)
 	c.setName.SetText(c.listItem.card.SetName)
 	c.name.ParseMarkdown(fmt.Sprintf("### %s", c.listItem.card.Name))
@@ -167,14 +178,11 @@ func (c *CardListItemRenderer) Refresh() {
 		} else {
 			ico = c.manaImages[i]
 		}
-		if ico == nil {
-			ico = widget.NewIcon(nil)
-			c.manaImages = append(c.manaImages, ico)
-		}
-		ico.SetResource(cost)
-		if c.manaBox == nil || ico == nil {
+
+		if c.manaBox == nil || ico == nil || cost == nil {
 			log.Println("Mana box is nil, don't know why !?!")
 		} else {
+			ico.SetResource(cost)
 			c.manaBox.Add(ico)
 		}
 	}
