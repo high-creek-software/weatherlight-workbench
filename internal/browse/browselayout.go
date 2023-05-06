@@ -42,6 +42,7 @@ func NewBrowseLayout(cvs fyne.Canvas, registry *platform.Registry, updateSetIcon
 
 	bl.setList = widget.NewList(bl.setAdapter.Count, bl.setAdapter.CreateTemplate, bl.setAdapter.UpdateTemplate)
 	bl.setList.OnSelected = bl.setSelected
+	bl.setAdapter.UpdateList(bl.setList)
 
 	bl.cardTabs = container.NewDocTabs()
 	bl.cardList = widget.NewList(bl.cardAdapter.Count, bl.cardAdapter.CreateTemplate, bl.cardAdapter.UpdateTemplate)

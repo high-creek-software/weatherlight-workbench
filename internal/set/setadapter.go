@@ -16,12 +16,17 @@ type SetAdapter struct {
 	sets     []sets.Set
 	filtered []sets.Set
 	loader   *ansel.Ansel[string]
+	list     *widget.List
 
 	locker sync.Locker
 }
 
 func NewSetAdapter(loader *ansel.Ansel[string]) *SetAdapter {
 	return &SetAdapter{loader: loader, locker: &sync.Mutex{}}
+}
+
+func (sa *SetAdapter) UpdateList(list *widget.List) {
+	sa.list = list
 }
 
 func (sa *SetAdapter) AddSets(s []sets.Set) {
@@ -49,6 +54,7 @@ func (sa *SetAdapter) UpdateTemplate(id widget.ListItemID, co fyne.CanvasObject)
 	listItem := co.(*SetListItem)
 	listItem.UpdateSet(&set)
 	sa.loader.Load(set.Id, set.IconSvgUri, listItem)
+	sa.list.SetItemHeight(id, listItem.MinSize().Height)
 }
 
 func (sa *SetAdapter) Item(id widget.ListItemID) sets.Set {

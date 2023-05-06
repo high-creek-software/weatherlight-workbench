@@ -261,6 +261,9 @@ func (cl *CardLayout) setupLegalities() {
 	var lls []fyne.CanvasObject
 	maxSize := fyne.NewSize(0, 0)
 	for _, key := range keys {
+		if key == "" {
+			continue
+		}
 		ll := newLegalityItem(cards.LegalitiesKeysMap[key], legalities[key])
 		maxSize = maxSize.Max(ll.MinSize())
 		lls = append(lls, ll)

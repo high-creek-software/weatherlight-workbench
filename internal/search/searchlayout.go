@@ -1,6 +1,8 @@
 package search
 
 import (
+	"log"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -8,14 +10,16 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	storage2 "github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
-	"log"
 )
 
 type SearchLayout struct {
-	*container.Split
+	widget.BaseWidget
 	canvas fyne.Canvas
 
 	registry *platform.Registry
+
+	colorsLbl *widget.RichText
+	legalLbl  *widget.RichText
 
 	cardTabs       *container.DocTabs
 	cardList       *widget.List
@@ -54,8 +58,38 @@ type SearchLayout struct {
 	premodernCheck       *widget.Check
 }
 
+func (sl *SearchLayout) CreateRenderer() fyne.WidgetRenderer {
+	colorWrapper := container.NewAdaptiveGrid(2, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck)
+
+	legalWrapper := container.NewAdaptiveGrid(2, sl.standardCheck,
+		sl.futureCheck, sl.historicCheck,
+		sl.gladiatorCheck, sl.pioneerCheck,
+		sl.explorerCheck, sl.modernCheck,
+		sl.legacyCheck, sl.pauperCheck,
+		sl.vintageCheck, sl.pennyCheck,
+		sl.commanderCheck, sl.brawlCheck,
+		sl.historicBrawlCheck, sl.alchemyCheck,
+		sl.pauperCommanderCheck, sl.duelCheck,
+		sl.oldschoolCheck, sl.premodernCheck)
+
+	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
+	insideSplit.SetOffset(0.20)
+
+	scroll := container.NewScroll(container.NewPadded(container.NewVBox(sl.name, sl.typeLine, sl.oracleEntry, sl.colorsLbl, widget.NewSeparator(), colorWrapper, sl.legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)))
+	scroll.Direction = container.ScrollVerticalOnly
+
+	split := container.NewHSplit(
+		scroll,
+		insideSplit,
+	)
+	split.SetOffset(0.15)
+
+	return widget.NewSimpleRenderer(split)
+}
+
 func NewSearchLayout(cvs fyne.Canvas, registry *platform.Registry) *SearchLayout {
 	sl := &SearchLayout{canvas: cvs, registry: registry}
+	sl.ExtendBaseWidget(sl)
 
 	sl.cardAdapter = card.NewCardAdapter(sl.registry)
 
@@ -74,15 +108,14 @@ func NewSearchLayout(cvs fyne.Canvas, registry *platform.Registry) *SearchLayout
 	sl.oracleEntry.SetPlaceHolder("Oracle Text")
 	sl.searchBtn = widget.NewButton("Search", sl.doSearch)
 
-	colorsLbl := widget.NewRichTextFromMarkdown("## Colors")
+	sl.colorsLbl = widget.NewRichTextFromMarkdown("## Colors")
 	sl.whiteCheck = widget.NewCheck("White", nil)
 	sl.blueCheck = widget.NewCheck("Blue", nil)
 	sl.blackCheck = widget.NewCheck("Black", nil)
 	sl.redCheck = widget.NewCheck("Red", nil)
 	sl.greenCheck = widget.NewCheck("Green", nil)
-	colorWrapper := container.NewAdaptiveGrid(2, sl.whiteCheck, sl.blueCheck, sl.blackCheck, sl.redCheck, sl.greenCheck)
 
-	legalLbl := widget.NewRichTextFromMarkdown("## Legalities")
+	sl.legalLbl = widget.NewRichTextFromMarkdown("## Legalities")
 	sl.standardCheck = widget.NewCheck("Standard", nil)
 	sl.futureCheck = widget.NewCheck("Future", nil)
 	sl.historicCheck = widget.NewCheck("Historic", nil)
@@ -102,27 +135,6 @@ func NewSearchLayout(cvs fyne.Canvas, registry *platform.Registry) *SearchLayout
 	sl.duelCheck = widget.NewCheck("Duel", nil)
 	sl.oldschoolCheck = widget.NewCheck("Oldschool", nil)
 	sl.premodernCheck = widget.NewCheck("Premodern", nil)
-
-	legalWrapper := container.NewAdaptiveGrid(2, sl.standardCheck,
-		sl.futureCheck, sl.historicCheck,
-		sl.gladiatorCheck, sl.pioneerCheck,
-		sl.explorerCheck, sl.modernCheck,
-		sl.legacyCheck, sl.pauperCheck,
-		sl.vintageCheck, sl.pennyCheck,
-		sl.commanderCheck, sl.brawlCheck,
-		sl.historicBrawlCheck, sl.alchemyCheck,
-		sl.pauperCommanderCheck, sl.duelCheck,
-		sl.oldschoolCheck, sl.premodernCheck)
-
-	insideSplit := container.NewHSplit(sl.cardList, sl.cardTabs)
-	insideSplit.SetOffset(0.20)
-	scroll := container.NewScroll(container.NewPadded(container.NewVBox(sl.name, sl.typeLine, sl.oracleEntry, colorsLbl, widget.NewSeparator(), colorWrapper, legalLbl, widget.NewSeparator(), legalWrapper, sl.searchBtn)))
-	scroll.Direction = container.ScrollVerticalOnly
-	sl.Split = container.NewHSplit(
-		scroll,
-		insideSplit,
-	)
-	sl.Split.SetOffset(0.15)
 
 	return sl
 }

@@ -208,6 +208,8 @@ github.com/high-creek-software/fynecharts v0.1.1 h1:FNAcPZVDNLsQQVHXDTol0jxja9wR
 github.com/high-creek-software/fynecharts v0.1.1/go.mod h1:cTUi5ooxwixFZjz+nJcQZpN5L67pwDDMNsnV+biRXRI=
 github.com/high-creek-software/goscryfall v0.0.0-20230211024333-4344106363e4 h1:tUCmE9TFIRY0eynPM6gya42XgZYab7OEzwiWcsvQJ18=
 github.com/high-creek-software/goscryfall v0.0.0-20230211024333-4344106363e4/go.mod h1:oQASybJvmmYget3GC+nGRV1+g4UadHXPgEbq7MRNpak=
+github.com/high-creek-software/goscryfall v0.0.0-20230506135840-0c8f6a9b93ad h1:TKTsZ2JuDzOdUbEIF+g2G/dk1z4sq0uxLvNooZfo6J4=
+github.com/high-creek-software/goscryfall v0.0.0-20230506135840-0c8f6a9b93ad/go.mod h1:oQASybJvmmYget3GC+nGRV1+g4UadHXPgEbq7MRNpak=
 github.com/high-creek-software/tabman v0.1.1 h1:jss5fEe0R3eKIJOr3NJolvG00M/QvFTc8O8THZHpXwg=
 github.com/high-creek-software/tabman v0.1.1/go.mod h1:CasZ2qjEfmr73M0bH7v6RUbfmokazfAQMA/04Fq8Lrg=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=

@@ -7,7 +7,7 @@ require (
 	github.com/high-creek-software/ansel v0.1.1
 	github.com/high-creek-software/bento v0.1.1
 	github.com/high-creek-software/fynecharts v0.1.1
-	github.com/high-creek-software/goscryfall v0.0.0-20230211024333-4344106363e4
+	github.com/high-creek-software/goscryfall v0.0.0-20230506135840-0c8f6a9b93ad
 	github.com/high-creek-software/tabman v0.1.1
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/lmittmann/tint v0.3.2

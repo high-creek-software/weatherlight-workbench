@@ -1,6 +1,9 @@
 package internal
 
 import (
+	"strings"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -23,13 +26,12 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/search"
 	"golang.org/x/exp/slog"
 	"golang.org/x/image/colornames"
-	"strings"
-	"time"
 )
 
 const (
 	lastSyncKey = "last_sync_key"
 	syncFormat  = "2006-01-02 15:04:05"
+	attribution = `Weatherlight Workbench is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.`
 )
 
 type WeatherlightWorkbench struct {
@@ -47,6 +49,7 @@ type WeatherlightWorkbench struct {
 	syncProgress *widget.ProgressBar
 	syncSetLbl   *widget.Label
 	settingsBtn  *widget.Button
+	aboutBtn     *widget.Button
 
 	bentoBox *bento.Box
 }
@@ -85,8 +88,8 @@ func (m *WeatherlightWorkbench) setupBody() {
 	m.bookmarkedLayout = bookmarked.NewBookmarkedLayout(m.window.Canvas(), m.registry)
 	m.deckLayout = deck.NewDeckLayout(m.window.Canvas(), m.registry, m.showImport)
 	appTabs := container.NewAppTabs(container.NewTabItem("Browse", m.browseLayout.Split),
-		container.NewTabItem("Search", m.searchLayout.Split),
-		container.NewTabItem("Bookmarked", m.bookmarkedLayout.Split),
+		container.NewTabItem("Search", m.searchLayout),
+		container.NewTabItem("Bookmarked", m.bookmarkedLayout),
 		container.NewTabItem("Decks", m.deckLayout),
 	)
 
@@ -99,10 +102,16 @@ func (m *WeatherlightWorkbench) setupBody() {
 	m.syncSetLbl = widget.NewLabel("Set Name")
 	m.syncSetLbl.Hide()
 	m.settingsBtn = widget.NewButtonWithIcon("", theme.SettingsIcon(), m.settingsBtnTouched)
+	m.aboutBtn = widget.NewButtonWithIcon("", theme.InfoIcon(), m.aboutTouched)
 
 	// container.NewBorder(nil, nil, m.syncSetLbl, nil, m.syncProgress)
-	syncBorder := container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.settingsBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncBtn, layout.NewSpacer()), nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncLastLbl, layout.NewSpacer()), nil, container.NewVBox(m.syncSetLbl, m.syncProgress))))
-	mainBody := container.NewBorder(nil, syncBorder, nil, nil, appTabs)
+	settingsBox := container.NewVBox(layout.NewSpacer(), m.settingsBtn, layout.NewSpacer())
+	aboutBox := container.NewVBox(layout.NewSpacer(), m.aboutBtn, layout.NewSpacer())
+	syncBox := container.NewVBox(layout.NewSpacer(), m.syncBtn, layout.NewSpacer())
+	syncBorder := container.NewBorder(nil, nil, syncBox, nil, container.NewBorder(nil, nil, container.NewVBox(layout.NewSpacer(), m.syncLastLbl, layout.NewSpacer()), nil, container.NewVBox(m.syncSetLbl, m.syncProgress)))
+	footerBorder := container.NewBorder(nil, nil, aboutBox, nil, container.NewBorder(nil, nil, settingsBox, nil, syncBorder))
+
+	mainBody := container.NewBorder(nil, footerBorder, nil, nil, appTabs)
 
 	m.bentoBox = bento.NewBox()
 	m.bentoBox.UpdateBottomOffset(45)
@@ -166,6 +175,12 @@ func (m *WeatherlightWorkbench) Start() {
 
 func (m *WeatherlightWorkbench) settingsBtnTouched() {
 	dialog.ShowInformation("Settings", "Does nothing yet", m.window)
+}
+
+func (m *WeatherlightWorkbench) aboutTouched() {
+	dlg := dialog.NewInformation("About", attribution, m.window)
+	//	dlg.Resize(fyne.NewSize(300, 175))
+	dlg.Show()
 }
 
 func (m *WeatherlightWorkbench) syncBtnTouched() {

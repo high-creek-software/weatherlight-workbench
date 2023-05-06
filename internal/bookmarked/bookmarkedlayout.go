@@ -10,7 +10,7 @@ import (
 )
 
 type BookmarkedLayout struct {
-	*container.Split
+	widget.BaseWidget
 	canvas fyne.Canvas
 
 	registry *platform.Registry
@@ -21,8 +21,16 @@ type BookmarkedLayout struct {
 	cardTabManager *tabman.Manager[string]
 }
 
+func (bl *BookmarkedLayout) CreateRenderer() fyne.WidgetRenderer {
+	split := container.NewHSplit(bl.cardList, bl.cardTabs)
+	split.SetOffset(0.18)
+
+	return widget.NewSimpleRenderer(split)
+}
+
 func NewBookmarkedLayout(cvs fyne.Canvas, registry *platform.Registry) *BookmarkedLayout {
 	bl := &BookmarkedLayout{canvas: cvs, registry: registry}
+	bl.ExtendBaseWidget(bl)
 
 	bl.cardAdapter = card.NewCardAdapter(bl.registry)
 	bl.cardTabs = container.NewDocTabs()
@@ -31,9 +39,6 @@ func NewBookmarkedLayout(cvs fyne.Canvas, registry *platform.Registry) *Bookmark
 	bl.cardAdapter.SetList(bl.cardList)
 	bl.cardTabManager = tabman.NewManager[string]()
 	bl.cardTabs.OnClosed = bl.cardTabManager.RemoveTab
-
-	bl.Split = container.NewHSplit(bl.cardList, bl.cardTabs)
-	bl.Split.SetOffset(0.18)
 
 	return bl
 }

@@ -36,6 +36,7 @@ func (sli *SetListItem) CreateRenderer() fyne.WidgetRenderer {
 	//sli.ExtendBaseWidget(sli)
 	icon := widget.NewIcon(nil)
 	name := widget.NewLabel("template")
+	name.Wrapping = fyne.TextWrapWord
 	name.TextStyle = fyne.TextStyle{
 		Bold: true,
 	}
@@ -70,12 +71,13 @@ func (r *SetListItemRenderer) Layout(size fyne.Size) {
 
 	namePos := fyne.NewPos(32+12, 0)
 	r.name.Move(namePos)
+	r.name.Resize(fyne.NewSize(size.Width-32-2*theme.Padding(), r.name.MinSize().Height))
 
 	countSubheadSize := r.countSubheadSize()
 	countSize := r.countSize()
 	releaseSubheadSize := r.releaseSubheadSize()
 
-	secondRowPos := namePos.Add(fyne.NewPos(0, 24))
+	secondRowPos := namePos.Add(fyne.NewPos(0, r.name.MinSize().Height))
 	r.cardSubhead.Move(secondRowPos)
 
 	secondRowPos = secondRowPos.Add(fyne.NewPos(countSubheadSize.Width+8, 0))
@@ -119,7 +121,10 @@ func (r *SetListItemRenderer) MinSize() fyne.Size {
 	//topRow := iconSize.Width + 12 + nameSize.Width + 32
 	//bottomRow := iconSize.Width + 12 + countSubheadSize.Width + 8 + countSize.Width + 16 + releaseSubheadSize.Width + 8 + releaseSize.Width + 32
 
-	return fyne.NewSize(iconSize.Width+2*theme.Padding(), 64)
+	nameSize := r.name.MinSize()
+	countSubheadSize := r.cardSubhead.MinSize()
+
+	return fyne.NewSize(200, fyne.Max(iconSize.Height, nameSize.Height+countSubheadSize.Height))
 }
 
 func (r *SetListItemRenderer) Objects() []fyne.CanvasObject {
