@@ -65,29 +65,36 @@ func (r *SetListItemRenderer) Destroy() {
 }
 
 func (r *SetListItemRenderer) Layout(size fyne.Size) {
-	iconPos := fyne.NewPos(12, 32/2)
+	iconSquare := float32(48.0)
+	iconPos := fyne.NewPos(12, size.Height/2-iconSquare/2)
 	r.icon.Move(iconPos)
-	r.icon.Resize(fyne.NewSize(32, 32))
+	r.icon.Resize(fyne.NewSize(iconSquare, iconSquare))
 
-	namePos := fyne.NewPos(32+12, 0)
+	namePos := fyne.NewPos(iconSquare+24, 0)
 	r.name.Move(namePos)
-	r.name.Resize(fyne.NewSize(size.Width-32-2*theme.Padding(), r.name.MinSize().Height))
+	r.name.Resize(fyne.NewSize(size.Width-iconSquare-3*theme.Padding(), r.name.MinSize().Height))
 
 	countSubheadSize := r.countSubheadSize()
 	countSize := r.countSize()
 	releaseSubheadSize := r.releaseSubheadSize()
+	releaseSize := r.releaseSize()
 
-	secondRowPos := namePos.Add(fyne.NewPos(0, r.name.MinSize().Height))
-	r.cardSubhead.Move(secondRowPos)
+	cumulativePos := namePos.Add(fyne.NewPos(0, r.name.MinSize().Height))
+	r.cardSubhead.Move(cumulativePos)
 
-	secondRowPos = secondRowPos.Add(fyne.NewPos(countSubheadSize.Width+8, 0))
-	r.cardCount.Move(secondRowPos)
+	cumulativePos = cumulativePos.Add(fyne.NewPos(countSubheadSize.Width+8, 0))
+	r.cardCount.Move(cumulativePos)
 
-	secondRowPos = secondRowPos.Add(fyne.NewPos(countSize.Width+16, 0))
-	r.releaseSubhead.Move(secondRowPos)
+	if iconSquare+countSubheadSize.Width+countSize.Width+releaseSubheadSize.Width+releaseSize.Width+5*theme.Padding()+16 > size.Width {
+		cumulativePos = fyne.NewPos(namePos.X, cumulativePos.Y+countSubheadSize.Height+theme.Padding())
+	} else {
+		cumulativePos = cumulativePos.Add(fyne.NewPos(countSize.Width+16, 0))
+	}
 
-	secondRowPos = secondRowPos.Add(fyne.NewPos(releaseSubheadSize.Width+8, 0))
-	r.release.Move(secondRowPos)
+	r.releaseSubhead.Move(cumulativePos)
+
+	cumulativePos = cumulativePos.Add(fyne.NewPos(releaseSubheadSize.Width+8, 0))
+	r.release.Move(cumulativePos)
 }
 
 func (r *SetListItemRenderer) nameSize() fyne.Size {
@@ -111,7 +118,7 @@ func (r *SetListItemRenderer) releaseSize() fyne.Size {
 }
 
 func (r *SetListItemRenderer) MinSize() fyne.Size {
-	iconSize := r.icon.MinSize()
+	iconSize := r.icon.Size()
 	//nameSize := r.nameSize()
 	//countSubheadSize := r.countSubheadSize()
 	//countSize := r.countSize()
@@ -123,8 +130,15 @@ func (r *SetListItemRenderer) MinSize() fyne.Size {
 
 	nameSize := r.name.MinSize()
 	countSubheadSize := r.cardSubhead.MinSize()
+	releaseSubheadSize := r.releaseSubhead.MinSize()
 
-	return fyne.NewSize(200, fyne.Max(iconSize.Height, nameSize.Height+countSubheadSize.Height))
+	height := nameSize.Height + countSubheadSize.Height
+
+	if r.releaseSubhead.Position().Y > r.cardSubhead.Position().Y {
+		height += releaseSubheadSize.Height + 2*theme.Padding()
+	}
+
+	return fyne.NewSize(250, fyne.Max(iconSize.Height+24, height))
 }
 
 func (r *SetListItemRenderer) Objects() []fyne.CanvasObject {
