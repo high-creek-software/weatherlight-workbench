@@ -97,7 +97,7 @@ func (c *CardListItemRenderer) Layout(size fyne.Size) {
 
 	namePos := iconPos.Add(fyne.NewPos(iconSize.Width+theme.Padding(), 0))
 	c.name.Move(namePos)
-	c.name.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), nameSize.Height))
+	//c.name.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), nameSize.Height))
 
 	//manaPos := fyne.NewPos(size.Width-theme.Padding()-manaSize.Width, theme.Padding()+6)
 	manaPos := namePos.AddXY(0, nameSize.Height-5)
@@ -107,12 +107,12 @@ func (c *CardListItemRenderer) Layout(size fyne.Size) {
 	typeSize := c.typeLine.MinSize()
 	typeLinePos := manaPos.Add(fyne.NewPos(0, manaSize.Height-4))
 	c.typeLine.Move(typeLinePos)
-	c.typeLine.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), typeSize.Height))
+	//c.typeLine.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), typeSize.Height))
 
 	setSize := c.setName.MinSize()
 	setNamePos := typeLinePos.Add(fyne.NewPos(0, typeSize.Height-8))
 	c.setName.Move(setNamePos)
-	c.setName.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), setSize.Height))
+	//c.setName.Resize(fyne.NewSize(size.Width-iconSize.Width-2*theme.Padding(), setSize.Height))
 
 	priceSize := c.priceLbl.MinSize()
 	pricePos := setNamePos.Add(fyne.NewPos(0, setSize.Height))

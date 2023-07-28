@@ -3,7 +3,7 @@ module github.com/high-creek-software/weatherlight-workbench
 go 1.19
 
 require (
-	fyne.io/fyne/v2 v2.3.6-0.20230618175414-686ebd81fdd5
+	fyne.io/fyne/v2 v2.3.6-0.20230726141302-eacbaf6e396e
 	github.com/high-creek-software/ansel v0.1.1
 	github.com/high-creek-software/bento v0.1.1
 	github.com/high-creek-software/fynecharts v0.1.1
@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	fyne.io/systray v1.10.1-0.20230602210930-b6a2d6ca2a7b // indirect
+	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -29,8 +29,8 @@ require (
 	github.com/fyne-io/image v0.0.0-20220602074514-4956b0afb3d2 // indirect
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
-	github.com/go-text/render v0.0.0-20230327192424-adef04305ec0 // indirect
-	github.com/go-text/typesetting v0.0.0-20230502123426-87572f5551cf // indirect
+	github.com/go-text/render v0.0.0-20230619120952-35bccb6164b8 // indirect
+	github.com/go-text/typesetting v0.0.0-20230616162802-9c17dd34aa4a // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.2 // indirect
