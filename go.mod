@@ -3,7 +3,7 @@ module github.com/high-creek-software/weatherlight-workbench
 go 1.19
 
 require (
-	fyne.io/fyne/v2 v2.3.6-0.20230726141302-eacbaf6e396e
+	fyne.io/fyne/v2 v2.3.6-0.20230801005127-0c031a579115
 	github.com/high-creek-software/ansel v0.1.1
 	github.com/high-creek-software/bento v0.1.1
 	github.com/high-creek-software/fynecharts v0.1.1
