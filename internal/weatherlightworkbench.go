@@ -24,8 +24,8 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/symbol"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/sync"
 	"github.com/high-creek-software/weatherlight-workbench/internal/search"
-	"golang.org/x/exp/slog"
 	"golang.org/x/image/colornames"
+	"log/slog"
 )
 
 const (

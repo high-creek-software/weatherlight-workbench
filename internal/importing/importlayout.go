@@ -10,7 +10,6 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/card"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
-	"golang.org/x/exp/maps"
 )
 
 //type currentCardType int
@@ -52,7 +51,12 @@ func NewImportLayout(reg *platform.Registry, importComplete func()) *ImportLayou
 	il := &ImportLayout{registry: reg, importComplete: importComplete}
 	il.nameEntry = widget.NewEntry()
 	il.nameEntry.PlaceHolder = "Deck Name"
-	names := maps.Keys(scryfallcards.LegalitiesNameMap)
+	names := make([]string, len(scryfallcards.LegalitiesNameMap))
+	idx := 0
+	for k := range scryfallcards.LegalitiesNameMap {
+		names[idx] = k
+		idx++
+	}
 	il.deckType = widget.NewSelect(names, func(val string) {})
 	il.deckType.PlaceHolder = "Deck type"
 	il.deckEntry = widget.NewEntry()

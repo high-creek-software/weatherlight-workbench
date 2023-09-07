@@ -10,7 +10,6 @@ import (
 	"github.com/high-creek-software/tabman"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform"
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/storage"
-	"golang.org/x/exp/maps"
 	"log"
 )
 
@@ -52,7 +51,12 @@ func NewDeckLayout(canvas fyne.Canvas, registry *platform.Registry, showImport f
 	dl.toolbar = widget.NewToolbar(widget.NewToolbarAction(theme.DownloadIcon(), showImport), widget.NewToolbarAction(theme.ContentAddIcon(), func() {
 		var popup *widget.PopUp
 		nameEntry := widget.NewEntry()
-		legalities := maps.Keys(scryfallcards.LegalitiesNameMap)
+		legalities := make([]string, len(scryfallcards.LegalitiesNameMap))
+		idx := 0
+		for k := range scryfallcards.LegalitiesNameMap {
+			legalities[idx] = k
+		}
+
 		legalitySelect := widget.NewSelect(legalities, nil)
 
 		frm := widget.NewForm(widget.NewFormItem("Deck Name", nameEntry), widget.NewFormItem("Deck Type", legalitySelect))

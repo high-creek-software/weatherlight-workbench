@@ -8,7 +8,7 @@ import (
 
 	"github.com/high-creek-software/weatherlight-workbench/internal"
 	"github.com/lmittmann/tint"
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	_ "net/http/pprof"
 )
@@ -18,10 +18,12 @@ var profileFlag = flag.Bool("p", false, "Sets to use the cpu profiler.")
 func main() {
 	flag.Parse()
 
-	slog.SetDefault(slog.New(tint.Options{
-		Level:      slog.LevelDebug,
-		TimeFormat: time.Kitchen,
-	}.NewHandler(os.Stderr)))
+	slog.SetDefault(slog.New(
+		tint.NewHandler(os.Stderr, &tint.Options{
+			Level:      slog.LevelDebug,
+			TimeFormat: time.Kitchen,
+		}),
+	))
 
 	if *profileFlag {
 		out, err := os.Create("weatherlight-cpu.pprof")

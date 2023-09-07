@@ -3,6 +3,7 @@ package card
 import (
 	"fmt"
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -18,8 +19,9 @@ type CardListItem struct {
 	ico     fyne.Resource
 	setIcon fyne.Resource
 
-	manaCost   []fyne.Resource
-	coverImage *widget.Icon
+	manaCost []fyne.Resource
+	//coverImage *widget.Icon
+	coverImage *canvas.Image
 }
 
 func NewCardListItem(card *cards.Card) *CardListItem {
@@ -38,15 +40,28 @@ func (cli *CardListItem) UpdateCard(card *cards.Card, manaCost []fyne.Resource) 
 func (cli *CardListItem) SetResource(resource fyne.Resource) {
 	//cli.ico = resource
 	//cli.Refresh()
-	cli.coverImage.SetResource(resource)
+	//slog.Info("card set resource")
+	if resource != cli.coverImage.Resource {
+		//slog.Info("	setting resource on card")
+		//cli.coverImage.SetResource(resource)
+		cli.coverImage.Resource = resource
+		cli.coverImage.Refresh()
+	}
 }
 
 func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
-	icon := widget.NewIcon(nil)
-	icon.Resize(fyne.NewSize(128, 128))
-	// This is breaking the rules of fyne, the widgets are not meant to be stored with the data. But there has been some performance and crashing issues, reloading the manabox takes too much time to empty and reload
-	// by setting the cover image on the cardlistitem an image load callback won't require refreshing the entire renderer
+	//icon := widget.NewIcon(nil)
+	//icon.Resize(fyne.NewSize(128, 128))
+	//// This is breaking the rules of fyne, the widgets are not meant to be stored with the data. But there has been some performance and crashing issues, reloading the manabox takes too much time to empty and reload
+	//// by setting the cover image on the cardlistitem an image load callback won't require refreshing the entire renderer
+	//cli.coverImage = icon
+
+	icon := canvas.NewImageFromResource(nil)
+	icon.Resize(fyne.NewSize(100, 100))
+	icon.FillMode = canvas.ImageFillContain
+	icon.ScaleMode = canvas.ImageScalePixels
 	cli.coverImage = icon
+
 	name := widget.NewRichTextWithText("template")
 	name.Wrapping = fyne.TextWrapWord
 	typeLine := widget.NewRichTextWithText("template")
@@ -65,7 +80,7 @@ func (cli *CardListItem) CreateRenderer() fyne.WidgetRenderer {
 
 type CardListItemRenderer struct {
 	listItem   *CardListItem
-	icon       *widget.Icon
+	icon       *canvas.Image
 	name       *widget.RichText
 	manaBox    *fyne.Container
 	manaImages []*widget.Icon

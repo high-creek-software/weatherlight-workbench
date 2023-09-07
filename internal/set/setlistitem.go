@@ -146,7 +146,7 @@ func (r *SetListItemRenderer) Objects() []fyne.CanvasObject {
 }
 
 func (r *SetListItemRenderer) Refresh() {
-	if r.listItem.ico != nil {
+	if r.listItem.ico != nil && r.listItem.ico != r.icon.Resource {
 		r.icon.Resource = r.listItem.ico
 		r.icon.Refresh()
 	}

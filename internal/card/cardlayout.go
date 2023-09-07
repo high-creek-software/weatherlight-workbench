@@ -13,10 +13,9 @@ import (
 	"github.com/high-creek-software/weatherlight-workbench/internal/platform/icons"
 	"github.com/high-creek-software/weatherlight-workbench/internal/ruling"
 	"github.com/nfnt/resize"
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 	"image/png"
 	"log"
+	"slices"
 )
 
 type CardLayout struct {
@@ -255,7 +254,11 @@ func (cl *CardLayout) setupDetails(cs cardSummary) {
 
 func (cl *CardLayout) setupLegalities() {
 	legalities := cl.card.Legalities
-	keys := maps.Keys(legalities)
+	keys := make([]string, len(legalities))
+	idx := 0
+	for k := range legalities {
+		keys[idx] = k
+	}
 	slices.Sort(keys)
 
 	var lls []fyne.CanvasObject
